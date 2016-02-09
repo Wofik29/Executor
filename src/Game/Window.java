@@ -23,8 +23,6 @@ public class Window implements Runnable
 	long lastFrame;
 	int fps;
 	
-	World w;
-	
 	int width, height;
 	
 	float rotation = 0;
@@ -83,15 +81,15 @@ public class Window implements Runnable
 		    if (Keyboard.getEventKeyState()) {
 		        switch (Keyboard.getEventKey())
 		        {
-		        case Keyboard.KEY_A: System.out.println("pressed A"); w.lenght_step++; left = true; break;
+		        case Keyboard.KEY_A: System.out.println("pressed A"); player.nextStep(); left = true; break;
 		        case Keyboard.KEY_D: System.out.println("pressed D"); right = true; break;
 		        case Keyboard.KEY_W: System.out.println("pressed W"); 
-		        	//if (step<20)step++; 
-		        	up = true; 
+		        	if (step<20)step++; 
+		        	//up = true; 
 		        	break;
 		        case Keyboard.KEY_S: System.out.println("pressed S"); 
-		        	//if (step>0) step--; 
-		        	down = true; 
+		        	if (step>0) step--; 
+		        	//down = true; 
 		        	break;
 		        }
 		    }
@@ -143,15 +141,15 @@ public class Window implements Runnable
 	public void update(int delta) 
 	{
 		// rotate quad
-	   // rotation += 0.15f * delta;
+	    rotation += 0.15f * delta;
 	    
 	    //if (left) 
 		if (right) player.x += 0.5*delta;
 		if (up) player.y += 0.5*delta;
 		if (down) player.y -= 0.5*delta;
 	    
-		//if (!player.isStep()) player.nextStep();
-		//player.step( Math.round( step));
+		if (!player.isStep()) player.nextStep();
+		player.step( Math.round( step));
 		
 		if (player.x < 0) player.x = 0;
         if (player.x > 800) player.x = 800;

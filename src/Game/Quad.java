@@ -46,6 +46,7 @@ public class Quad {
 	
 	void step(int step)
 	{
+		
 		if (programm != null && isStep)
 		{
 			switch(programm[count])
