@@ -10,7 +10,7 @@ public class Main
 	Window win;
 	Quad q;
 	
-	List<Quad> quads = new ArrayList<>();
+	volatile List<Quad> quads = new ArrayList<>();
 	
 	public static void main(String[] args) 
 	{
@@ -20,7 +20,7 @@ public class Main
 	
 	void start()
 	{
-		q = new Quad(300,100,50,50);
+		q = new Quad(300,100,10,10);
 		quads.add(q);
 
 		int[] i = {1,2,1,2,3,3,0,3,0,1};

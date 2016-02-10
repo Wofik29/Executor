@@ -60,7 +60,7 @@ public class Window implements Runnable
 		
 		GL11.glPushMatrix();
 		GL11.glTranslatef(q.x, q.y, 0);
-		GL11.glRotatef(rotation, 0f, 0f, 1f);
+		//GL11.glRotatef(rotation, 0f, 0f, 1f);
 		GL11.glTranslatef(-q.x, -q.y, 0);
 		
 		GL11.glBegin(GL11.GL_QUADS);
@@ -179,16 +179,15 @@ public class Window implements Runnable
 			//Display.setTitle("Game");
 			
 			Keyboard.create();
-			
-			x = 0;
-			y = 200;
-			
 		}
 		catch (LWJGLException ex)
 		{
 			
 		}
 		start();
+		
+		Display.destroy();
+		Keyboard.destroy();
 	}
 	
 	public void start()
@@ -211,7 +210,6 @@ public class Window implements Runnable
 			//System.out.println(lastFPS);
 		}
 		
-		Display.destroy();
 	}
 	
 }

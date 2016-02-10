@@ -9,6 +9,7 @@ public class Quad {
 	int[] programm;
 	int count;
 	
+	
 	int currentStep = 100;
 	int lastStep_x;
 	int lastStep_y;
