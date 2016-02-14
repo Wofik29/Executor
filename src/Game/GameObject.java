@@ -6,34 +6,57 @@ package Game;
  */
 public class GameObject 
 {
+	// Координаты в мапе
 	int x;
 	int y;
+	
+	// Пиксельные координаты
+	int x_p;
+	int y_p;
+	
+	int width;
+	int height;
+	
 	int rotation;
 	int speed;
 	
+	int[][] map;
+	int step = 20;
+		
 	// пока будут цифры направления 0 - вверх, 1 - вправо и т.д.
 	int direction;
-	
-	int next_x;
-	int next_y;
 	
 	int[] programm;
 	
 	int current;
 
-	GameObject(int x, int y, int[] p)
+	GameObject(int x, int y, int[] p, int[][] m)
 	{
 		this.x = x;
 		this.y = y;
 		
-		programm = p;
+		x_p = x*step;
+		y_p = y*step;
 		
-		next_x = x;
-		next_y = y;
+		width = height = step;
+		
+		map = m;
+		
+		programm = p;
 		
 		direction = 0;
 		rotation = 0;
 		current = -1;
+	}
+	
+	public void step()
+	{
+		if (x_p > x*step) x_p --;
+		if (x_p < x*step) x_p ++;
+		if (y_p > y*step) y_p --;
+		if (y_p < y*step) y_p ++;
+				
+		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", next_x : "+next_x+", next_y: "+next_y);
 	}
 	
 	void setCommand(int speed)
@@ -44,20 +67,7 @@ public class GameObject
 	
 	void forward()
 	{
-		switch (direction)
-		{
-		case 0: // up
-			if (y != next_y) y += speed;
-			break;
-		case 1: // rigth
-			if (x != next_x) x += speed;
-			break;
-		case 2: //down
-			if (y != next_y) y -= speed;
-			break;
-		case 3: // left
-			if (x != next_x) x -= speed;
-		}
+		
 	}
 	
 	
@@ -74,7 +84,7 @@ public class GameObject
 		
 	}
 	
-	void step()
+	void stepA()
 	{
 		switch (programm[current])
 		{

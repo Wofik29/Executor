@@ -8,9 +8,15 @@ public class Main
 {
 
 	Window win;
-	Quad q;
+	World w;
 	
-	volatile List<Quad> quads = new ArrayList<>();
+	
+	final int WIDTH = 800;
+	final int HEIGHT = 600;
+	
+	final int[][] map = new int[10][10];
+	
+	volatile List<GameObject> quads = new ArrayList<>();
 	
 	public static void main(String[] args) 
 	{
@@ -20,18 +26,30 @@ public class Main
 	
 	void start()
 	{
-		q = new Quad(300,100,10,10);
-		quads.add(q);
-
-		int[] i = {1,2,1,2,3,3,0,3,0,1};
+		for (int i=0; i<map.length; i++)
+		{
+			for (int k=0; k<map[i].length; k++)
+			{
+				map[i][k] = (int) Math.round( Math.random());
+				System.out.print(map[i][k]+" ");
+			}
+			System.out.println();
+		}
 		
-		q.setProgramm(i);
+		int[] p = {0};
 		
-		win = new Window(800,600, quads,q );
+		GameObject player = new GameObject(0, 0, p, map);
+		
+		quads.add(player);
+		
+		w = new World(WIDTH, HEIGHT, quads);
+		win = new Window(WIDTH, HEIGHT, quads, player, map );
 		Thread t = new Thread(win);
+		Thread t1 = new Thread(w);
 		
 		t.start();
-		
+		t1.start();
+		win.w = w;
 		
 		if (t.isAlive()) win.setText("Gello");
 		
@@ -43,6 +61,8 @@ public class Main
 		{
 			
 		}
+		
+		w.stop();
 		
 		System.out.println("End main");
 	}

@@ -38,7 +38,7 @@ public class Logger
 		 }
 		 catch (Exception ex)
 		 {
-			 System.out.println("Не удалось записать в лог " + ex.toString());
+			 System.out.println("not work write to log : " + ex.toString());
 		 }
 
 	}

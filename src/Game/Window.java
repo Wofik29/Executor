@@ -19,11 +19,15 @@ import org.lwjgl.opengl.GL11;
 public class Window implements Runnable
 {
 	
-	long lastFPS; // Время последнего
-	long lastFrame;
+	long lastFPS;
+	long lastFrame; // Время последнего
 	int fps;
 	
+	World w;
+	
 	int width, height;
+	
+	int[][] map;
 	
 	float rotation = 0;
 	float x,y;
@@ -34,16 +38,18 @@ public class Window implements Runnable
 	
 	int step;
 	
-	List<Quad> quads;
-	Quad player;
+	List<GameObject> quads;
+	GameObject player;
 	
-	Window(int w, int h, List<Quad>  q, Quad p)
+	Window(int w, int h, List<GameObject>  q, GameObject p, int[][] m)
 	{
 		width = w;
 		height = h;
 		quads = q;
 		player = p;
 		step=1;
+		
+		map = m;
 	}
 	
 	private void initGL()
@@ -54,24 +60,47 @@ public class Window implements Runnable
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 	}
 		
-	private void drawQuad(Quad q)
+	private void drawQuad(GameObject q)
 	{
+		int x = q.x_p + q.width/2;
+		
 		GL11.glColor3f(0.5f,0.5f,1.0f);
 		
 		GL11.glPushMatrix();
-		GL11.glTranslatef(q.x, q.y, 0);
-		//GL11.glRotatef(rotation, 0f, 0f, 1f);
-		GL11.glTranslatef(-q.x, -q.y, 0);
+		GL11.glTranslatef(q.x_p + q.width/2, q.y_p + q.width/2, 0);
+		GL11.glRotatef(q.rotation, 0f, 0f, 1f);
+		//GL11.glTranslatef(-q.x_p, -q.y_p, 0);
 		
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2f(q.x + q.width, q.y + q.height );
-			GL11.glVertex2f(q.x + q.width, q.y-q.height);
-			GL11.glVertex2f(q.x - q.width, q.y-q.height);
-			GL11.glVertex2f(q.x - q.width, q.y + q.height);
+		//GL11.glRectf(q.x_p, q.y_p, q.x_p + q.width, q.y_p + q.height);
+		
+		GL11.glBegin(GL11.GL_TRIANGLES);
+			GL11.glVertex2f(-q.width/2, -q.width/2);
+			GL11.glVertex2f(q.width/2, -q.width/2);
+			GL11.glVertex2f(0, q.width/2);
 		GL11.glEnd();
+		GL11.glPopMatrix(); 
+	}
+	
+	private void drawMap()
+	{
+		GL11.glColor3f(1f,1f,1.0f);
 		
-		GL11.glPopMatrix();
-         
+		int step = 20;
+		
+		for (int i=0; i<map.length; i++)
+		{
+			for (int k=0; k<map[i].length; k++)
+			{
+				if (map[i][k] == 0)
+				{
+					GL11.glRectf(i*step, k*step, i*step+step, k*step+step);
+				}
+				else
+				{
+					
+				}
+			}
+		}
 	}
 	
 	private void inputLoop()
@@ -81,15 +110,17 @@ public class Window implements Runnable
 		    if (Keyboard.getEventKeyState()) {
 		        switch (Keyboard.getEventKey())
 		        {
-		        case Keyboard.KEY_A: System.out.println("pressed A"); player.nextStep(); left = true; break;
-		        case Keyboard.KEY_D: System.out.println("pressed D"); right = true; break;
-		        case Keyboard.KEY_W: System.out.println("pressed W"); 
-		        	if (step<20)step++; 
-		        	//up = true; 
+		        case Keyboard.KEY_A: System.out.println("pressed A");
+		        	player.rotation +=90;
+		        	break;
+		        case Keyboard.KEY_D: System.out.println("pressed D");  
+		        	player.rotation -=90;
+		        	break;
+		        case Keyboard.KEY_W: System.out.println("pressed W");
+		        	player.y ++;
 		        	break;
 		        case Keyboard.KEY_S: System.out.println("pressed S"); 
-		        	if (step>0) step--; 
-		        	//down = true; 
+		        	player.y --;
 		        	break;
 		        }
 		    }
@@ -140,33 +171,37 @@ public class Window implements Runnable
 	
 	public void update(int delta) 
 	{
+		
 		// rotate quad
-	    rotation += 0.15f * delta;
+	   // rotation += 0.15f * delta;
 	    
-	    //if (left) 
-		if (right) player.x += 0.5*delta;
-		if (up) player.y += 0.5*delta;
+	    if (left) player.rotation ++; 
+		if (right) player.rotation --;
+	    /*if (up) player.y += 0.5*delta;
 		if (down) player.y -= 0.5*delta;
 	    
-		if (!player.isStep()) player.nextStep();
-		player.step( Math.round( step));
+		//if (!player.isStep()) player.nextStep();
+		//player.step( Math.round( step));
 		
-		if (player.x < 0) player.x = 0;
-        if (player.x > 800) player.x = 800;
-        if (player.y < 0) player.y = 0;
-        if (player.y > 600) player.y = 600;
 		
 	    //updateFPS();
+	     * 
+	     */
 	}
 	
 	void renderGL()
 	{
 		// Clear the screen and depth buffer 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
-		for (Quad q : quads)
+		
+		drawMap();
+		
+		for (GameObject q : quads)
 		{
 			drawQuad(q);
 		}
+		
+		
 		
 	}
 	
