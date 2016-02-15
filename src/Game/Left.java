@@ -2,15 +2,13 @@ package Game;
 
 public class Left extends Command 
 {
-	public Left(GameObject o)
-	{
-		super(o);
-	}
 	
-	public void execute() 
+	public void execute(GameObject obj) 
 	{
-		obj.direction -= 90;
-		if (obj.direction == -360) obj.direction = 0;
+		obj.rotation -= 90;
+		if (obj.rotation == -360) obj.rotation = 0;
+		
+		obj.direction = obj.direct.get(obj.rotation);
 	}
 
 }

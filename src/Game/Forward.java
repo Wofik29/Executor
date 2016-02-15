@@ -2,13 +2,7 @@ package Game;
 
 public class Forward extends Command 
 {
-	
-	Forward(GameObject o)
-	{
-		super(o);
-	}
-	
-	public void execute()
+	public void execute(GameObject obj)
 	{
 		
 		switch (obj.direction)

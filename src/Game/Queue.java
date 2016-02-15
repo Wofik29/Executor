@@ -1,14 +1,15 @@
 package Game;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 public class Queue 
 {
 	GameObject obj;
 	
-	public void Queue(GameObject o)
+	
+	
+	public Queue(GameObject o)
 	{
 		obj = o;
 	}
-	
-	
-
 }

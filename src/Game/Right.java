@@ -2,16 +2,12 @@ package Game;
 
 public class Right extends Command 
 {
-	
-	public Right(GameObject o)
+	public void execute(GameObject obj)
 	{
-		super(o);
-	}
-	
-	public void execute()
-	{
-		obj.direction += 90;
-		if (obj.direction == 360) obj.direction = 0;
+		obj.rotation += 90;
+		if (obj.rotation == 360) obj.rotation = 0;
+		
+		obj.direction = obj.direct.get(obj.rotation);
 	}
 
 }

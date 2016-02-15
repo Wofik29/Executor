@@ -14,27 +14,34 @@ public class Main
 	final int WIDTH = 800;
 	final int HEIGHT = 600;
 	
-	final int[][] map = new int[10][10];
+	final int[][] map = new int[30][30];
 	
 	volatile List<GameObject> quads = new ArrayList<>();
 	
 	public static void main(String[] args) 
 	{
+		//System.setProperty("org.lwjgl.librarypath", new File("Executor_lib").getAbsolutePath());
+		
+		System.out.println(
+		System.getProperty("java.class.path"));
+		
 		Main m = new Main();
 		m.start();
 	}
 	
 	void start()
 	{
-		for (int i=0; i<map.length; i++)
+		for (int i=0; i<map[0].length; i++)
 		{
-			for (int k=0; k<map[i].length; k++)
-			{
-				map[i][k] = (int) Math.round( Math.random());
-				System.out.print(map[i][k]+" ");
-			}
-			System.out.println();
+			map[0][i] = 0;
+			map[map.length-1][i] = 0;
 		}
+		
+		for (int i=1; i<map.length-1; i++)
+			for (int k=1; k<map[i].length-1; k++)
+			{
+				map[i][k] =  Math.round( (float) Math.random() );
+			}
 		
 		int[] p = {0};
 		
@@ -51,7 +58,7 @@ public class Main
 		t1.start();
 		win.w = w;
 		
-		if (t.isAlive()) win.setText("Gello");
+		//if (t.isAlive()) win.setText("Gello");
 		
 		try 
 		{

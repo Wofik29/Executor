@@ -68,7 +68,7 @@ public class Window implements Runnable
 		
 		GL11.glPushMatrix();
 		GL11.glTranslatef(q.x_p + q.width/2, q.y_p + q.width/2, 0);
-		GL11.glRotatef(q.rotation, 0f, 0f, 1f);
+		GL11.glRotatef(q.current_rotation, 0f, 0f, 1f);
 		//GL11.glTranslatef(-q.x_p, -q.y_p, 0);
 		
 		//GL11.glRectf(q.x_p, q.y_p, q.x_p + q.width, q.y_p + q.height);
@@ -111,16 +111,19 @@ public class Window implements Runnable
 		        switch (Keyboard.getEventKey())
 		        {
 		        case Keyboard.KEY_A: System.out.println("pressed A");
-		        	player.rotation +=90;
+		        	//player.rotation +=90;
+		        	player.addCommand(new Right());
 		        	break;
 		        case Keyboard.KEY_D: System.out.println("pressed D");  
-		        	player.rotation -=90;
+		        	//player.rotation -=90;
+		        	player.addCommand(new Left());
 		        	break;
 		        case Keyboard.KEY_W: System.out.println("pressed W");
-		        	player.y ++;
+		        	//player.y ++;
+		        	player.addCommand(new Forward());
 		        	break;
 		        case Keyboard.KEY_S: System.out.println("pressed S"); 
-		        	player.y --;
+		        	//player.y --;
 		        	break;
 		        }
 		    }

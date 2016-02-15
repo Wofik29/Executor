@@ -1,5 +1,8 @@
 package Game;
 
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 
 /*
  * Есть возможность двигаться прямо и поворачивать 
@@ -18,7 +21,7 @@ public class GameObject
 	int height;
 	
 	int rotation;
-	int speed;
+	int current_rotation;
 	
 	int[][] map;
 	int step = 20;
@@ -29,6 +32,9 @@ public class GameObject
 	int[] programm;
 	
 	int current;
+	
+	ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<>();
+	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
 	GameObject(int x, int y, int[] p, int[][] m)
 	{
@@ -45,21 +51,41 @@ public class GameObject
 		programm = p;
 		
 		direction = 0;
-		rotation = 0;
+		current_rotation = rotation = 0;
 		current = -1;
+		
+		direct.put(0, 0);
+		direct.put(90, 3);
+		direct.put(180, 2);
+		direct.put(270, 1);
+		direct.put(-90, 1);
+		direct.put(-180, 2);
+		direct.put(-270, 3);
+		
 	}
 	
 	public void step()
 	{
-		if (x_p > x*step) x_p --;
+		
+		
+		if (x_p >= x*step) x_p --;
 		if (x_p < x*step) x_p ++;
-		if (y_p > y*step) y_p --;
+		if (y_p >= y*step) y_p --;
 		if (y_p < y*step) y_p ++;
-				
-		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", next_x : "+next_x+", next_y: "+next_y);
+		
+		
+		if (current_rotation > rotation) current_rotation -= 2;
+		if (current_rotation < rotation) current_rotation += 2;
+		
+		if (x_p == x*step && y_p == y*step && current_rotation == rotation)
+		{
+			next();
+		}
+		
+		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation);
 	}
 	
-	void setCommand(int speed)
+	void setCommand()
 	{
 		if (current == programm.length-1) current = 0;
 		else current++;
@@ -82,6 +108,22 @@ public class GameObject
 	void right()
 	{
 		
+	}
+
+	public void next()
+	{
+		Command c;
+		
+		if ((c = commands.poll()) != null)
+		{
+			c.execute(this);
+			System.out.println("next : ");
+		}
+	}
+	
+	public void addCommand(Command c)
+	{
+		commands.offer(c);
 	}
 	
 	void stepA()
