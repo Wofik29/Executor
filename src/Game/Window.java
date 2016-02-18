@@ -85,7 +85,7 @@ public class Window implements Runnable
 	{
 		GL11.glColor3f(1f,1f,1.0f);
 		
-		int step = 20;
+		int step = 10;
 		
 		for (int i=0; i<map.length; i++)
 		{
@@ -110,21 +110,10 @@ public class Window implements Runnable
 		    if (Keyboard.getEventKeyState()) {
 		        switch (Keyboard.getEventKey())
 		        {
-		        case Keyboard.KEY_A: System.out.println("pressed A");
-		        	//player.rotation +=90;
-		        	player.addCommand(new Right());
-		        	break;
-		        case Keyboard.KEY_D: System.out.println("pressed D");  
-		        	//player.rotation -=90;
-		        	player.addCommand(new Left());
-		        	break;
-		        case Keyboard.KEY_W: System.out.println("pressed W");
-		        	//player.y ++;
-		        	player.addCommand(new Forward());
-		        	break;
-		        case Keyboard.KEY_S: System.out.println("pressed S"); 
-		        	//player.y --;
-		        	break;
+		        case Keyboard.KEY_A: System.out.println("pressed A"); break;
+		        case Keyboard.KEY_D: System.out.println("pressed D"); break;
+		        case Keyboard.KEY_W: System.out.println("pressed W"); break;
+		        case Keyboard.KEY_S: System.out.println("pressed S"); break;
 		        }
 		    }
 		    else
@@ -175,21 +164,6 @@ public class Window implements Runnable
 	public void update(int delta) 
 	{
 		
-		// rotate quad
-	   // rotation += 0.15f * delta;
-	    
-	    if (left) player.rotation ++; 
-		if (right) player.rotation --;
-	    /*if (up) player.y += 0.5*delta;
-		if (down) player.y -= 0.5*delta;
-	    
-		//if (!player.isStep()) player.nextStep();
-		//player.step( Math.round( step));
-		
-		
-	    //updateFPS();
-	     * 
-	     */
 	}
 	
 	void renderGL()
@@ -203,9 +177,6 @@ public class Window implements Runnable
 		{
 			drawQuad(q);
 		}
-		
-		
-		
 	}
 	
 	public void run()

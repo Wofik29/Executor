@@ -1,13 +1,6 @@
 package Game;
 
-public abstract class Command 
+interface Command 
 {
-	protected boolean end = false;
-	
-	abstract public void execute(GameObject obj);
-	
-	public boolean isEnd()
-	{
-		return end;
-	}
+	abstract public boolean execute(GameObject obj);
 }

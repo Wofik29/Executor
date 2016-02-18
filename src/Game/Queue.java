@@ -1,15 +1,33 @@
 package Game;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
-public class Queue 
+public class Queue implements Command 
 {
-	GameObject obj;
+	List<Command> commands = new LinkedList<Command>();
+	Command current;
+	ListIterator<Command> it = commands.listIterator();
 	
-	
-	
-	public Queue(GameObject o)
+	public void add(Command c)
 	{
-		obj = o;
+		commands.add(c);
+		if (current == null) current = c;
+	}
+	
+	public boolean execute(GameObject obj)
+	{
+		if (current != null && current.execute(obj))
+		{
+			next();
+			System.out.println("execute");
+		}
+		return true;
+	}
+	
+	public void next()
+	{
+		if (it.hasNext()) current = it.next();
 	}
 }

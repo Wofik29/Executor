@@ -1,8 +1,8 @@
 package Game;
 
-public class Forward extends Command 
+public class Forward implements Command 
 {
-	public void execute(GameObject obj)
+	public boolean execute(GameObject obj)
 	{
 		
 		switch (obj.direction)
@@ -32,6 +32,8 @@ public class Forward extends Command
 			}
 			break;
 		}
+		
+		return true;
 	}
 
 }
