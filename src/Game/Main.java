@@ -74,17 +74,9 @@ public class Main
 				map[i][k] =  Math.round( (float) Math.random() );
 			}
 		*/
-		Queue p = new Queue();
 		
-		p.add(new Right());
-		p.add(new Forward());
-		p.add(new Forward());
-		p.add(new Forward());
-		p.add(new Forward());
-		p.add(new Right());
-		p.add(new Right());
 		
-		GameObject player = new GameObject(0, 0, p, map);
+		GameObject player = new GameObject(0, 10, map);
 		
 		quads.add(player);
 		

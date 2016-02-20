@@ -50,6 +50,22 @@ public class Window implements Runnable
 		step=1;
 		
 		map = m;
+		
+		
+		Queue qe = new Queue();
+		
+		qe.add(new Left());
+		qe.add(new Forward());
+		qe.add(new Forward());
+		qe.add(new Forward());
+		qe.add(new Forward());
+		qe.add(new Right());
+		qe.add(new Right());
+		
+		qe.StringTo();
+		
+		
+		player.setProgramm(qe);
 	}
 	
 	private void initGL()

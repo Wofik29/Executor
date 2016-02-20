@@ -11,5 +11,10 @@ public class Right implements Command
 		
 		return true;
 	}
+	
+	public String toString()
+	{
+		return "Right Command";
+	}
 
 }

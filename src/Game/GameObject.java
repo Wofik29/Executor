@@ -33,7 +33,7 @@ public class GameObject
 	Queue programm;
 	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
-	GameObject(int x, int y, Queue p, int[][] m)
+	GameObject(int x, int y, int[][] m)
 	{
 		this.x = x;
 		this.y = y;
@@ -45,7 +45,7 @@ public class GameObject
 		
 		map = m;
 		
-		programm = p;
+		programm = new Queue();
 		
 		direction = 0;
 		current_rotation = rotation = 0;
@@ -59,6 +59,11 @@ public class GameObject
 		direct.put(-180, 2);
 		direct.put(-270, 3);
 		
+	}
+	
+	void setProgramm(Queue q)
+	{
+		programm = q;
 	}
 	
 	public void step()
@@ -80,7 +85,7 @@ public class GameObject
 			System.out.println("next");
 		}
 		
-		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation);
+		System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
 	}
 	
 	

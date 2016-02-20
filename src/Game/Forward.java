@@ -35,5 +35,10 @@ public class Forward implements Command
 		
 		return true;
 	}
+	
+	public String toString()
+	{
+		return "Forward Command";
+	}
 
 }

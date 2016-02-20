@@ -12,5 +12,10 @@ public class Left implements Command
 		
 		return true;
 	}
+	
+	public String toString()
+	{
+		return "Left Command";
+	}
 
 }
