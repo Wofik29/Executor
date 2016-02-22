@@ -1,8 +1,6 @@
 package Game;
 
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 
 /*
  * Есть возможность двигаться прямо и поворачивать 
@@ -22,21 +20,25 @@ public class GameObject
 	
 	int rotation;
 	int current_rotation;
+	int current_front;
 	
 	int[][] map;
-	int step = 10;
+	int step;
+	
+	boolean isGo = true;
 		
 	// пока будут цифры направления 0 - вверх, 1 - вправо и т.д.
 	int direction;
 	int current;
 	
-	Queue programm;
+	MainLoop programm;
 	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
-	GameObject(int x, int y, int[][] m)
+	GameObject(int x, int y, int s, int[][] m)
 	{
 		this.x = x;
 		this.y = y;
+		step = s;
 		
 		x_p = x*step;
 		y_p = y*step;
@@ -45,7 +47,7 @@ public class GameObject
 		
 		map = m;
 		
-		programm = new Queue();
+		programm = new MainLoop();
 		
 		direction = 0;
 		current_rotation = rotation = 0;
@@ -59,9 +61,11 @@ public class GameObject
 		direct.put(-180, 2);
 		direct.put(-270, 3);
 		
+		checkDirection();
+		
 	}
 	
-	void setProgramm(Queue q)
+	void setProgramm(MainLoop q)
 	{
 		programm = q;
 	}
@@ -79,15 +83,36 @@ public class GameObject
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;
 		
-		if (x_p == x*step && y_p == y*step && current_rotation == rotation)
+		if (isGo && x_p == x*step && y_p == y*step && current_rotation == rotation)
 		{
+			checkDirection();
 			next();
-			System.out.println("next");
+			checkDirection();
+			isGo = false;
 		}
 		
-		System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
+		
+		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
 	}
 	
+	public void checkDirection()
+	{
+		switch (direction)
+		{
+		case 0: 
+			current_front = map[x][y+1];
+			break;
+		case 1: 
+			current_front = map[x+1][y];
+			break;
+		case 2: 
+			current_front = map[x][y-1];
+			break;
+		case 3: 
+			current_front = map[x-1][y];
+			break;
+		}
+	}
 	
 	public void next()
 	{

@@ -9,13 +9,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-
-/*
- * Сделать какой то синглтон-рисовальщик.
- * Будет массив объектов, которых надо рисовать.
- * и просто их пробегать и рисовать.
- * Так же ссыль на объект, которым можно двигать.
- */
 public class Window implements Runnable
 {
 	
@@ -29,43 +22,21 @@ public class Window implements Runnable
 	
 	int[][] map;
 	
-	float rotation = 0;
-	float x,y;
-	boolean left = false;
-	boolean right = false;
-	boolean up = false;
-	boolean down = false;
-	
 	int step;
 	
-	List<GameObject> quads;
-	GameObject player;
+	volatile List<GameObject> objects;
 	
-	Window(int w, int h, List<GameObject>  q, GameObject p, int[][] m)
+	Controller controller;
+	
+	Window(int w, int h, int step, List<GameObject>  q, int[][] m, Controller c)
 	{
 		width = w;
 		height = h;
-		quads = q;
-		player = p;
-		step=1;
-		
+		objects = q;
+		this.step = step;
+		controller = c;
 		map = m;
 		
-		
-		Queue qe = new Queue();
-		
-		qe.add(new Left());
-		qe.add(new Forward());
-		qe.add(new Forward());
-		qe.add(new Forward());
-		qe.add(new Forward());
-		qe.add(new Right());
-		qe.add(new Right());
-		
-		qe.StringTo();
-		
-		
-		player.setProgramm(qe);
 	}
 	
 	private void initGL()
@@ -78,16 +49,11 @@ public class Window implements Runnable
 		
 	private void drawQuad(GameObject q)
 	{
-		int x = q.x_p + q.width/2;
-		
 		GL11.glColor3f(0.5f,0.5f,1.0f);
 		
 		GL11.glPushMatrix();
 		GL11.glTranslatef(q.x_p + q.width/2, q.y_p + q.width/2, 0);
 		GL11.glRotatef(q.current_rotation, 0f, 0f, 1f);
-		//GL11.glTranslatef(-q.x_p, -q.y_p, 0);
-		
-		//GL11.glRectf(q.x_p, q.y_p, q.x_p + q.width, q.y_p + q.height);
 		
 		GL11.glBegin(GL11.GL_TRIANGLES);
 			GL11.glVertex2f(-q.width/2, -q.width/2);
@@ -100,8 +66,6 @@ public class Window implements Runnable
 	private void drawMap()
 	{
 		GL11.glColor3f(1f,1f,1.0f);
-		
-		int step = 10;
 		
 		for (int i=0; i<map.length; i++)
 		{
@@ -123,23 +87,14 @@ public class Window implements Runnable
 	{
 		
 		while (Keyboard.next()) {
-		    if (Keyboard.getEventKeyState()) {
-		        switch (Keyboard.getEventKey())
-		        {
-		        case Keyboard.KEY_A: System.out.println("pressed A"); break;
-		        case Keyboard.KEY_D: System.out.println("pressed D"); break;
-		        case Keyboard.KEY_W: System.out.println("pressed W"); break;
-		        case Keyboard.KEY_S: System.out.println("pressed S"); break;
-		        }
+		    if (Keyboard.getEventKeyState()) 
+		    {
+		    	controller.pressedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
 		    }
 		    else
-		    	switch (Keyboard.getEventKey())
-		        {
-		        case Keyboard.KEY_A: System.out.println("relesed A"); left = false; break;
-		        case Keyboard.KEY_D: System.out.println("relesed D"); right = false; break;
-		        case Keyboard.KEY_W: System.out.println("relesed W"); up = false; break;
-		        case Keyboard.KEY_S: System.out.println("relesed S"); down = false; break;
-		        }
+		    {
+		    	controller.relessedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+		    }
 		}
 	}
 	
@@ -147,17 +102,6 @@ public class Window implements Runnable
 	public long getTime() 
 	{
 	    return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-	}
-	
-	public void updateFPS() 
-	{
-	    if (getTime() - lastFPS > 1000) 
-	    {
-	       // Display.setTitle("FPS: " + fps); 
-	        fps = 0; //reset the FPS counter
-	        lastFPS += 1000; //add one second
-	    }
-	    fps++;
 	}
 	
 	public void setText(String s)
@@ -189,7 +133,7 @@ public class Window implements Runnable
 		
 		drawMap();
 		
-		for (GameObject q : quads)
+		for (GameObject q : objects)
 		{
 			drawQuad(q);
 		}
@@ -219,15 +163,13 @@ public class Window implements Runnable
 	{
 		getDelta();
 		initGL();
-		//lastFPS = getTime();
 		
 		while (!Display.isCloseRequested())
 		{
 			inputLoop();
 			
-			int delta = getDelta();
+			//int delta = getDelta();
             
-			update(delta);
 	        renderGL();
 			
 			Display.update();
