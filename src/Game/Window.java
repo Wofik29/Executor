@@ -1,13 +1,16 @@
 package Game;
 
+import java.awt.Font;
 import java.util.List;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.TrueTypeFont;
+
 
 public class Window implements Runnable
 {
@@ -15,36 +18,61 @@ public class Window implements Runnable
 	long lastFPS;
 	long lastFrame; // Время последнего
 	int fps;
-	
-	World w;
-	
 	int width, height;
 	
 	int[][] map;
-	
+	//Font awtfont = new Font("Times New Roman", Font.BOLD, 25);
+	TrueTypeFont font;
 	int step;
 	
 	volatile List<GameObject> objects;
 	
 	Controller controller;
 	
-	Window(int w, int h, int step, List<GameObject>  q, int[][] m, Controller c)
+	Window(int w, int h, int step, Controller c)
 	{
 		width = w;
 		height = h;
-		objects = q;
 		this.step = step;
 		controller = c;
-		map = m;
 		
 	}
 	
+	public void setObjects(List<GameObject> o)
+	{
+		objects = o;
+	}
+	
+	public void setMap(int[][] m)
+	{
+		map = m;
+	}
 	private void initGL()
 	{
+		Font awtFont = new Font("Times new Roman", Font.BOLD, 25);
+		font = new TrueTypeFont(awtFont, false);
+		
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glShadeModel(GL11.GL_SMOOTH);        
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_LIGHTING);                    
+ 
+		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                
+        GL11.glClearDepth(1);                                       
+ 
+        GL11.glViewport(0,0,width,height);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+ 
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		GL11.glOrtho(0, 800, 600, 0, 1, -1);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		/*
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, 800, 0, 600, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		*/
 	}
 		
 	private void drawQuad(GameObject q)
@@ -131,11 +159,21 @@ public class Window implements Runnable
 		// Clear the screen and depth buffer 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
 		
-		drawMap();
-		
-		for (GameObject q : objects)
+		if (map != null) 
 		{
-			drawQuad(q);
+			drawMap();
+			if (objects != null)
+				for (GameObject q : objects)
+				{
+					drawQuad(q);
+				}
+		}
+		else
+		{
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
+			font.drawString(400, 400, "Loading", Color.red);
+			GL11.glDisable(GL11.GL_BLEND);
 		}
 	}
 	

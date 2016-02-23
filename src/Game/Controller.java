@@ -16,7 +16,9 @@ public class Controller
 	{
 		int step = 10;
 		world = new World(WIDTH, HEIGHT, step);
-		window = new Window(WIDTH, HEIGHT, step, world.getObjects(), world.getMap(), this);
+		window = new Window(WIDTH, HEIGHT, step, this);
+		window.setMap(world.getMap());
+		window.setObjects(world.getObjects());
 		
 		thread_world = new Thread(world);
 		thread_window = new Thread(window);

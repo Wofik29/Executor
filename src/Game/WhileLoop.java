@@ -24,14 +24,17 @@ public class WhileLoop extends Queue
 	@Override
 	public boolean execute(GameObject obj)
 	{
+		/*
 		System.out.println("WhileLoop : "+current_command.toString());
 		System.out.println("WhileLoop : number == size - "+condition +" ==  " +obj.current_front + " -> "+(condition == obj.current_front));
 		System.out.println(current_number + " != " + commands.size());
 		System.out.println("Player -  x: "+obj.x+", y: "+obj.y);
 		System.out.println();
+		*/
 		if (isEnd && current_command != null && current_command.execute(obj))
 		{
 			//System.out.println("execute "+current_command.toString()+" - "+current_number);
+			obj.checkDirection();
 			next(obj);
 			return false;
 		}
