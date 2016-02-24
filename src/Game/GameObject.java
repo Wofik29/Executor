@@ -22,7 +22,7 @@ public class GameObject
 	int current_rotation;
 	int current_front;
 	
-	int[][] map;
+	byte[][] map;
 	int step;
 	
 	boolean isGo = true;
@@ -34,7 +34,7 @@ public class GameObject
 	MainLoop programm;
 	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
-	GameObject(int x, int y, int s, int[][] m)
+	GameObject(int x, int y, int s, byte[][] m)
 	{
 		this.x = x;
 		this.y = y;

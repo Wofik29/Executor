@@ -20,7 +20,7 @@ public class Window implements Runnable
 	int fps;
 	int width, height;
 	
-	int[][] map;
+	byte[][] map;
 	//Font awtfont = new Font("Times New Roman", Font.BOLD, 25);
 	TrueTypeFont font;
 	int step;
@@ -43,7 +43,7 @@ public class Window implements Runnable
 		objects = o;
 	}
 	
-	public void setMap(int[][] m)
+	public void setMap(byte[][] m)
 	{
 		map = m;
 	}
