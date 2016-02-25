@@ -29,15 +29,18 @@ public class Controller
 		switch (key)
         {
         case Keyboard.KEY_A: System.out.println("pressed A "); 
-        	GameObject p = world.getObjects().get(0);
-        	p.isGo = true;
+        	//GameObject p = world.getObjects().get(0);
+        	//p.isGo = true;
+        	window.trans +=20;
         	break;
-        case Keyboard.KEY_D: System.out.println("pressed D"); break;
+        case Keyboard.KEY_D: System.out.println("pressed D"); 
+        	window.trans -=20;
+        	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
-        	window.rot ++;
+        	window.scal +=0.2;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
-        	window.rot --;
+        	window.scal -=0.2;
         	break;
         }
 	}

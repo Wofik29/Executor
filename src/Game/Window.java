@@ -1,7 +1,11 @@
 package Game;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import javax.swing.Timer;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
@@ -31,7 +35,18 @@ public class Window implements Runnable
 	volatile List<GameObject> objects;
 	Texture grass;
 	Texture beach;
+	Texture grass_beach;
+	Texture beach_water;
+	Texture[] water = new Texture[2];
+	Texture water_deep;
+	Texture deep;
+	
+	
 	Controller controller;
+	Timer timer;
+	int trans = 0;
+	float scal = 1;
+	int i_w =0 ;
 	
 	Window(int w, int h, int step, Controller c)
 	{
@@ -39,7 +54,15 @@ public class Window implements Runnable
 		height = h;
 		this.step = step;
 		controller = c;
-		
+		timer = new Timer(200, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				i_w = (i_w==0) ? (i_w=1) : (i_w=0);
+				System.out.println(water[i_w].getTextureID());
+			}
+		});
 		
 	}
 	
@@ -58,10 +81,18 @@ public class Window implements Runnable
 		font = new TrueTypeFont(awtFont, false);
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		//GL11.glEnable(GL11.GL_ALPHA_TEST);
+		
+		//GL11.glEnable(GL11.GL_DEPTH_TEST);
+		//GL11.glDepthFunc(GL11.GL_LEQUAL);
+		
 		GL11.glShadeModel(GL11.GL_SMOOTH);
+		
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.8f);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_BLEND);
+		//GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
  
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         GL11.glClearDepth(1);
@@ -73,7 +104,7 @@ public class Window implements Runnable
  
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(0, 800, 600, 0, 1, -1);
+		GL11.glOrtho(0, 800, 600, 0, 100, -100);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
 		//GL11.glRotatef(-35, 0, 0, 1);
@@ -81,8 +112,21 @@ public class Window implements Runnable
 
 		try
 		{
-			grass = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/0.png"));
-			beach = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/0.png"));
+			grass = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/4.png"));
+			beach = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/2.png"));
+			grass_beach = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/0.png"));
+			beach_water = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/3.png"));
+			Texture tex = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/1.png"));
+			water[0] = tex;
+			System.out.println(tex.getTextureID());
+			System.out.println(water[0].getTextureID());
+			tex = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/8.png"));
+			water[1] = tex;
+			System.out.println(tex.getTextureID());
+			System.out.println(water[1].getTextureID());
+			water_deep = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/7.png"));
+			deep = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/6.png"));
+			
 		}
 		catch (Exception e)
 		{
@@ -115,9 +159,10 @@ public class Window implements Runnable
 	
 	private void drawMap()
 	{
-		GL11.glColor3f(1f,1f,1.0f);
+		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		//GL11.glScalef(1.1f,1.1f, 0);
+		GL11.glTranslatef(trans, 0, 0);
+		GL11.glScalef(scal,scal, 0);
 		Texture t = null;
 		
 		float Xo = 0;
@@ -140,18 +185,25 @@ public class Window implements Runnable
 			{
 				Xo = Xc + (x * (width / 2));
 				Yo += height / 2;
-				if (map[y][x] == 0)
+				switch (map[y][x])
 				{
-					t = grass;
-				}
-				else
-				{
-					t = beach;
+				case 0:	t = grass_beach; break;
+				case 1: t = water[i_w]; break;
+				case 2: t = beach; break;
+				case 3: t = beach_water; break;
+				case 4: t = grass; break;
+				case 6: t = deep; break;
+				case 7: t = water_deep; break;
 				}
 				
-				drawTexture(Xo, Yo, t);
+				
+				
+				drawTexture(Xo, Yo, 0, t);
+				
 			}
+			
 		}
+		
 		
 		
 		GL11.glPopMatrix(); 
@@ -200,33 +252,30 @@ public class Window implements Runnable
 		
 	}
 	
-	void drawTexture(float x, float y, Texture t)
+	void drawTexture(float x, float y, float z, Texture t)
 	{
 		GL11.glPushMatrix();
-		GL11.glTranslatef(x*t.getHeight(), y*t.getWidth(), 0);
+		GL11.glTranslatef(x*t.getHeight(), y*t.getWidth(), z);
 		
 		//GL11.glRotatef(rot, 0f, 0f, 1f);
 		
 		//Color.white.bind();
         t.bind(); // or GL11.glBind(texture.getTextureID());
         
-        int l = 0;
-        
         GL11.glBegin(GL11.GL_QUADS);
             GL11.glTexCoord2f(0,0);
-            GL11.glVertex2f(-t.getTextureWidth()/2-l,-t.getTextureHeight()/2-l);
+            GL11.glVertex2f(-32,-32);
             
-            GL11.glTexCoord2f(1,0);
-            GL11.glVertex2f(t.getTextureWidth()/2+l,-t.getTextureHeight()/2-l);
+            GL11.glTexCoord2f(1f,0);
+            GL11.glVertex2f(32, -32);
             
-            GL11.glTexCoord2f(1,1);
-            GL11.glVertex2f(t.getTextureWidth()/2+l, t.getTextureHeight()/2+l);
+            GL11.glTexCoord2f(1f,1f);
+            GL11.glVertex2f(32, 32);
             
-            GL11.glTexCoord2f(0,1);
-            GL11.glVertex2f(-t.getTextureWidth()/2-l,t.getTextureHeight()/2+l);
-            
+            GL11.glTexCoord2f(0,1f);
+            GL11.glVertex2f(-32, 32);
         GL11.glEnd();
-        
+        GL11.glEnable(GL11.GL_TEXTURE_BINDING_2D);
         GL11.glPopMatrix();
 	}
 	
@@ -234,10 +283,6 @@ public class Window implements Runnable
 	{
 		// Clear the screen and depth buffer 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
-		
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
-		
 		//drawTexture(34,18, grass);
 		//drawTexture(0, 0, grass);
 		
@@ -282,13 +327,14 @@ public class Window implements Runnable
 		
 		Display.destroy();
 		Keyboard.destroy();
+		timer.stop();
 	}
 	
 	public void start()
 	{
 		getDelta();
 		initGL();
-		
+		timer.start();
 		while (!Display.isCloseRequested())
 		{
 			inputLoop();

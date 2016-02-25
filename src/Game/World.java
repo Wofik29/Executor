@@ -28,24 +28,24 @@ public class World implements Runnable
 		Map m = new Map();
 		map = m.getMap();
 		
-		GameObject player = new GameObject(1, 4, step, map);
+		//GameObject player = new GameObject(1, 4, step, map);
 		
-		MainLoop qe = new MainLoop();
+		//MainLoop qe = new MainLoop();
 		
-		Queue wh = new WhileLoop();
-		wh.add(new Forward());
-		wh.add(new Forward());
-		//wh.add(new Left());
+		//Queue wh = new WhileLoop();
+		//wh.add(new Forward());
 		//wh.add(new Forward());
 		//wh.add(new Left());
 		//wh.add(new Forward());
 		//wh.add(new Left());
 		//wh.add(new Forward());
-		qe.add(wh);
+		//wh.add(new Left());
+		//wh.add(new Forward());
+		//qe.add(wh);
 		
-		player.setProgramm(qe);
+		//player.setProgramm(qe);
 		
-		objects.add(player);
+		//objects.add(player);
 		
 		lenght_step = 1;
 		time_sleep = 10;
@@ -81,7 +81,7 @@ public class World implements Runnable
 			{
 				//if (!q.isStep()) q.nextStep();
 				
-				q.step();
+				//q.step();
 
 				if (q.x < 0) q.x = 0;
 		        if (q.x > 800) q.x = 800;
