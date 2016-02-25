@@ -33,8 +33,12 @@ public class Controller
         	p.isGo = true;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); break;
-        case Keyboard.KEY_W: System.out.println("pressed W"); break;
-        case Keyboard.KEY_S: System.out.println("pressed S"); break;
+        case Keyboard.KEY_W: System.out.println("pressed W"); 
+        	window.rot ++;
+        	break;        
+        case Keyboard.KEY_S: System.out.println("pressed S"); 
+        	window.rot --;
+        	break;
         }
 	}
 

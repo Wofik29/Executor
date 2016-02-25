@@ -60,6 +60,8 @@ public class GameObject
 		direct.put(-90, 1);
 		direct.put(-180, 2);
 		direct.put(-270, 3);
+		direct.put(-360, 0);
+		direct.put(360, 0);
 		
 		checkDirection();
 		
@@ -77,8 +79,14 @@ public class GameObject
 		if (y_p >= y*step) y_p --;
 		if (y_p < y*step) y_p ++;
 		
-		if (current_rotation == 270 && rotation == 0) current_rotation = -90;
-		if (current_rotation == -270 && rotation == 0) current_rotation = 90;
+		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
+		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
+		
+		if (current_rotation == 360 || current_rotation == -360)
+		{
+			current_rotation = 0;
+			rotation = 0;
+		}
 		
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;

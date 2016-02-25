@@ -10,6 +10,9 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.opengl.TextureLoader;
+import org.newdawn.slick.util.ResourceLoader;
 
 
 public class Window implements Runnable
@@ -24,9 +27,10 @@ public class Window implements Runnable
 	//Font awtfont = new Font("Times New Roman", Font.BOLD, 25);
 	TrueTypeFont font;
 	int step;
-	
+	int rot = 0;
 	volatile List<GameObject> objects;
-	
+	Texture grass;
+	Texture beach;
 	Controller controller;
 	
 	Window(int w, int h, int step, Controller c)
@@ -35,6 +39,7 @@ public class Window implements Runnable
 		height = h;
 		this.step = step;
 		controller = c;
+		
 		
 	}
 	
@@ -53,12 +58,15 @@ public class Window implements Runnable
 		font = new TrueTypeFont(awtFont, false);
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glShadeModel(GL11.GL_SMOOTH);        
+		//GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glShadeModel(GL11.GL_SMOOTH);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glDisable(GL11.GL_LIGHTING);                    
+		GL11.glDisable(GL11.GL_LIGHTING);
  
-		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                
-        GL11.glClearDepth(1);                                       
+		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        GL11.glClearDepth(1);
+        
+        //GL11.glAlphaFunc(GL11.GL_GEQUAL, 1);
  
         GL11.glViewport(0,0,width,height);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
@@ -67,6 +75,20 @@ public class Window implements Runnable
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, 800, 600, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		
+		//GL11.glRotatef(-35, 0, 0, 1);
+		
+
+		try
+		{
+			grass = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/0.png"));
+			beach = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/0.png"));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
 		/*
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
@@ -77,7 +99,7 @@ public class Window implements Runnable
 		
 	private void drawQuad(GameObject q)
 	{
-		GL11.glColor3f(0.5f,0.5f,1.0f);
+		//GL11.glColor3f(0.5f,0.5f,1.0f);
 		
 		GL11.glPushMatrix();
 		GL11.glTranslatef(q.x_p + q.width/2, q.y_p + q.width/2, 0);
@@ -94,21 +116,45 @@ public class Window implements Runnable
 	private void drawMap()
 	{
 		GL11.glColor3f(1f,1f,1.0f);
+		GL11.glPushMatrix();
+		//GL11.glScalef(1.1f,1.1f, 0);
+		Texture t = null;
 		
-		for (int i=0; i<map.length; i++)
+		float Xo = 0;
+	    float Yo = 0;
+	    int height = 32;
+	    int width = 64;
+	    float C =(float) Math.floor(Display.getWidth()/ 2);
+	    
+	    float Xc = 0;
+		
+		for (int y=0; y<map.length; y++)
 		{
-			for (int k=0; k<map[i].length; k++)
+			// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
+            Yo = (height / 2) * y;
+
+            // Про эту переменную я уже рассказал чуть ранее.
+            Xc = C - (width / 2 * y);
+			
+			for (int x=0; x<map[y].length; x++)
 			{
-				if (map[i][k] == 0)
+				Xo = Xc + (x * (width / 2));
+				Yo += height / 2;
+				if (map[y][x] == 0)
 				{
-					GL11.glRectf(i*step, k*step, i*step+step, k*step+step);
+					t = grass;
 				}
 				else
 				{
-					
+					t = beach;
 				}
+				
+				drawTexture(Xo, Yo, t);
 			}
 		}
+		
+		
+		GL11.glPopMatrix(); 
 	}
 	
 	private void inputLoop()
@@ -154,10 +200,49 @@ public class Window implements Runnable
 		
 	}
 	
+	void drawTexture(float x, float y, Texture t)
+	{
+		GL11.glPushMatrix();
+		GL11.glTranslatef(x*t.getHeight(), y*t.getWidth(), 0);
+		
+		//GL11.glRotatef(rot, 0f, 0f, 1f);
+		
+		//Color.white.bind();
+        t.bind(); // or GL11.glBind(texture.getTextureID());
+        
+        int l = 0;
+        
+        GL11.glBegin(GL11.GL_QUADS);
+            GL11.glTexCoord2f(0,0);
+            GL11.glVertex2f(-t.getTextureWidth()/2-l,-t.getTextureHeight()/2-l);
+            
+            GL11.glTexCoord2f(1,0);
+            GL11.glVertex2f(t.getTextureWidth()/2+l,-t.getTextureHeight()/2-l);
+            
+            GL11.glTexCoord2f(1,1);
+            GL11.glVertex2f(t.getTextureWidth()/2+l, t.getTextureHeight()/2+l);
+            
+            GL11.glTexCoord2f(0,1);
+            GL11.glVertex2f(-t.getTextureWidth()/2-l,t.getTextureHeight()/2+l);
+            
+        GL11.glEnd();
+        
+        GL11.glPopMatrix();
+	}
+	
 	void renderGL()
 	{
 		// Clear the screen and depth buffer 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
+		
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
+		
+		//drawTexture(34,18, grass);
+		//drawTexture(0, 0, grass);
+		
+		//System.out.println(grass.getTextureHeight());
+		//System.out.println(rot);
 		
 		if (map != null) 
 		{
@@ -175,6 +260,8 @@ public class Window implements Runnable
 			font.drawString(400, 400, "Loading", Color.red);
 			GL11.glDisable(GL11.GL_BLEND);
 		}
+		
+		 
 	}
 	
 	public void run()

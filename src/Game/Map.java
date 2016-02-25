@@ -11,7 +11,7 @@ import java.util.Stack;
  */
 public class Map 
 {
-	volatile byte[][] map = new byte[51][51];
+	volatile byte[][] map = new byte[10][10];
 	byte distance = 2;
 	
 	final byte WALL = 1;
@@ -41,13 +41,13 @@ public class Map
 	
 	private void clear()
 	{
-		for (int i=0; i<map.length-1; i++)
+		for (int i=0; i<map.length; i++)
 			for (int j=0; j<map[i].length; j++)
 			{
 				//if (i==0 || j==0 || i==map.length-1 || j==map[i].length-1)
 				//	map[i][j] = 1;
 				if((i % 2 != 0  && j % 2 != 0) && //если ячейка нечетная по x и y, 
-			               (i < map.length-1 && j < map.length-1))
+			               (i < map.length && j < map.length))
 					map[i][j] = 0;
 				else map[i][j] = 1;
 					
