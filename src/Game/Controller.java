@@ -31,16 +31,16 @@ public class Controller
         case Keyboard.KEY_A: System.out.println("pressed A "); 
         	//GameObject p = world.getObjects().get(0);
         	//p.isGo = true;
-        	window.trans +=20;
+        	window.x_speed = -1;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
-        	window.trans -=20;
+        	window.x_speed = +1;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
-        	window.scal +=0.2;
+        	window.y_speed = +1;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
-        	window.scal -=0.2;
+        	window.y_speed = -1;
         	break;
         }
 	}
@@ -49,10 +49,18 @@ public class Controller
 	{
 		switch (key)
         {
-        case Keyboard.KEY_A: System.out.println("relessed A"); break;
-        case Keyboard.KEY_D: System.out.println("relessed D"); break;
-        case Keyboard.KEY_W: System.out.println("relessed W"); break;
-        case Keyboard.KEY_S: System.out.println("relessed S"); break;
+        case Keyboard.KEY_A: System.out.println("relessed A"); 
+        	window.x_speed = 0;
+        	break;
+        case Keyboard.KEY_D: System.out.println("relessed D"); 
+        	window.x_speed = 0;
+        	break;
+        case Keyboard.KEY_W: System.out.println("relessed W"); 
+        	window.y_speed = 0;
+        	break;
+        case Keyboard.KEY_S: System.out.println("relessed S"); 
+        	window.y_speed = 0;
+        	break;	
         }
 	}
 	

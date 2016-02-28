@@ -31,6 +31,12 @@ public class Window implements Runnable
 	float tex_width;
 	float tex_height;
 	
+	float x_s = 0;
+	float y_s = 0;
+	float x_speed = 0;
+	float y_speed = 0;
+	
+	
 	byte[][] map;
 	//Font awtfont = new Font("Times New Roman", Font.BOLD, 25);
 	TrueTypeFont font;
@@ -42,11 +48,12 @@ public class Window implements Runnable
 	
 	
 	Texture sprites;
+	Texture ship;
 	
 	Controller controller;
 	Timer timer;
 	int trans = 0;
-	float scal = 1;
+	float scal = 1.6f;
 	int i_w =0 ;
 	
 	Window(int w, int h, int step, Controller c)
@@ -73,43 +80,42 @@ public class Window implements Runnable
 		coordTex.put(1, new int[]{0,0}); // deep
 		coordTex.put(2, new int[]{1,4}); // beach
 		coordTex.put(3, new int[]{2,3}); // shallow
-		coordTex.put(4, new int[]{5,2}); // grass-beach-in-1
-		coordTex.put(5, new int[]{0,3}); // grass-beach-in-2
+		coordTex.put(4, new int[]{0,3}); // grass-beach-in-1
+		coordTex.put(5, new int[]{4,3}); // grass-beach-in-2
 		coordTex.put(6, new int[]{1,3}); // grass-beach-in-3
-		coordTex.put(7, new int[]{4,3}); // grass-beach-in-4
+		coordTex.put(7, new int[]{5,2}); // grass-beach-in-4
 		coordTex.put(8, new int[]{5,4}); // grass-beach-out-1
-		coordTex.put(9, new int[]{7,3}); // grass-beach-out-1
-		coordTex.put(10, new int[]{5,4}); // grass-beach-out-2
-		coordTex.put(11, new int[]{7,2}); // grass-beach-out-3
-		coordTex.put(12, new int[]{3,4}); // grass-beach-out-4
-		coordTex.put(13, new int[]{6,2}); // grass-beach-1
-		coordTex.put(14, new int[]{3,3}); // grass-beach-2
-		coordTex.put(15, new int[]{6,3}); // grass-beach-3
-		coordTex.put(16, new int[]{7,4}); // grass-beach-4
-		coordTex.put(17, new int[]{2,0}); // beach-shallow-in-1
-		coordTex.put(18, new int[]{2,4}); // beach-shallow-in-2
-		coordTex.put(19, new int[]{6,0}); // beach-shallow-in-3
-		coordTex.put(20, new int[]{7,0}); // beach-shallow-in-4
-		coordTex.put(21, new int[]{0,4}); // beach-shallow-out-1
-		coordTex.put(22, new int[]{4,0}); // beach-shallow-out-2
-		coordTex.put(23, new int[]{6,4}); // beach-shallow-out-3
-		coordTex.put(24, new int[]{0,1}); // beach-shallow-out-4
-		coordTex.put(25, new int[]{1,0}); // shallow-deep-in-1
-		coordTex.put(26, new int[]{0,2}); // shallow-deep-in-2
-		coordTex.put(27, new int[]{2,1}); // shallow-deep-in-3
-		coordTex.put(28, new int[]{1,1}); // shallow-deep-in-4
-		coordTex.put(29, new int[]{7,1}); // shallow-deep-out-1
-		coordTex.put(30, new int[]{1,2}); // shallow-deep-out-2
-		coordTex.put(31, new int[]{2,2}); // shallow-deep-out-3
-		coordTex.put(32, new int[]{6,1}); // shallow-deep-out-4
-		coordTex.put(33, new int[]{4,1}); // shallow-deep-1
-		coordTex.put(34, new int[]{5,1}); // shallow-deep-2
-		coordTex.put(35, new int[]{3,1}); // shallow-deep-3
-		coordTex.put(36, new int[]{4,0}); // shallow-deep-4
-		coordTex.put(37, new int[]{4,2}); // beach-shallow-1
-		coordTex.put(38, new int[]{7,3}); // beach-shallow-2
-		coordTex.put(39, new int[]{4,4}); // beach-shallow-3
-		coordTex.put(40, new int[]{7,4}); // beach-shallow-4
+		coordTex.put(9, new int[]{5,3}); // grass-beach-out-2
+		coordTex.put(10, new int[]{7,2}); // grass-beach-out-3
+		coordTex.put(11, new int[]{3,4}); // grass-beach-out-4
+		coordTex.put(12, new int[]{6,2}); // grass-beach-1
+		coordTex.put(13, new int[]{6,3}); // grass-beach-2
+		coordTex.put(14, new int[]{7,4}); // grass-beach-3
+		coordTex.put(15, new int[]{3,3}); // grass-beach-4
+		coordTex.put(16, new int[]{2,0}); // beach-shallow-in-1
+		coordTex.put(17, new int[]{2,4}); // beach-shallow-in-2
+		coordTex.put(18, new int[]{6,0}); // beach-shallow-in-3
+		coordTex.put(19, new int[]{7,0}); // beach-shallow-in-4
+		coordTex.put(20, new int[]{0,4}); // beach-shallow-out-1
+		coordTex.put(21, new int[]{4,0}); // beach-shallow-out-2
+		coordTex.put(22, new int[]{6,4}); // beach-shallow-out-3
+		coordTex.put(23, new int[]{0,1}); // beach-shallow-out-4
+		coordTex.put(24, new int[]{1,0}); // shallow-deep-in-1
+		coordTex.put(25, new int[]{0,2}); // shallow-deep-in-2
+		coordTex.put(26, new int[]{2,1}); // shallow-deep-in-3
+		coordTex.put(27, new int[]{1,1}); // shallow-deep-in-4
+		coordTex.put(28, new int[]{7,1}); // shallow-deep-out-1
+		coordTex.put(29, new int[]{1,2}); // shallow-deep-out-2
+		coordTex.put(30, new int[]{2,2}); // shallow-deep-out-3
+		coordTex.put(31, new int[]{6,1}); // shallow-deep-out-4
+		coordTex.put(32, new int[]{4,1}); // shallow-deep-1
+		coordTex.put(33, new int[]{5,1}); // shallow-deep-2
+		coordTex.put(34, new int[]{3,1}); // shallow-deep-3
+		coordTex.put(35, new int[]{3,0}); // shallow-deep-4
+		coordTex.put(36, new int[]{3,2}); // beach-shallow-1
+		coordTex.put(37, new int[]{7,3}); // beach-shallow-2
+		coordTex.put(38, new int[]{4,4}); // beach-shallow-3
+		coordTex.put(39, new int[]{4,2}); // beach-shallow-4
 		
 	}
 	
@@ -161,6 +167,7 @@ public class Window implements Runnable
 		{
 			
 			sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
+			ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship.png"));
 		}
 		catch (Exception e)
 		{
@@ -184,13 +191,58 @@ public class Window implements Runnable
 		GL11.glPopMatrix(); 
 	}
 	
+	private void drawShip()
+	{
+		GL11.glColor4f(1, 1, 1, 1);
+		GL11.glPushMatrix();
+		float tex_width = 1f/4f;
+		float tex_height = 1f/4f;
+		float tx = 0;
+		float ty = 2;
+		float C =(float) Math.floor(Display.getWidth()/ 2);
+		
+		int x = 8;
+		int y = 10;
+		
+		float height = 32;
+		float width = 64;
+		
+		// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
+        float Yo = (height / 2) * y;
+
+        // Про эту переменную я уже рассказал чуть ранее.
+        float Xc = C - (width / 2 * y);
+		
+        
+        float Xo = Xc + (x * (width / 2));
+		Yo += height / 2;
+        
+		GL11.glTranslatef(Xo, Yo, 0);
+		//GL11.glScalef(scal,scal, 0);
+		ship.bind();
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
+			GL11.glVertex2f(-32,-32);
+			
+			GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height);
+			GL11.glVertex2f(32, -32);
+			
+			GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height+tex_height);
+			GL11.glVertex2f(32, 32);
+			
+			GL11.glTexCoord2f(tx*tex_width, ty*tex_height+tex_height);
+			GL11.glVertex2f(-32, 32);
+		GL11.glEnd();
+		GL11.glPopMatrix();
+	}
+	
 	private void drawMap()
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
 		GL11.glTranslatef(trans, 0, 0);
 		GL11.glScalef(scal,scal, 0);
-		
+		sprites.bind();
 		float Xo = 0;
 	    float Yo = 0;
 	    int height = 32;
@@ -224,7 +276,7 @@ public class Window implements Runnable
 			System.out.println();
 			
 		}
-		
+		drawShip();
 		GL11.glPopMatrix(); 
 	}
 	
@@ -331,12 +383,15 @@ public class Window implements Runnable
 		//drawTexture(100, 200, 0, beach_water);
 		if (map != null) 
 		{
+			x_s += x_speed;
+			y_s += y_speed;
 			drawMap();
-			if (objects != null)
-				for (GameObject q : objects)
-				{
+			//drawShip();
+			//if (objects != null)
+				//for (GameObject q : objects)
+				//{
 					//drawQuad(q);
-				}
+				//}
 		}
 		else
 		{
@@ -375,7 +430,7 @@ public class Window implements Runnable
 		getDelta();
 		initGL();
 		timer.start();
-		sprites.bind();
+		
 		
 		for (int key: coordTex.keySet())
 		{
