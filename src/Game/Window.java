@@ -35,6 +35,8 @@ public class Window implements Runnable
 	float y_s = 0;
 	float x_speed = 0;
 	float y_speed = 0;
+	int x = 0;
+	int y = 0;
 	
 	
 	byte[][] map;
@@ -52,8 +54,8 @@ public class Window implements Runnable
 	
 	Controller controller;
 	Timer timer;
-	int trans = 0;
-	float scal = 1.6f;
+	int trans = -50;
+	float scal = 1.0f;
 	int i_w =0 ;
 	
 	Window(int w, int h, int step, Controller c)
@@ -157,7 +159,7 @@ public class Window implements Runnable
  
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
-		GL11.glOrtho(0, 800, 600, 0, 100, -100);
+		GL11.glOrtho(0, width, height, 0, 1, -1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		
 		//GL11.glRotatef(-35, 0, 0, 1);
@@ -198,11 +200,9 @@ public class Window implements Runnable
 		float tex_width = 1f/4f;
 		float tex_height = 1f/4f;
 		float tx = 0;
-		float ty = 2;
+		float ty = 1;
 		float C =(float) Math.floor(Display.getWidth()/ 2);
 		
-		int x = 8;
-		int y = 10;
 		
 		float height = 32;
 		float width = 64;
@@ -273,7 +273,7 @@ public class Window implements Runnable
 				drawTexture(Xo, Yo, 0, t[0], t[1]);
 				
 			}
-			System.out.println();
+			//System.out.println();
 			
 		}
 		drawShip();
@@ -422,14 +422,14 @@ public class Window implements Runnable
 		
 		Display.destroy();
 		Keyboard.destroy();
-		timer.stop();
+		//timer.stop();
 	}
 	
 	public void start()
 	{
 		getDelta();
 		initGL();
-		timer.start();
+		//timer.start();
 		
 		
 		for (int key: coordTex.keySet())

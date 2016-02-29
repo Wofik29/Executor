@@ -9,8 +9,8 @@ public class Controller
 	Thread thread_world;
 	Thread thread_window;
 	
-	final int WIDTH = 800;
-	final int HEIGHT = 600;
+	final int WIDTH = 1024;
+	final int HEIGHT = 780;
 	
 	public void init()
 	{
@@ -31,16 +31,16 @@ public class Controller
         case Keyboard.KEY_A: System.out.println("pressed A "); 
         	//GameObject p = world.getObjects().get(0);
         	//p.isGo = true;
-        	window.x_speed = -1;
+        	window.x ++;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
-        	window.x_speed = +1;
+        	window.x --;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
-        	window.y_speed = +1;
+        	window.y ++;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
-        	window.y_speed = -1;
+        	window.y --;
         	break;
         }
 	}

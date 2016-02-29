@@ -4,6 +4,34 @@ public class WhileLoop extends Queue
 {
 	int condition;
 	
+	class Condition	
+	{
+		int condtion;
+		int direction;
+		
+		public Condition(int c, int d)
+		{
+			condtion = c;
+			direction = d;
+		}
+		
+		public boolean isCondition(GameObject obj)
+		{
+			switch (obj.direction)
+			{
+			case 0:
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			}
+			
+			return true;
+		}
+	}
 	
 	public WhileLoop() 
 	{

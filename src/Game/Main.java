@@ -6,8 +6,8 @@ public class Main
 	{
 		//System.setProperty("org.lwjgl.librarypath", new File("Executor_lib").getAbsolutePath());
 		
-		System.out.println(
-		System.getProperty("java.class.path"));
+		//System.out.println(
+		//System.getProperty("java.class.path"));
 		
 		Controller c = new Controller();
 		c.init();

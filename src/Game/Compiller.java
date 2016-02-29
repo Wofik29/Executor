@@ -10,6 +10,7 @@ public class Compiller
 {
 	String path;
 	StringBuilder sb = new StringBuilder();
+	HashMap<String, String> commands = new HashMap<>();
 	
 	public Compiller()
 	{
@@ -19,6 +20,11 @@ public class Compiller
 	public void setFile(String path)
 	{
 		this.path = path;
+	}
+	
+	public void setCommands()
+	{
+		
 	}
 	
 	public void read()
@@ -46,7 +52,66 @@ public class Compiller
 			ex.printStackTrace();
 		}
 		
-		System.out.println(sb);
+		char[] s = sb.toString().toCharArray();
+		StringBuilder com = new StringBuilder();
+		boolean condition = false;
+		for (char str : s)
+		{
+			com.append(str);
+			if (condition)
+			{
+				switch(com.toString())
+				{
+				case " ": com.substring(0);
+				break;
+				case "ahead":
+				}
+			}
+			else
+			{
+				switch(com.toString())
+				{
+				case "forward":
+					System.out.println("GO!");
+					com.substring(0);
+					break;
+				case "left":
+					System.out.println("LEFT!");
+					com.substring(0);
+					break;
+				case "right":
+					System.out.println("RIGHT!");
+					com.substring(0);
+					break;
+				case "while":
+					System.out.println("while ");
+					com.substring(0);
+					break;
+				case "{":
+					System.out.println("starting block");
+					com.substring(0);
+					break;
+				case "}":
+					System.out.println("Endging block");
+					com.substring(0);
+					break;
+				case ")":
+					System.out.println("Ending condition");
+					com.substring(0);
+					break;
+				case "(":
+					System.out.println("Starting condition");
+					condition = true;
+					com.substring(0);
+					break;
+				case " ": 
+					com.substring(0);
+					break;
+				}
+			}
+		}
+		
+		//		System.out.println(sb);
 	}
 	
 	public void getProgramm()
@@ -65,27 +130,29 @@ public class Compiller
 		{
 			System.out.println(str);
 			
-			/*switch(str.toLowerCase())
+			switch(commands.get(str.toLowerCase()))
 			{
 			case "forward":
 				current.add(new Forward());
 				break;
-			case "влево":
+			case "left":
 				current.add(new Left());
 				break;
-			case "вправо":
+			case "right":
 				current.add(new Right());
 				break;
-			case "пока":
+			case "while":
 				Queue loop = new WhileLoop();
-				current = loop;
+				current.add(current);
 				stack.push(current);
+				current = loop;
 				break;
-			case "конец":
-				
+			case "end":
+				if (!stack.empty())	current = stack.pop();
+				// return 
 				break;
 			}
-			*/
+			
 		}
 		
 		//return programm;
