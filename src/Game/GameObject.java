@@ -96,7 +96,7 @@ public class GameObject
 			checkDirection();
 			next();
 			checkDirection();
-			isGo = false;
+			//isGo = false;
 		}
 		
 		

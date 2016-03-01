@@ -41,7 +41,7 @@ public class Compiller
 			while (br.ready() )
 			{
 				sb.append(br.readLine()).
-					append("\n");
+					append(" ");
 			}
 			
 			br.close();
@@ -52,19 +52,29 @@ public class Compiller
 			ex.printStackTrace();
 		}
 		
+		//System.out.println(sb);
+	}
+	
+	public void getProgramm2()
+	{
 		char[] s = sb.toString().toCharArray();
 		StringBuilder com = new StringBuilder();
 		boolean condition = false;
 		for (char str : s)
 		{
+			//com.delete(0, com.length());
 			com.append(str);
+			//System.out.println(com);
 			if (condition)
 			{
 				switch(com.toString())
 				{
-				case " ": com.substring(0);
+				case " ": com.delete(0, com.length());
 				break;
 				case "ahead":
+					
+					com.delete(0, com.length());
+					break;
 				}
 			}
 			else
@@ -73,48 +83,46 @@ public class Compiller
 				{
 				case "forward":
 					System.out.println("GO!");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "left":
 					System.out.println("LEFT!");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "right":
 					System.out.println("RIGHT!");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "while":
 					System.out.println("while ");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "{":
 					System.out.println("starting block");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "}":
 					System.out.println("Endging block");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case ")":
 					System.out.println("Ending condition");
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case "(":
 					System.out.println("Starting condition");
 					condition = true;
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				case " ": 
-					com.substring(0);
+					com.delete(0, com.length());
 					break;
 				}
 			}
 		}
-		
-		//		System.out.println(sb);
 	}
 	
-	public void getProgramm()
+	public Queue getProgramm1()
 	{
 		Stack<Queue> stack = new Stack<>();
 		
@@ -124,13 +132,12 @@ public class Compiller
 		stack.push(current);
 		
 		String[] s = sb.toString().split(" ");
-		int i = 0;
 		
 		for (String str : s)
 		{
-			System.out.println(str);
+			//System.out.println(str);
 			
-			switch(commands.get(str.toLowerCase()))
+			switch((str.toLowerCase()))
 			{
 			case "forward":
 				current.add(new Forward());
@@ -155,6 +162,6 @@ public class Compiller
 			
 		}
 		
-		//return programm;
+		return programm;
 	}
 }

@@ -20,6 +20,9 @@ public class Controller
 		window.setMap(world.getMap());
 		window.setObjects(world.getObjects());
 		
+		GameObject p =  world.getObjects().get(0);
+		window.setPlayer(p);
+		
 		thread_world = new Thread(world);
 		thread_window = new Thread(window);
 	}
@@ -29,18 +32,18 @@ public class Controller
 		switch (key)
         {
         case Keyboard.KEY_A: System.out.println("pressed A "); 
-        	//GameObject p = world.getObjects().get(0);
-        	//p.isGo = true;
-        	window.x ++;
+        	GameObject p = world.getObjects().get(0);
+        	p.isGo = true;
+        	//window.x ++;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
-        	window.x --;
+        	//window.x --;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
-        	window.y ++;
+        	//window.y ++;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
-        	window.y --;
+        	//window.y --;
         	break;
         }
 	}

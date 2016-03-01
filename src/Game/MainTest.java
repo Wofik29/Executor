@@ -11,6 +11,9 @@ public class MainTest {
 		Compiller c = new Compiller();
 		c.setFile("Executor.ini");
 		c.read();
+		Queue q = c.getProgramm1();
+		
+		System.out.println(q.toString());
 		
 	}
 

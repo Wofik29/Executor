@@ -1,10 +1,13 @@
 package Game;
 
+import java.awt.Canvas;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.swing.JFrame;
 import javax.swing.Timer;
 
 import org.lwjgl.LWJGLException;
@@ -35,12 +38,10 @@ public class Window implements Runnable
 	float y_s = 0;
 	float x_speed = 0;
 	float y_speed = 0;
-	int x = 0;
-	int y = 0;
 	
+	GameObject player;	
 	
 	byte[][] map;
-	//Font awtfont = new Font("Times New Roman", Font.BOLD, 25);
 	TrueTypeFont font;
 	int step;
 	int rot = 0;
@@ -55,8 +56,12 @@ public class Window implements Runnable
 	Controller controller;
 	Timer timer;
 	int trans = -50;
-	float scal = 1.0f;
+	float scal = 1.4f;
 	int i_w =0 ;
+	
+	//JFrame frame;
+	//Canvas canvas;
+	
 	
 	Window(int w, int h, int step, Controller c)
 	{
@@ -76,7 +81,12 @@ public class Window implements Runnable
 			}
 		});
 		
-		
+	/*	setSize(w+10, h+10);
+		canvas = new Canvas();
+		canvas.setSize(w, h);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	*/
 		
 		coordTex.put(0, new int[]{5,0}); // grass
 		coordTex.put(1, new int[]{0,0}); // deep
@@ -119,6 +129,11 @@ public class Window implements Runnable
 		coordTex.put(38, new int[]{4,4}); // beach-shallow-3
 		coordTex.put(39, new int[]{4,2}); // beach-shallow-4
 		
+	}
+	
+	public void setPlayer(GameObject p)
+	{
+		player = p;
 	}
 	
 	public void setObjects(List<GameObject> o)
@@ -176,24 +191,8 @@ public class Window implements Runnable
 			e.printStackTrace();
 		}
 	}
-		
-	private void drawQuad(GameObject q)
-	{
-		//GL11.glColor3f(0.5f,0.5f,1.0f);
-		
-		GL11.glPushMatrix();
-		GL11.glTranslatef(q.x_p + q.width/2, q.y_p + q.width/2, 0);
-		GL11.glRotatef(q.current_rotation, 0f, 0f, 1f);
-		
-		GL11.glBegin(GL11.GL_TRIANGLES);
-			GL11.glVertex2f(-q.width/2, -q.width/2);
-			GL11.glVertex2f(q.width/2, -q.width/2);
-			GL11.glVertex2f(0, q.width/2);
-		GL11.glEnd();
-		GL11.glPopMatrix(); 
-	}
 	
-	private void drawShip()
+	private void drawShip(float x, float y)
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
@@ -201,23 +200,8 @@ public class Window implements Runnable
 		float tex_height = 1f/4f;
 		float tx = 0;
 		float ty = 1;
-		float C =(float) Math.floor(Display.getWidth()/ 2);
-		
-		
-		float height = 32;
-		float width = 64;
-		
-		// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
-        float Yo = (height / 2) * y;
 
-        // Про эту переменную я уже рассказал чуть ранее.
-        float Xc = C - (width / 2 * y);
-		
-        
-        float Xo = Xc + (x * (width / 2));
-		Yo += height / 2;
-        
-		GL11.glTranslatef(Xo, Yo, 0);
+		GL11.glTranslatef(x,y, 0);
 		//GL11.glScalef(scal,scal, 0);
 		ship.bind();
 		GL11.glBegin(GL11.GL_QUADS);
@@ -234,6 +218,7 @@ public class Window implements Runnable
 			GL11.glVertex2f(-32, 32);
 		GL11.glEnd();
 		GL11.glPopMatrix();
+		sprites.bind();
 	}
 	
 	private void drawMap()
@@ -271,12 +256,17 @@ public class Window implements Runnable
 				//System.out.print(" "+t[0]+" , ");
 				
 				drawTexture(Xo, Yo, 0, t[0], t[1]);
-				
+				if (player != null)
+					if (y==player.x && x==player.y)
+					{
+						font.drawString(0, 0, "X: "+x+" Y: "+y);
+						drawShip(Xo,Yo);
+					}
 			}
 			//System.out.println();
 			
 		}
-		drawShip();
+		//drawShip();
 		GL11.glPopMatrix(); 
 	}
 	
@@ -326,25 +316,7 @@ public class Window implements Runnable
 		//GL11.glRotatef(rot, 0f, 0f, 1f);
 		
 		Color.white.bind();
-        //t.bind(); // or GL11.glBind(texture.getTextureID());
- /*
-        GL11.glBegin(GL11.GL_QUADS);
-            GL11.glTexCoord2f(0,0);
-            GL11.glVertex2f(-64,-32);
-            
-            GL11.glTexCoord2f(0.25f,0);
-            GL11.glVertex2f(64, -32);
-            
-            GL11.glTexCoord2f(0.25f,0.09f);
-            GL11.glVertex2f(64, 32);
-           
-            GL11.glTexCoord2f(0,0.09f);
-            GL11.glVertex2f(-64, 32);
-        GL11.glEnd();
-    */     
-		//System.out.println(ty);
-		//System.out.println(tex_height);
-		//System.out.println(ty*tex_height);
+
         GL11.glBegin(GL11.GL_QUADS);
             GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
             GL11.glVertex2f(-32,-32);
@@ -366,21 +338,7 @@ public class Window implements Runnable
 	{
 		// Clear the screen and depth buffer 
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
-		//drawTexture(34,18, grass);
-		//drawTexture(0, 0, grass);
-		
-		//System.out.println(grass.getTextureHeight());
-		//System.out.println(rot);
-		
-		//for (int i = 0; i<41;i++)
-		//{
-		//	int[] t = coordTex.get(i);
-		//	drawTexture(100+64*i, 100, 0, t[0], t[1]);
-		//}
-		
-		
-		//System.out.println("0: "+t[0]+", 1: "+t[1]);
-		//drawTexture(100, 200, 0, beach_water);
+
 		if (map != null) 
 		{
 			x_s += x_speed;
@@ -408,9 +366,10 @@ public class Window implements Runnable
 	{
 		try
 		{
+			
 			Display.setDisplayMode(new DisplayMode(width, height));
+			Display.setVSyncEnabled(true);
 			Display.create();
-			//Display.setTitle("Game");
 			
 			Keyboard.create();
 		}

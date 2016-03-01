@@ -12,13 +12,25 @@ abstract public class Queue implements Command
 	
 	public void add(Command c)
 	{
-		System.out.println(this.toString() +" : "+c.toString());
+		//System.out.println("added "+c.toString());
 		commands.add(c);
 		if (current_command == null) 
 		{
 			current_command = c;
-			System.out.println("set : "+c.toString());
+			//System.out.println("set : "+c.toString());
 		}
+	}
+	
+	public String toString()
+	{
+		String result = "";
+		
+		for (Command c : commands)
+		{
+			result += " { " + c.toString() + " }, ";
+		}
+		
+		return result;
 	}
 	
 	abstract public boolean execute(GameObject obj);
