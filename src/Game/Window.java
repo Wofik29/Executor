@@ -1,13 +1,21 @@
 package Game;
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.Timer;
 
 import org.lwjgl.LWJGLException;
@@ -25,68 +33,111 @@ import org.newdawn.slick.util.ResourceLoader;
 
 public class Window implements Runnable
 {
+	// Отрисовывается все тут
+	private JFrame frame;
+	private Canvas canvas;
+	private JSplitPane splitPane;
 	
-	long lastFPS;
-	long lastFrame; // Время последнего
-	int fps;
-	int width, height;
+	// Работает все тут
+	private Thread gameThread;
 	
-	float tex_width;
-	float tex_height;
+	// флаг на работу
+	private boolean running;
 	
-	float x_s = 0;
-	float y_s = 0;
-	float x_speed = 0;
-	float y_speed = 0;
+	// флаг, если надо изменить вывод OpenGL
+	private boolean needUpdateViewport = false;
 	
-	GameObject player;	
+	// Массив к текстурными координатами.
+	HashMap<Integer , int[]> coordTex = new HashMap<Integer, int[]>(70);
+
+	// текстуры земли и всего вокруг 
+	Texture sprites;
 	
 	byte[][] map;
+	
+	// объект для вывода текста на OpenGL
 	TrueTypeFont font;
-	int step;
-	int rot = 0;
-	volatile List<GameObject> objects;
-
-	HashMap<Integer , int[]> coordTex = new HashMap<Integer, int[]>(50);
 	
+	private Controller controller;
 	
-	Texture sprites;
-	Texture ship;
-	
-	Controller controller;
-	Timer timer;
-	int trans = -50;
-	float scal = 1.4f;
-	int i_w =0 ;
-	
-	//JFrame frame;
-	//Canvas canvas;
-	
-	
-	Window(int w, int h, int step, Controller c)
+	public Window(Controller c)
 	{
-		width = w;
-		height = h;
-		tex_height = 1f/8f;
-		tex_width = 1f/8f;
-		this.step = step;
+		
 		controller = c;
-		timer = new Timer(200, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				i_w = (i_w==0) ? (i_w=1) : (i_w=0);
-			
+		
+		// Создание frame для держание всего.
+		frame = new JFrame();
+		frame.setTitle("Swing + LWJGL");
+		frame.setLayout(null);
+		frame.setBounds(100, 100, 1024, 768);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
+		// Разделяет frame на две части. В одной будет текст, в другой canvas
+				splitPane = new JSplitPane();
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight());
+				frame.add(splitPane);
+				
+		// Canvas будет контейнером для OpenGL
+		canvas = new Canvas() {
+			private static final long serialVersionUID = -1069002023468669595L;
+			public void removeNotify() 
+			{
+				//stopOpenGL();
+			}
+		};
+		
+		canvas.setIgnoreRepaint(true);
+		canvas.setBounds(0, 0, 800, 600);
+		canvas.setPreferredSize(new Dimension(800, 600));
+		canvas.setMinimumSize(new Dimension(320, 240));
+		
+		// Навешиваем слушателей, чтобы openGL изменял свой вид, при изменения окна.
+		canvas.addComponentListener(new ComponentListener() 
+		{
+			public void componentShown(ComponentEvent e) 
+			{
+				setNeedValidation();
+			}
+			public void componentResized(ComponentEvent e) 
+			{
+				setNeedValidation();
+			}
+			public void componentMoved(ComponentEvent e) 
+			{
+				setNeedValidation();
+			}
+			public void componentHidden(ComponentEvent e) 
+			{
+				setNeedValidation();
 			}
 		});
 		
-	/*	setSize(w+10, h+10);
-		canvas = new Canvas();
-		canvas.setSize(w, h);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	*/
+		splitPane.setRightComponent(canvas);
+		
+		// Делаем все видимое, ясно.
+		frame.setVisible(true);
+		splitPane.setVisible(true);
+		canvas.setVisible(true);
+		
+		//При изменении основного окна, меняем и размеры компоненты, который разделяет все.
+		frame.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent arg0) {}
+			
+			@Override
+			public void componentResized(ComponentEvent arg0) 
+			{
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight());
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent arg0) {}
+			
+			@Override
+			public void componentHidden(ComponentEvent arg0) {}
+		});
 		
 		coordTex.put(0, new int[]{5,0}); // grass
 		coordTex.put(1, new int[]{0,0}); // deep
@@ -129,116 +180,131 @@ public class Window implements Runnable
 		coordTex.put(38, new int[]{4,4}); // beach-shallow-3
 		coordTex.put(39, new int[]{4,2}); // beach-shallow-4
 		
+		System.out.println("Create Window");
 	}
 	
-	public void setPlayer(GameObject p)
-	{
-		player = p;
-	}
-	
-	public void setObjects(List<GameObject> o)
-	{
-		objects = o;
+	private void setNeedValidation() {
+		needUpdateViewport = true;
 	}
 	
 	public void setMap(byte[][] m)
 	{
 		map = m;
 	}
-	private void initGL()
+	
+	private void stopOpenGL()
 	{
-		Font awtFont = new Font("Times new Roman", Font.BOLD, 25);
-		font = new TrueTypeFont(awtFont, false);
+		System.out.println("StopOpenGL");
 		
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		
-		//GL11.glEnable(GL11.GL_DEPTH_TEST);
-		//GL11.glDepthFunc(GL11.GL_LEQUAL);
-		
-		GL11.glShadeModel(GL11.GL_SMOOTH);
-		
-		GL11.glEnable(GL11.GL_ALPHA_TEST);
-		GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.8f);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		GL11.glDisable(GL11.GL_LIGHTING);
-		GL11.glEnable(GL11.GL_BLEND);
-		//GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
- 
-		GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        GL11.glClearDepth(1);
-        
-        //GL11.glAlphaFunc(GL11.GL_GEQUAL, 1);
- 
-        GL11.glViewport(0,0,width,height);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
- 
-		GL11.glMatrixMode(GL11.GL_PROJECTION);
-		GL11.glLoadIdentity();
-		GL11.glOrtho(0, width, height, 0, 1, -1);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW);
-		
-		//GL11.glRotatef(-35, 0, 0, 1);
-		
-
-		try
+		running = false;
+		try 
 		{
-			
-			sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
-			ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship.png"));
-		}
-		catch (Exception e)
+			gameThread.join();
+		} catch (InterruptedException e) 
 		{
 			e.printStackTrace();
 		}
+		controller.stop();
 	}
 	
-	private void drawShip(float x, float y)
+	public void run()
 	{
-		GL11.glColor4f(1, 1, 1, 1);
-		GL11.glPushMatrix();
-		float tex_width = 1f/4f;
-		float tex_height = 1f/4f;
-		float tx = 0;
-		float ty = 1;
+		try 
+		{
+			// Создание и настройки OpenGL
+			Display.create();
+			Display.setParent(canvas);
+			
+			Rectangle rect = canvas.getBounds();
+			int w = (int) rect.getWidth();
+			int h = (int) rect.getHeight();
+			
+			Font awtFont = new Font("Times new Roman", Font.BOLD, 25);
+			font = new TrueTypeFont(awtFont, false);
+			
+			GL11.glClearColor(0f, 0f, 0f, 1);
+			
+			// Указывание, сколько мерная текстура
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			
+			GL11.glShadeModel(GL11.GL_SMOOTH);
+			
+			// Проверка альфы
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-		GL11.glTranslatef(x,y, 0);
-		//GL11.glScalef(scal,scal, 0);
-		ship.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
-			GL11.glVertex2f(-32,-32);
+			// Если меньше этого значения, то пиксель отбрасывается
+			GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.8f);
 			
-			GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height);
-			GL11.glVertex2f(32, -32);
+			// Проверка глубины
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+			GL11.glDisable(GL11.GL_LIGHTING);
 			
-			GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height+tex_height);
-			GL11.glVertex2f(32, 32);
+			// Смешение цветов.
+			GL11.glEnable(GL11.GL_BLEND);
 			
-			GL11.glTexCoord2f(tx*tex_width, ty*tex_height+tex_height);
-			GL11.glVertex2f(-32, 32);
-		GL11.glEnd();
-		GL11.glPopMatrix();
-		sprites.bind();
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadIdentity();
+			GL11.glOrtho(0, w, h, 0, -1, 1);
+			
+			GL11.glViewport(0, 0, w, h);
+			
+			try
+			{
+				
+				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
+				//ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship.png"));
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+			
+			running = true;
+		} 
+		catch (LWJGLException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		while (running) 
+		{
+			updateGL();
+		}
+			
+		if (Display.isCreated()) 
+		{
+			Display.destroy();
+		}
 	}
 	
 	private void drawMap()
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(trans, 0, 0);
-		GL11.glScalef(scal,scal, 0);
+		GL11.glTranslatef(0, 0, 0);
+		GL11.glScalef(1f,1f, 0);
+		
+		// Подключаем текстуру.
 		sprites.bind();
+		
+		// Координаты середины текстурного квадрата
 		float Xo = 0;
 	    float Yo = 0;
+	    
+	    // его видимые размеры
 	    int height = 32;
 	    int width = 64;
+	    
+	    int[] t = new int[2];
+	    
+	    // Середина на ширине
 	    float C =(float) Math.floor(Display.getWidth()/ 2);
-	    int [] t = {0,0};
+	    
+	    //
 	    float Xc = 0;
-	   // System.out.println();
-	   // System.out.println("=====");
-		
-		for (int y=0; y<map.length; y++)
+	    
+	    for (int y=0; y<map.length; y++)
 		{
 			// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
             Yo = (height / 2) * y;
@@ -252,164 +318,69 @@ public class Window implements Runnable
 				Yo += height / 2;
 				
 				t = coordTex.get((int)map[y][x]);
-				//System.out.println(map[y][x]);
-				//System.out.print(" "+t[0]+" , ");
 				
-				drawTexture(Xo, Yo, 0, t[0], t[1]);
-				if (player != null)
-					if (y==player.x && x==player.y)
-					{
+				/*drawTexture(Xo, Yo, 0, t[0], t[1]);
+				//if (player != null)
+				//	if (y==player.x && x==player.y)
+				//	{
 						font.drawString(0, 0, "X: "+x+" Y: "+y);
 						drawShip(Xo,Yo);
 					}
+				*/	
 			}
-			//System.out.println();
+			
 			
 		}
 		//drawShip();
 		GL11.glPopMatrix(); 
 	}
 	
-	private void inputLoop()
+	public void updateGL()
 	{
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
-		while (Keyboard.next()) {
-		    if (Keyboard.getEventKeyState()) 
-		    {
-		    	controller.pressedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
-		    }
-		    else
-		    {
-		    	controller.relessedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
-		    }
-		}
-	}
-	
-	
-	public long getTime() 
-	{
-	    return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-	}
-	
-	public void setText(String s)
-	{
-		Display.setTitle(s);
-	}
-	
-	/*
-	 * Считает, как много времени прошло с последнего кадра
-	 */
-	public int getDelta() 
-	{
-		long time = getTime();
-	    int delta = (int) (time - lastFrame);
-	    lastFrame = time;
-	    
-	    return delta;
-	}
-
-	void drawTexture(float px, float py, float pz, float tx, float ty)
-	{
-		GL11.glPushMatrix();
-		GL11.glTranslatef(px, py, pz);
+		render();
 		
-		//GL11.glRotatef(rot, 0f, 0f, 1f);
-		
-		Color.white.bind();
-
-        GL11.glBegin(GL11.GL_QUADS);
-            GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
-            GL11.glVertex2f(-32,-32);
-            
-            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height);
-            GL11.glVertex2f(32, -32);
-            
-            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height+tex_height);
-            GL11.glVertex2f(32, 32);
-           
-            GL11.glTexCoord2f(tx*tex_width, ty*tex_height+tex_height);
-            GL11.glVertex2f(-32, 32);
-        GL11.glEnd();
-       
-        GL11.glPopMatrix();
-	}
-	
-	void renderGL()
-	{
-		// Clear the screen and depth buffer 
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); 
-
-		if (map != null) 
+		if (needUpdateViewport) 
 		{
-			x_s += x_speed;
-			y_s += y_speed;
-			drawMap();
-			//drawShip();
-			//if (objects != null)
-				//for (GameObject q : objects)
-				//{
-					//drawQuad(q);
-				//}
-		}
-		else
-		{
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_CONSTANT_ALPHA);
-			font.drawString(400, 400, "Loading", Color.red);
-			GL11.glDisable(GL11.GL_BLEND);
-		}
-		
-		 
-	}
-	
-	public void run()
-	{
-		try
-		{
+			needUpdateViewport = false;
 			
-			Display.setDisplayMode(new DisplayMode(width, height));
-			Display.setVSyncEnabled(true);
-			Display.create();
+			Rectangle rect = canvas.getBounds();
+			int w = (int) rect.getWidth();
+			int h = (int) rect.getHeight();
 			
-			Keyboard.create();
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadIdentity();
+			GL11.glOrtho(0, w, h, 0, -1, 1);
+			GL11.glViewport(0, 0, w, h);
 		}
-		catch (LWJGLException ex)
-		{
-			
-		}
-		start();
 		
-		Display.destroy();
-		Keyboard.destroy();
-		//timer.stop();
+		Display.update();
+		Display.sync(60);
+	}
+	
+	public void render()
+	{
+		GL11.glBegin(GL11.GL_QUADS);
+		
+			GL11.glColor4f(1, 0, 0, 1);
+			GL11.glVertex3f(0, 0, 0);
+		
+			GL11.glColor4f(1, 0, 0, 1);
+			GL11.glVertex3f(10, 0, 0);
+		
+			GL11.glColor4f(1, 0, 0, 1);
+			GL11.glVertex3f(10, 10, 0);
+		
+			GL11.glColor4f(1, 0, 0, 1);
+			GL11.glVertex3f(0, 10, 0);
+		
+		GL11.glEnd();
 	}
 	
 	public void start()
 	{
-		getDelta();
-		initGL();
-		//timer.start();
-		
-		
-		for (int key: coordTex.keySet())
-		{
-			int t[] = coordTex.get(key);
-			System.out.println(key+" : "+t[0]+" , "+t[1]);
-		}
-		
-		while (!Display.isCloseRequested())
-		{
-			inputLoop();
-			
-			//int delta = getDelta();
-            
-	        renderGL();
-			
-			Display.update();
-			Display.sync(60); 
-			//System.out.println(lastFPS);
-		}
-		
+		gameThread = new Thread(this);
+		gameThread.start();
 	}
-	
 }

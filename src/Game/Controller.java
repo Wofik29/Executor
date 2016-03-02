@@ -1,4 +1,6 @@
 package Game;
+import java.awt.EventQueue;
+
 import org.lwjgl.input.Keyboard;
 
 public class Controller  
@@ -16,15 +18,15 @@ public class Controller
 	{
 		int step = 10;
 		world = new World(WIDTH, HEIGHT, step);
-		window = new Window(WIDTH, HEIGHT, step, this);
-		window.setMap(world.getMap());
-		window.setObjects(world.getObjects());
+		window = new Window(this);
+		//window.setMap(world.getMap());
+		//window.setObjects(world.getObjects());
 		
 		GameObject p =  world.getObjects().get(0);
-		window.setPlayer(p);
+		//window.setPlayer(p);
 		
 		thread_world = new Thread(world);
-		thread_window = new Thread(window);
+		//thread_window = new Thread(window);
 	}
 	
 	public void pressedKey(int key, char c)
@@ -53,34 +55,41 @@ public class Controller
 		switch (key)
         {
         case Keyboard.KEY_A: System.out.println("relessed A"); 
-        	window.x_speed = 0;
+        	//window.x_speed = 0;
         	break;
         case Keyboard.KEY_D: System.out.println("relessed D"); 
-        	window.x_speed = 0;
+        	//window.x_speed = 0;
         	break;
         case Keyboard.KEY_W: System.out.println("relessed W"); 
-        	window.y_speed = 0;
+        	//window.y_speed = 0;
         	break;
         case Keyboard.KEY_S: System.out.println("relessed S"); 
-        	window.y_speed = 0;
+        	//window.y_speed = 0;
         	break;	
         }
 	}
 	
+	public void stop()
+	{
+		world.stop();
+	}
+	
 	public void start()
 	{
-		thread_window.start();
-		thread_world.start();
+		window.start();
+		//thread_window.start();
+		//EventQueue.invokeLater(window);
+		//thread_world.start();
 		try
 		{
-			thread_window.join();
+			//thread_window.join();
 		}
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
 		}
 		
-		world.stop();
+		//world.stop();
 	}
 	
 	
