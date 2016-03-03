@@ -1,6 +1,9 @@
 package Game;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
  * Есть возможность двигаться прямо и поворачивать 
@@ -26,12 +29,22 @@ public class GameObject
 	int step;
 	
 	boolean isGo = true;
+	boolean isControl = false;
 		
-	// пока будут цифры направления 0 - вверх, 1 - вправо и т.д.
+	/* 
+	 * пока будут цифры направления 
+	 * 0 - вниз-влево 
+	 * 1 - вниз-вправо
+	 * 2 - вверх-вправо
+	 * 3 - вверх-влево 
+	 */
 	int direction;
 	int current;
 	
+	
+	
 	MainLoop programm;
+	ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
 	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
 	GameObject(int x, int y, int s, byte[][] m)
@@ -74,6 +87,7 @@ public class GameObject
 	
 	public void step()
 	{
+		//System.out.println("step");
 		if (x_p >= x*step) x_p --;
 		if (x_p < x*step) x_p ++;
 		if (y_p >= y*step) y_p --;
@@ -88,6 +102,7 @@ public class GameObject
 			rotation = 0;
 		}
 		
+		
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;
 		
@@ -97,6 +112,7 @@ public class GameObject
 			next();
 			checkDirection();
 			//isGo = false;
+			//System.out.println("next");
 		}
 		
 		
@@ -107,24 +123,37 @@ public class GameObject
 	{
 		switch (direction)
 		{
-		case 0: 
-			current_front = map[x][y+1];
-			break;
-		case 1: 
+		case 0: //По экран вниз-влево
 			current_front = map[x+1][y];
 			break;
-		case 2: 
-			current_front = map[x][y-1];
+		case 1: // вниз-вправо
+			current_front = map[x][y+1];
 			break;
-		case 3: 
+		case 2: // верх-вправо
 			current_front = map[x-1][y];
+			break;
+		case 3: // верх-влево
+			current_front = map[x][y-1];
 			break;
 		}
 	}
 	
+	public void addCommand(Command c)
+	{
+		commands.add(c);
+	}
+	
 	public void next()
 	{
-		programm.execute(this);
+		if (isControl)
+		{
+			commands.poll().execute(this);
+		}
+		else
+		if (programm != null) {
+			//System.out.println("execute");
+			programm.execute(this);
+		}
 	}
 	
 }

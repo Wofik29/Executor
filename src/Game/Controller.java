@@ -19,29 +19,56 @@ public class Controller
 		int step = 10;
 		world = new World(WIDTH, HEIGHT, step);
 		window = new Window(this);
-		//window.setMap(world.getMap());
+		window.setMap(world.getMap());
 		//window.setObjects(world.getObjects());
 		
 		GameObject p =  world.getObjects().get(0);
-		//window.setPlayer(p);
+		window.setPlayer(p);
 		
 		thread_world = new Thread(world);
 		//thread_window = new Thread(window);
 	}
 	
+	public void setProgramm(String text)
+	{
+		String[] com = text.split(" ");
+		
+		MainLoop current = new MainLoop();
+		
+		for (String str: com)
+		{
+			switch((str.toLowerCase()))
+			{
+			case "forward":
+				current.add(new Forward());
+				break;
+			case "left":
+				current.add(new Left());
+				break;
+			case "right":
+				current.add(new Right());
+				break;
+			}
+		}
+		
+		world.getObjects().get(0).setProgramm(current);
+	}
+	
 	public void pressedKey(int key, char c)
 	{
+		GameObject p = world.getObjects().get(0);
 		switch (key)
         {
         case Keyboard.KEY_A: System.out.println("pressed A "); 
-        	GameObject p = world.getObjects().get(0);
-        	p.isGo = true;
+        	p.addCommand(new Left());
         	//window.x ++;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
-        	//window.x --;
+    		p.addCommand(new Right());
+        //window.x --;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
+    		p.addCommand(new Forward());
         	//window.y ++;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
@@ -79,7 +106,7 @@ public class Controller
 		window.start();
 		//thread_window.start();
 		//EventQueue.invokeLater(window);
-		//thread_world.start();
+		thread_world.start();
 		try
 		{
 			//thread_window.join();

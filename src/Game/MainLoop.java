@@ -14,10 +14,10 @@ public class MainLoop extends Queue
 	
 	public boolean execute(GameObject obj)
 	{
-		System.out.println("execute "+current_command.toString()+" - "+current_number);
+		//System.out.println("execute "+current_command.toString()+" - "+current_number);
 		if (isEnd && current_command != null && current_command.execute(obj))
 		{
-			//System.out.println("execute "+current_command.toString()+" - "+current_number);
+			System.out.println("execute "+current_command.toString()+" - "+current_number);
 			
 			next();
 			return true;

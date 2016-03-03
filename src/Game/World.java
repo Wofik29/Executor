@@ -43,7 +43,7 @@ public class World implements Runnable
 		wh.add(new Forward());
 		qe.add(wh);
 		
-		player.setProgramm(qe);
+		//player.setProgramm(qe);
 		
 		objects.add(player);
 		
