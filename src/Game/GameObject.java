@@ -95,7 +95,8 @@ public class GameObject
 		
 		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
 		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
-		
+		System.out.println("rot: "+rotation);
+		System.out.println("cur_rot: "+current_rotation);
 		
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;
@@ -103,8 +104,8 @@ public class GameObject
 		if (isGo && x_p == x*step && y_p == y*step && current_rotation == rotation)
 		{
 			checkDirection();
+			checkRotation();
 			next();
-			checkDirection();
 			//isGo = false;
 			//System.out.println("next");
 		}

@@ -431,7 +431,7 @@ public class Window implements Runnable
 	    
 	    int[] t = new int[2];
 	    
-	    // Середина на ширине
+	    // Середина по ширине
 	    float C =(float) Math.floor(Display.getWidth()/ 2);
 	    
 	    //
@@ -442,7 +442,7 @@ public class Window implements Runnable
 			// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
             Yo = (height / 2) * y;
 
-            // Про эту переменную я уже рассказал чуть ранее.
+            
             Xc = C - (width / 2 * y);
 			
 			for (int x=0; x<map[y].length; x++)
@@ -452,17 +452,22 @@ public class Window implements Runnable
 				
 				t = coordTex.get((int)map[y][x]);
 				
-				drawTexture(Xo, Yo, 0, t[0], t[1]);
-				if (player != null)
-					if (y==player.x && x==player.y)
-					{
-						font.drawString(0, 0, "X: "+y+" Y: "+x);
-						drawShip(Xo,Yo);
-					}
-					
+				drawTexture(Xo, Yo, 0, t[0], t[1]);	
 			}
 			
 			
+		}
+	    if (player != null)
+	    {
+	    	float y = player.x;
+	    	float x = player.y;
+	    	Xc = C - (width / 2 * y);
+	    	Xo = Xc + (x * (width / 2));
+	    	Yo = (height / 2) * y + player.y*(height/2);
+	    	
+	    	
+	    	font.drawString(0, 0, "X: "+x+" Y: "+y);
+			drawShip(Xo,Yo);
 		}
 		//drawShip();
 		GL11.glPopMatrix(); 

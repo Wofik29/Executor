@@ -9,7 +9,7 @@ public class Main
 		//System.out.println(
 		//System.getProperty("java.class.path"));
 		
-		// TODO не всегда проходит поворот объекта. проблема в переходе 360 в 0.
+		// 
 		
 		Controller c = new Controller();
 		c.init();
