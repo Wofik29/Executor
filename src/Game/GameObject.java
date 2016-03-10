@@ -87,7 +87,7 @@ public class GameObject
 	
 	public void step()
 	{
-		//System.out.println("step");
+		
 		if (x_p >= x*step) x_p --;
 		if (x_p < x*step) x_p ++;
 		if (y_p >= y*step) y_p --;
@@ -95,12 +95,6 @@ public class GameObject
 		
 		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
 		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
-		
-		if (current_rotation == 360 || current_rotation == -360)
-		{
-			current_rotation = 0;
-			rotation = 0;
-		}
 		
 		
 		if (current_rotation > rotation) current_rotation -= 2;
@@ -135,6 +129,15 @@ public class GameObject
 		case 3: // верх-влево
 			current_front = map[x][y-1];
 			break;
+		}
+	}
+	
+	public void checkRotation()
+	{
+		if (current_rotation == 360 || current_rotation == -360)
+		{
+			current_rotation = 0;
+			rotation = 0;
 		}
 	}
 	
