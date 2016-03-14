@@ -22,12 +22,21 @@ import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.print.attribute.AttributeSet;
+import javax.smartcardio.ATR;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.Timer;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.StyleContext;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
@@ -93,8 +102,20 @@ public class Window implements Runnable
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		textArea = new JTextArea();
+		textArea.setColumns(35);
+		textArea.setLineWrap(true);
+		
+		EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
+		BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
+		CompoundBorder comp = new CompoundBorder(bb,eb);
+		
+		textArea.setFont(new Font("Arial", Font.BOLD, 20));
+		textArea.setBorder(comp);
 		//textArea.setBounds(0, 0, 100, frame.getHeight()-60);
 		textArea.setMinimumSize(new Dimension(320, 240));
+				
+		// Можно как то поиграться, чтоб была подсветка текста
+		//AttributeSet mySet = StyleContext.getDefaultStyleContext().addAttribute(old, name, value)
 		
 		leftPanel = new JPanel();
 		
@@ -359,21 +380,19 @@ public class Window implements Runnable
 			
 			// Указывание, сколько мерная текстура
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			// Смешение цветов.
+			GL11.glEnable(GL11.GL_BLEND);
+			// Проверка альфы
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
 			
 			GL11.glShadeModel(GL11.GL_SMOOTH);
 			
-			// Проверка альфы
-			GL11.glEnable(GL11.GL_ALPHA_TEST);
-
 			// Если меньше этого значения, то пиксель отбрасывается
 			GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.8f);
 			
 			// Проверка глубины
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
 			GL11.glDisable(GL11.GL_LIGHTING);
-			
-			// Смешение цветов.
-			GL11.glEnable(GL11.GL_BLEND);
 			
 			GL11.glMatrixMode(GL11.GL_PROJECTION);
 			GL11.glLoadIdentity();
@@ -459,8 +478,8 @@ public class Window implements Runnable
 		}
 	    if (player != null)
 	    {
-	    	float y = player.x;
-	    	float x = player.y;
+	    	float y = player.x+1;
+	    	float x = player.y+1;
 	    	Xc = C - (width / 2 * y);
 	    	Xo = Xc + (x * (width / 2));
 	    	Yo = (height / 2) * y + player.y*(height/2);
@@ -498,6 +517,19 @@ public class Window implements Runnable
 			GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height+tex_height);
 			GL11.glVertex2f(-32, 32);
 		GL11.glEnd();
+		
+		/*
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_BLEND);
+		
+		GL11.glColor3f(1, 0, 0);
+		GL11.glBegin(GL11.GL_QUADS);
+			GL11.glVertex2d(-10, -10);
+			GL11.glVertex2d(-10, 10);
+			GL11.glVertex2d(10, 10);
+			GL11.glVertex2d(10, -10);
+		GL11.glEnd();
+		*/
 		GL11.glPopMatrix();
 		sprites.bind();
 	}

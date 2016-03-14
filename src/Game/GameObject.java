@@ -95,8 +95,11 @@ public class GameObject
 		
 		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
 		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
-		System.out.println("rot: "+rotation);
-		System.out.println("cur_rot: "+current_rotation);
+		if (Main.isDebug)
+		{
+			System.out.println("rot: "+rotation);
+			System.out.println("cur_rot: "+current_rotation);
+		}
 		
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;
@@ -107,7 +110,6 @@ public class GameObject
 			checkRotation();
 			next();
 			//isGo = false;
-			//System.out.println("next");
 		}
 		
 		

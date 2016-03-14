@@ -31,27 +31,63 @@ public class Controller
 	
 	public void setProgramm(String text)
 	{
-		String[] com = text.split(" ");
+		
+		//StringBuilder sb = new StringBuilder(text);
+		int state = 0;
+		
+		String[] lines = text.split("\t");
 		
 		MainLoop current = new MainLoop();
 		
-		for (String str: com)
+		for (String line: lines)
 		{
-			switch((str.toLowerCase()))
+			String[] strs = line.split("\\s+");
+			
+			/* 
+			 * Проверяем строку и на основании нее выбираем вид состояния
+			 */
+			for (String str : strs )
 			{
-			case "forward":
-				current.add(new Forward());
-				break;
-			case "left":
-				current.add(new Left());
-				break;
-			case "right":
-				current.add(new Right());
-				break;
+				if (str.charAt(0) == '(')
+					str = str.substring(1);
+				if (str.charAt(str.length()-1) == ')')
+					str = str.substring(0,str.length()-1);
+				System.out.println(str);
+				
+				
+				switch (state)
+				{
+				// Обычное, добавляем команды
+				case 0:
+					switch (str.toLowerCase())
+					{
+					case "forward":
+						break;
+					case "left":
+						break;
+					case "right":
+						break;
+					case "if":
+						break;
+					case "endif":
+						break;
+					case "then":
+						break;
+					case "else":
+						break;
+					default:
+						break;
+					}
+					break;
+				case 1:
+				case 2:
+				case 3:
+				}
+				
 			}
 		}
 		
-		world.getObjects().get(0).setProgramm(current);
+		//world.getObjects().get(0).setProgramm(current);
 	}
 	
 	public void pressedKey(int key, char c)
