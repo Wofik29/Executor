@@ -34,7 +34,7 @@ public class MainLoop extends Queue
 		}
 	}
 	
-	public void next()
+	private void next()
 	{
 		//StringTo();
 		if (++current_number != commands.size())

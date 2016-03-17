@@ -39,6 +39,9 @@ public class Controller
 		 *  1 - обработка условия для цикла
 		 */
 		int state = 0;
+		boolean error = false;
+		String error_text = "";
+		
 		
 		Stack<Queue> stack = new Stack<>();
 		
@@ -47,7 +50,7 @@ public class Controller
 		
 		String[] lines = text.split("\t");
 		
-		for (String line: lines)
+		parse: for (String line: lines)
 		{
 			String[] strs = line.split("\\s+");
 			
@@ -85,49 +88,78 @@ public class Controller
 						stack.push(current);
 						Queue temp = new ifTerm(); 
 						current.add(temp);
-						current = temp; 
+						current = temp;
+						temp = null;
 						break;
 					case "end":
 						current = stack.pop();
 						break;
-					
-					default: 
-						// TODO вывод ошибки "Ожидался оператор, но нашел str
+					case "else":
+						ifTerm if_temp = (ifTerm) current;
+						if_temp.setElse();
+						if_temp = null;
 						break;
+					default: 
+						error = true;
+						error_text = "Ожидался оператор, но встречен "+str;
+						break parse;
 					}
 					break;
 				case 1:
+					ifTerm if_temp = (ifTerm) current;
 					switch (str.toLowerCase())
 					{
 					case "ahead":
+						if_temp.setTerm1(1);
 						break;
 					case "lefty":
+						if_temp.setTerm1(0);
 						break;
 					case "righty":
+						if_temp.setTerm1(2);
 						break;
 					case "water":
+						if_temp.setTerm2(Map.SHALLOW);
 						break;
 					case "beach":
+						if_temp.setTerm2(Map.BEACH);
 						break;
-					default: 
+					case "then": 
+						if (if_temp.isAllTerm()) state = 0;
+						else
+						{
+							error = true;
+							error_text = "Условие не полное!";
+							break parse;
+						}
+						// TODO Проверка, полностью ли написано условие.
+						
+						break;
+					default:
+						error = true;
+						error_text = "Ожидалось условие, но встречен "+str;
 						// TODO вывод ошибки "Ожидалось условие, но нашел str
-						break;
+						break parse;
 					}
 				case 2:
 					switch (str.toLowerCase())
 					{
-					case "then": // TODO 
-						break;
-					case "else": // TODO запомнить для ifterm индекс, к которых начинается else команды.
-						break;
+					
 					}
+					break;
 				case 3:
+					break;
 				}
-				
 			}
 		}
 		
-		//world.getObjects().get(0).setProgramm(current);
+		if (error)
+		{
+			System.out.println(error_text);
+			// TODO скорее всего будет throw exeption, и написание ошибки.
+		}
+		
+		world.getObjects().get(0).setProgramm((MainLoop)current);
 	}
 	
 	public void pressedKey(int key, char c)
@@ -141,7 +173,7 @@ public class Controller
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
     		p.addCommand(new Right());
-        //window.x --;
+    		//window.x --;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
     		p.addCommand(new Forward());
