@@ -114,6 +114,11 @@ public class Map
 		return map;
 	}
 	
+	public int getLength()
+	{
+		return map.length;
+	}
+	
 	private void clear()
 	{
 		for (int i=0; i<map.length; i++)

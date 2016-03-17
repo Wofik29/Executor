@@ -29,7 +29,7 @@ public class GameObject
 	int step;
 	
 	boolean isGo = true;
-	boolean isControl = false;
+	boolean isControl = true;
 		
 	/* 
 	 * пока будут цифры направления 
@@ -151,7 +151,7 @@ public class GameObject
 	
 	public void next()
 	{
-		if (isControl)
+		if (isControl && !commands.isEmpty())
 		{
 			commands.poll().execute(this);
 		}

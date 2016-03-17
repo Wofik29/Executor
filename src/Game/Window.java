@@ -422,6 +422,7 @@ public class Window implements Runnable
 		while (running) 
 		{
 			updateGL();
+			keyLoop();
 		}
 			
 		if (Display.isCreated()) 
@@ -429,6 +430,22 @@ public class Window implements Runnable
 			Display.destroy();
 		}
 	}
+	
+	private void keyLoop()
+	{
+		while (Keyboard.next()) 
+		{
+		    if (Keyboard.getEventKeyState()) 
+		    {
+		    	controller.pressedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+		    }
+		    else
+		    {
+		    	controller.relessedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+		    }
+		}
+	}
+	
 	
 	private void drawMap()
 	{
