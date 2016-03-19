@@ -2,6 +2,6 @@
 .classpath
 .project
 *.log
-bin
+bin/*
 *~
 Executor_lib
