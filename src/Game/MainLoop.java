@@ -43,7 +43,8 @@ public class MainLoop extends Queue
 		}
 		else 
 		{
-			isEnd = false;
+			current_number = 0;
+			//isEnd = false;
 		}
 	}
 }

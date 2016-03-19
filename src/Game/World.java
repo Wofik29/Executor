@@ -6,18 +6,19 @@ import java.util.List;
 
 public class World implements Runnable
 {
-	int width;
-	int heigth;
-	int step;
+	private int width;
+	private int heigth;
+	private int step;
 	
-	volatile List<GameObject> objects = new ArrayList<>();
-		
-	int lenght_step;
-	long time_sleep;
+	private volatile List<GameObject> objects = new ArrayList<>();
+	private GameObject player;
+	
+	private int lenght_step;
+	private long time_sleep;
 	
 	boolean isGame = false;
 	
-	final byte[][] map;
+	private byte[][] map;
 	
 	World(int w, int h, int step)
 	{
@@ -28,7 +29,7 @@ public class World implements Runnable
 		Map m = new Map();
 		map = m.getMap();
 		
-		GameObject player = new GameObject(12, 1, step, map);
+		player = new GameObject(12, 1, step, map);
 		
 		MainLoop qe = new MainLoop();
 		
@@ -59,6 +60,11 @@ public class World implements Runnable
 	public byte[][] getMap()
 	{
 		return map;
+	}
+	
+	public GameObject getPlayer()
+	{
+		return player;
 	}
 	
 	public void run()
