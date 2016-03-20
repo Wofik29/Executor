@@ -11,12 +11,6 @@ public class Forward implements Command
 				obj.map[obj.x-1][obj.y],
 				obj.map[obj.x][obj.y-1]
 				};
-		for (int i : value)
-		{
-			System.out.println(i);
-		}
-		System.out.println(obj.direction);
-		System.out.println();
 		
 		switch (obj.direction)
 		{

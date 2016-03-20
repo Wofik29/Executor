@@ -143,35 +143,35 @@ public class Compiller
 				
 		parse: for (String line: lines)
 		{
-			String[] strs = line.split("\\s+");
+			StringBuilder str = new StringBuilder();
+			char[] strs = line.toCharArray(); //line.split("\\s+");
 			
 			/* 
 			 * Проверяем строку и на основании нее выбираем вид состояния
 			 */
-			for (String str : strs )
+			for (char ch : strs )
 			{
 				// TODO разбивать на буквы и по буквенно проверять. например ahead=lefty будет как одна строка, надо вычленить каждый term
-						
-				if (str.charAt(0) == '(')
-					str = str.substring(1);
-				if (str.charAt(str.length()-1) == ')')
-					str = str.substring(0,str.length()-1);
+				str.append(ch);
 				System.out.println(str);
-			
+				
 				switch (state)
 				{
 				// Обычное, добавляем команды
 				case 0:
-					switch (str.toLowerCase())
+					switch (str.toString())
 					{
 					case "forward":
 						current.add(new Forward());
+						str.setLength(0);
 						break;
 					case "left":
 						current.add(new Left());
+						str.setLength(0);
 						break;
 					case "right":
 						current.add(new Right());
+						str.setLength(0);
 						break;
 					case "if":
 						state = 1;
@@ -180,39 +180,47 @@ public class Compiller
 						current.add(temp);
 						current = temp;
 						temp = null;
+						str.setLength(0);
 						break;
 					case "end":
 						current = stack.pop();
+						str.setLength(0);
 						break;
 					case "else":
 						ifTerm if_temp = (ifTerm) current;
 						if_temp.setElse();
 						if_temp = null;
+						str.setLength(0);
 						break;
-					default: 
-						error = true;
-						error_text = "Ожидался оператор, но встречен "+str;
-						break parse;
+					case "\t":
+					case " ":
+						str.setLength(0);
+						break;
 					}
 					break;
 				case 1:
 					ifTerm if_temp = (ifTerm) current;
-					switch (str.toLowerCase())
+					switch (str.toString())
 					{
 					case "ahead":
 						if_temp.setTerm1(1);
+						str.setLength(0);
 						break;
 					case "lefty":
 						if_temp.setTerm1(0);
+						str.setLength(0);
 						break;
 					case "righty":
 						if_temp.setTerm1(2);
+						str.setLength(0);
 						break;
 					case "water":
 						if_temp.setTerm2(Map.SHALLOW);
+						str.setLength(0);
 						break;
 					case "beach":
 						if_temp.setTerm2(Map.BEACH);
+						str.setLength(0);
 						break;
 					case "then": 
 						if (if_temp.isAllTerm()) state = 0;
@@ -223,16 +231,22 @@ public class Compiller
 							break parse;
 						}
 						// TODO Проверка, полностью ли написано условие.
-								
+						str.setLength(0);
+						break;
+					case "=":
+						
+					case ")":
+						
+					case "(":
+						
+					case " ":
+						str.setLength(0);
 						break;
 					default:
-						error = true;
-						error_text = "Ожидалось условие, но встречен "+str;
-						// TODO вывод ошибки "Ожидалось условие, но нашел str
-						break parse;
+						
 					}
 				case 2:
-					switch (str.toLowerCase())
+					switch (str.toString())
 					{
 						
 					}
@@ -240,14 +254,36 @@ public class Compiller
 				case 3:
 					break;
 				}
-			}
-		}
 				
+				if (str.length()>1 && str.charAt(str.length()-1) == ' ')
+				{
+					switch (state)
+					{
+					case 0: 
+						error = true;
+						error_text = "Ожидался оператор, но встречен "+str.toString();
+						break parse;
+					case 1:
+						error = true;
+						error_text = "Ожидалось условие, но встречен "+str;
+						// TODO вывод ошибки "Ожидалось условие, но нашел str
+						break parse;
+					}
+				}
+			}
+			
+			str.setLength(0);
+		}
+		
+		
+		
 		if (error)
 		{
 			System.out.println(error_text);
 			// TODO скорее всего будет throw exeption, и написание ошибки.
 		}
+		
+		System.out.println(programm.toString());
 		
 		return programm;
 	}

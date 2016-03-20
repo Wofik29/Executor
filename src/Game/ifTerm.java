@@ -12,7 +12,7 @@ public class ifTerm extends Queue
 	 */
 	private int term1 = -1; 
 	private int term2 = -1;
-
+	private int sign = -1 ;
 	// Номер элемента, с которого начинется ветка else. 
 	private int number_else = -1;
 	
@@ -96,12 +96,19 @@ public class ifTerm extends Queue
 				int l = obj.map.length;
 				if (x >= 0 && x<l && y>=0 && y<=l )
 				{
-					if (obj.map[x][y] != term2)
+					if (obj.map[x][y] != term2) // Если не совпало, но идем в ветку else
 					{
 						if (number_else>-1)
-							current_number = number_else;							
+						{
+							current_number = number_else;
+							number_else = commands.size();
+						}	
 						else
 							isEnd = false;
+					}
+					else
+					{
+						number_else = number_else > -1 ? number_else : commands.size();
 					}
 				}
 			}
@@ -120,13 +127,20 @@ public class ifTerm extends Queue
 	private void next()
 	{
 		//StringTo();
-		if (++current_number != commands.size())
+		if (++current_number != number_else)
 		{
 			current_command = commands.get(current_number);
 		}
 		else 
 		{
+			current_number = 0;
 			isEnd = false;
 		}
+	}
+	
+	public String toString()
+	{
+		String result = "";
+		return result;
 	}
 }
