@@ -44,6 +44,7 @@ public class MainLoop extends Queue
 		else 
 		{
 			current_number = 0;
+			current_command = commands.get(current_number);
 			//isEnd = false;
 		}
 	}

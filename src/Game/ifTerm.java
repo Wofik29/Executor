@@ -62,10 +62,6 @@ public class ifTerm extends Queue
 			 */
 			if (current_number == 0)
 			{
-				/*
-				 *  TODO делаем проверку, и решаем в какую ветку идти. Или вообще на выход.
-				 *  Как то надо делать проверка, на то в какую сторону смотрит кораблик и какую сторону нам надо проверять.
-				 */
 				int x=-1;
 				int y=-1;
 				
@@ -73,31 +69,14 @@ public class ifTerm extends Queue
 				
 				x = obj.x+p.x;
 				y = obj.y+p.y;
-				/*
-				switch (obj.direction)
-				{
-				case 0: // down-left.
-					switch (term1)
-					{
-					
-					}
-					break;
-				case 1: // down-rigth
-					
-					break;
-				case 2: // up-right
-					
-					break;
-				case 3: // up-left
-					
-					break;
-				}
-				*/
+				
 				int l = obj.map.length;
 				if (x >= 0 && x<l && y>=0 && y<=l )
 				{
-					if (obj.map[x][y] != term2) // Если не совпало, но идем в ветку else
+					 // Если условия не совпадают
+					if (obj.map[x][y] != term2)
 					{
+						// если else есть
 						if (number_else>-1)
 						{
 							current_number = number_else;
@@ -140,7 +119,14 @@ public class ifTerm extends Queue
 	
 	public String toString()
 	{
-		String result = "";
+		String result = "if:{ ";
+		
+		for (Command c :  commands)
+		{
+			result += c.toString()+", ";
+		}
+		
+		result += " }";
 		return result;
 	}
 }

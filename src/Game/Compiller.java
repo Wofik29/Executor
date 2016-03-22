@@ -64,9 +64,11 @@ public class Compiller
 		boolean condition = false;
 		for (char str : s)
 		{
-			//com.delete(0, com.length());
 			com.append(str);
+
+			//com.delete(0, com.length());
 			//System.out.println(com);
+
 			if (condition)
 			{
 				switch(com.toString())
@@ -138,154 +140,165 @@ public class Compiller
 		Stack<Queue> stack = new Stack<>();
 		Queue programm = new MainLoop();
 		Queue current = programm;
-				
-		String[] lines = text.split("\t");
-				
-		parse: for (String line: lines)
+		
+		char[] chars = text.toCharArray(); 
+		boolean isEnd = true;
+		
+		StringBuilder str = new StringBuilder();
+		
+		int index=0;
+		parse: while (isEnd)
 		{
-			StringBuilder str = new StringBuilder();
-			char[] strs = line.toCharArray(); //line.split("\\s+");
-			
-			/* 
-			 * Проверяем строку и на основании нее выбираем вид состояния
-			 */
-			for (char ch : strs )
+			System.out.println("parse while");
+			boolean repeat = true;
+			int i = index;
+			while (repeat)
 			{
-				// TODO разбивать на буквы и по буквенно проверять. например ahead=lefty будет как одна строка, надо вычленить каждый term
-				str.append(ch);
-				System.out.println(str);
-				
-				switch (state)
+				if (i>chars.length-1)
 				{
-				// Обычное, добавляем команды
-				case 0:
-					switch (str.toString())
-					{
-					case "forward":
-						current.add(new Forward());
-						str.setLength(0);
-						break;
-					case "left":
-						current.add(new Left());
-						str.setLength(0);
-						break;
-					case "right":
-						current.add(new Right());
-						str.setLength(0);
-						break;
-					case "if":
-						state = 1;
-						stack.push(current);
-						Queue temp = new ifTerm(); 
-						current.add(temp);
-						current = temp;
-						temp = null;
-						str.setLength(0);
-						break;
-					case "end":
-						current = stack.pop();
-						str.setLength(0);
-						break;
-					case "else":
-						ifTerm if_temp = (ifTerm) current;
-						if_temp.setElse();
-						if_temp = null;
-						str.setLength(0);
-						break;
-					case "\t":
-					case " ":
-						str.setLength(0);
-						break;
-					}
-					break;
-				case 1:
-					ifTerm if_temp = (ifTerm) current;
-					switch (str.toString())
-					{
-					case "ahead":
-						if_temp.setTerm1(1);
-						str.setLength(0);
-						break;
-					case "lefty":
-						if_temp.setTerm1(0);
-						str.setLength(0);
-						break;
-					case "righty":
-						if_temp.setTerm1(2);
-						str.setLength(0);
-						break;
-					case "water":
-						if_temp.setTerm2(Map.SHALLOW);
-						str.setLength(0);
-						break;
-					case "beach":
-						if_temp.setTerm2(Map.BEACH);
-						str.setLength(0);
-						break;
-					case "then": 
-						if (if_temp.isAllTerm()) state = 0;
-						else
-						{
-							error = true;
-							error_text = "Условие не полное!";
-							break parse;
-						}
-						// TODO Проверка, полностью ли написано условие.
-						str.setLength(0);
-						break;
-					case "=":
-						
-					case ")":
-						
-					case "(":
-						
-					case " ":
-						str.setLength(0);
-						break;
-					default:
-						
-					}
-				case 2:
-					switch (str.toString())
-					{
-						
-					}
-					break;
-				case 3:
+					isEnd = false;
 					break;
 				}
 				
-				if (str.length()>1 && str.charAt(str.length()-1) == ' ')
+				switch (chars[i])
 				{
-					switch (state)
+				case ')':
+				case '(':
+				case '=':
+				case ' ':
+				case ';':
+				case '\t':
+				case '\n':
+					if (str.length() > 1)
 					{
-					case 0: 
-						error = true;
-						error_text = "Ожидался оператор, но встречен "+str.toString();
-						break parse;
-					case 1:
-						error = true;
-						error_text = "Ожидалось условие, но встречен "+str;
-						// TODO вывод ошибки "Ожидалось условие, но нашел str
-						break parse;
+						repeat = false;
+						index = ++i;
 					}
+					else
+					{
+						str.setLength(0);
+					}
+					break;
+				default:
+					str.append(chars[i]);
 				}
+				i++;
 			}
 			
-			str.setLength(0);
+			System.out.println("str: '"+str+"'");
+			
+			switch (state)
+			{
+			// Обычное, добавляем команды
+			case 0:
+				switch (str.toString())
+				{
+				case "forward":
+					current.add(new Forward());
+					str.setLength(0);
+					break;
+				case "left":
+					current.add(new Left());
+					str.setLength(0);
+					break;
+				case "right":
+					current.add(new Right());
+					str.setLength(0);
+					break;
+				case "if":
+					state = 1;
+					
+					// Запомнили родительский узел
+					stack.push(current);
+					
+					// Создали if
+					Queue temp = new ifTerm();
+					
+					// Добавили if в родительский узел
+					current.add(temp);
+					
+					// установили текущую очередь if
+					current = temp;
+					temp = null;
+					str.setLength(0);
+					break;
+				case "end":
+					current = stack.pop();
+					str.setLength(0);
+					break;
+				case "else":
+					ifTerm if_temp = (ifTerm) current;
+					if_temp.setElse();
+					if_temp = null;
+					str.setLength(0);
+					break;
+				}
+				break;
+				default:
+					error = true;
+					error_text = "Ожидался оператор, но встречен "+str.toString();
+					break parse;
+			case 1:
+				ifTerm if_temp = (ifTerm) current;
+				switch (str.toString())
+				{
+				case "ahead":
+					if_temp.setTerm1(1);
+					str.setLength(0);
+					break;
+				case "lefty":
+					if_temp.setTerm1(0);
+					str.setLength(0);
+					break;
+				case "righty":
+					if_temp.setTerm1(2);
+					str.setLength(0);
+					break;
+				case "water":
+					if_temp.setTerm2(Map.SHALLOW);
+					str.setLength(0);
+					break;
+				case "beach":
+					if_temp.setTerm2(Map.BEACH);
+					str.setLength(0);
+					break;
+				case "then": 
+					if (if_temp.isAllTerm()) state = 0;
+					else
+					{
+						error = true;
+						error_text = "Условие не полное!";
+						break parse;
+					}
+					// TODO Проверка, полностью ли написано условие.
+					str.setLength(0);
+					break;
+				default:
+					error = true;
+					error_text = "Ожидалось условие, но встречен "+str;
+					// TODO вывод ошибки "Ожидалось условие, но нашел str
+					break parse;
+				}
+			case 2:
+				switch (str.toString())
+				{
+					
+				}
+				break;
+			case 3:
+				break;
+			}
 		}
-		
-		
 		
 		if (error)
 		{
 			System.out.println(error_text);
-			// TODO скорее всего будет throw exeption, и написание ошибки.
 		}
-		
+
 		System.out.println(programm.toString());
 		
 		return programm;
+		
 	}
 	
 	public Queue getProgramm1()
