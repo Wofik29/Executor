@@ -12,6 +12,9 @@ public class ifTerm extends Queue
 	 */
 	private int term1 = -1; 
 	private int term2 = -1;
+	
+	
+	private boolean condition = true;
 	private int sign = -1 ;
 	// Номер элемента, с которого начинется ветка else. 
 	private int number_else = -1;
@@ -41,6 +44,8 @@ public class ifTerm extends Queue
 	@Override
 	public boolean execute(GameObject obj)
 	{
+		
+		
 		if (current_command != null)
 		{
 			Point[][] dir = new Point[4][3];
@@ -65,10 +70,23 @@ public class ifTerm extends Queue
 				int x=-1;
 				int y=-1;
 				
-				Point p = dir[obj.direction][term1];
+				Point p = new Point();
 				
-				x = obj.x+p.x;
-				y = obj.y+p.y;
+				switch (term1)
+				{
+				case 1:
+					p = obj.ahead;
+					break;
+				case 0:
+					p = obj.lefty;
+					break;
+				case 2:
+					p = obj.righty;
+					break;
+				}
+				
+				x = p.x;
+				y = p.y;
 				
 				int l = obj.map.length;
 				if (x >= 0 && x<l && y>=0 && y<=l )
@@ -78,43 +96,46 @@ public class ifTerm extends Queue
 					{
 						// если else есть
 						if (number_else>-1)
-						{
-							current_number = number_else;
-							number_else = commands.size();
-						}	
+							condition = false;
 						else
-							isEnd = false;
+							return true;
 					}
-					else
-					{
-						number_else = number_else > -1 ? number_else : commands.size();
-					}
+					//else
+						//number_else = commands.size();
+					
+				}
+				else
+					return true;
+				
+				// Проверяем есть ли условия, и устанавливаем начало
+				if (condition)
+				{
+					sign = number_else;
+				}
+				else
+				{
+					sign = commands.size();
+					current_number = number_else;
+					current_command = commands.get(current_number);
 				}
 			}
 			
 			if (isEnd && current_command.execute(obj))
 			{
-				// TODO Тут возможно ошибка, когда последний элемент в списке, тогда один ход будет пропущен
-				next();
-				return false;
+				if (++current_number != sign)
+				{
+					current_command = commands.get(current_number);
+					return false;
+				}
+				else
+				{
+					current_number = 0;
+					return true;
+				}
 			}
 		}
 		
 		return true;
-	}
-	
-	private void next()
-	{
-		//StringTo();
-		if (++current_number != number_else)
-		{
-			current_command = commands.get(current_number);
-		}
-		else 
-		{
-			current_number = 0;
-			isEnd = false;
-		}
 	}
 	
 	public String toString()
