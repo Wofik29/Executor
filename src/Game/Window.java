@@ -495,11 +495,11 @@ public class Window implements Runnable
 		}
 	    if (player != null)
 	    {
-	    	float y = player.x+1;
-	    	float x = player.y+1;
+	    	float y = player.location.x+1;
+	    	float x = player.location.y+1;
 	    	Xc = C - (width / 2 * y);
 	    	Xo = Xc + (x * (width / 2));
-	    	Yo = (height / 2) * y + player.y*(height/2);
+	    	Yo = (height / 2) * y + player.location.y*(height/2);
 	    	
 	    	
 	    	font.drawString(0, 0, "X: "+x+" Y: "+y);

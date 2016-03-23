@@ -4,12 +4,14 @@ package Game;
 public class MainLoop extends Queue 
 {
 	
-	public void StringTo()
+	public String toString()
 	{
+		String result ="MainLoop: { ";
 		for (Command c : commands)
 		{
-			System.out.println(c.toString());
+			result += c.toString();
 		}
+		return result+" }";
 	}
 	
 	public boolean execute(GameObject obj)
@@ -24,6 +26,7 @@ public class MainLoop extends Queue
 		if (isEnd && current_command != null && current_command.execute(obj))
 		{
 			//System.out.println("execute "+current_command.toString()+" - "+current_number);
+			//System.out.println("mainLoop: "+isEnd);
 			
 			next();
 			return true;
@@ -36,16 +39,15 @@ public class MainLoop extends Queue
 	
 	private void next()
 	{
-		//StringTo();
 		if (++current_number != commands.size())
 		{
 			current_command = commands.get(current_number);
 		}
 		else 
 		{
-			current_number = 0;
-			current_command = commands.get(current_number);
-			//isEnd = false;
+			//current_number = 0;
+			//current_command = commands.get(current_number);
+			isEnd = false;
 		}
 	}
 }

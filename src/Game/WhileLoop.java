@@ -85,7 +85,9 @@ public class WhileLoop extends Queue
 		{
 			//System.out.println("WhileLoop : number == size - "+condition +" ==  " +obj.current_front + " -> "+(condition == obj.current_front));	
 			//System.out.println(current_command.toString());
-			if (condition == obj.current_front)	
+			int x = obj.ahead.x;
+			int y = obj.ahead.y;
+			if (condition == obj.map[x][y])	
 			{
 				isEnd = false;
 			}

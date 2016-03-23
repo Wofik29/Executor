@@ -12,12 +12,10 @@ abstract public class Queue implements Command
 	
 	public void add(Command c)
 	{
-		//System.out.println("added "+c.toString());
 		commands.add(c);
 		if (current_command == null) 
 		{
 			current_command = c;
-			//System.out.println("set : "+c.toString());
 		}
 	}
 	

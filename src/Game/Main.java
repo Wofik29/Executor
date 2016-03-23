@@ -1,5 +1,6 @@
 package Game;
 
+
 public class Main 
 {
 	static boolean isDebug = false;
@@ -13,7 +14,7 @@ public class Main
 		
 		// 
 		
-		Controller c = new Controller();
+		Controller c = new Game.Controller();
 		c.init();
 		c.start();
 	}
