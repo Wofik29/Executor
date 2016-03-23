@@ -4,6 +4,18 @@ public class Forward implements Command
 {
 	public boolean execute(GameObject obj)
 	{
+		
+		
+		int x = obj.ahead.x;
+		int y = obj.ahead.y;
+		
+		if (obj.map[x][y] == Map.SHALLOW || obj.map[x][y] == Map.DEEP)
+		{
+			obj.location.setLocation( obj.ahead);
+		}
+		
+		
+		/*
 		int[] value =
 				{
 				obj.map[obj.x+1][obj.y],
@@ -11,6 +23,7 @@ public class Forward implements Command
 				obj.map[obj.x-1][obj.y],
 				obj.map[obj.x][obj.y-1]
 				};
+		
 		
 		switch (obj.direction)
 		{
@@ -39,6 +52,7 @@ public class Forward implements Command
 			}
 			break;
 		}
+		*/
 		
 		return true;
 	}

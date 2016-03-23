@@ -1,5 +1,6 @@
 package Game;
 
+import java.awt.Point;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,8 +12,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class GameObject 
 {
 	// Координаты в мапе
-	int x;
-	int y;
+	//int x;
+	//int y;
+	
+	Point location = new Point();
 	
 	// Пиксельные координаты
 	int x_p;
@@ -23,7 +26,6 @@ public class GameObject
 	
 	int rotation;
 	int current_rotation;
-	int current_front;
 	
 	byte[][] map;
 	int step;
@@ -32,16 +34,37 @@ public class GameObject
 	boolean isControl = true;
 		
 	/* 
-	 * пока будут цифры направления 
+	 * direction: 
 	 * 0 - вниз-влево 
 	 * 1 - вниз-вправо
 	 * 2 - вверх-вправо
-	 * 3 - вверх-влево 
+	 * 3 - вверх-влево
+	 * side:
+	 * 0 - front
+	 * 1 - left
+	 * 2 - right 
 	 */
 	int direction;
+	
+	Point ahead,lefty,righty;
 	int current;
 	
-	
+	static Point[][] mix = new Point[4][3];
+	static 
+	{	
+		mix[0][0] = new Point(0,1);
+		mix[0][1] = new Point(1,0);
+		mix[0][2] = new Point(0,-1);
+		mix[1][0] = new Point(-1,0);
+		mix[1][1] = mix[0][0];
+		mix[1][2] = mix[0][1];
+		mix[2][0] = mix[0][2];
+		mix[2][1] = mix[1][0];
+		mix[2][2] = mix[0][0];
+		mix[3][0] = mix[0][1];
+		mix[3][1] = mix[0][2];
+		mix[3][2] = mix[1][0];
+	}
 	
 	MainLoop programm;
 	ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
@@ -49,8 +72,10 @@ public class GameObject
 
 	GameObject(int x, int y, int s, byte[][] m)
 	{
-		this.x = x;
-		this.y = y;
+		//this.x = x;
+		//this.y = y;
+		location.x = x;
+		location.y = y;
 		step = s;
 		
 		x_p = x*step;
@@ -76,8 +101,11 @@ public class GameObject
 		direct.put(-360, 0);
 		direct.put(360, 0);
 		
-		checkDirection();
+		ahead = new Point();
+		lefty = new Point();
+		righty= new Point();
 		
+		checkDirection();
 	}
 	
 	void setProgramm(MainLoop q)
@@ -88,10 +116,10 @@ public class GameObject
 	public void step()
 	{
 		
-		if (x_p >= x*step) x_p --;
-		if (x_p < x*step) x_p ++;
-		if (y_p >= y*step) y_p --;
-		if (y_p < y*step) y_p ++;
+		if (x_p >= location.x*step) x_p --;
+		if (x_p < location.x*step) x_p ++;
+		if (y_p >= location.y*step) y_p --;
+		if (y_p < location.y*step) y_p ++;
 		
 		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
 		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
@@ -104,7 +132,7 @@ public class GameObject
 		if (current_rotation > rotation) current_rotation -= 2;
 		if (current_rotation < rotation) current_rotation += 2;
 		
-		if (isGo && x_p == x*step && y_p == y*step && current_rotation == rotation)
+		if (isGo && x_p == location.x*step && y_p == location.y*step && current_rotation == rotation)
 		{
 			checkDirection();
 			checkRotation();
@@ -112,27 +140,27 @@ public class GameObject
 			//isGo = false;
 		}
 		
-		
 		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
 	}
 	
 	public void checkDirection()
 	{
-		switch (direction)
+		if (map!=null)
 		{
-		case 0: //По экран вниз-влево
-			current_front = map[x+1][y];
-			break;
-		case 1: // вниз-вправо
-			current_front = map[x][y+1];
-			break;
-		case 2: // верх-вправо
-			current_front = map[x-1][y];
-			break;
-		case 3: // верх-влево
-			current_front = map[x][y-1];
-			break;
+			Point p = mix[direction][1];
+			ahead.setLocation(location.x+p.x, location.y+p.y);
+			
+			p = mix[direction][0];
+			lefty.setLocation(location.x+p.x, location.y+p.y);
+		
+			p = mix[direction][2];
+			righty.setLocation(location.x+p.x, location.y+p.y);
 		}
+		
+		//System.out.println("");
+		//System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
+		//System.out.println("x: "+location.x+", y: "+location.y+", direction: "+direction);
+		
 	}
 	
 	public void checkRotation()
