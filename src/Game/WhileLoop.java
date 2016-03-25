@@ -1,52 +1,25 @@
 package Game;
 
-public class WhileLoop extends Queue 
+import java.awt.Point;
+
+public class WhileLoop extends ControlLoop
 {
-	int condition;
-	
-	class Condition	
+	public WhileLoop()
 	{
-		int condtion;
-		int direction;
 		
-		public Condition(int c, int d)
-		{
-			condtion = c;
-			direction = d;
-		}
-		
-		public boolean isCondition(GameObject obj)
-		{
-			switch (obj.direction)
-			{
-			case 0:
-				break;
-			case 1:
-				break;
-			case 2:
-				break;
-			case 3:
-				break;
-			}
-			
-			return true;
-		}
-	}
-	
-	public WhileLoop() 
-	{
-		condition = 3;
-	};
-	
-	public WhileLoop(int c)
-	{
-		condition = c;
 	}
 	
 	@Override
 	public String toString() 
 	{
-		return "WhileLoop";
+		String result = "WhileLoop command : { ";
+		
+		for (Command c : commands)
+		{
+			result += c.toString()+", ";
+		}
+				
+		return result+" }";
 	};
 	
 	@Override
@@ -59,44 +32,54 @@ public class WhileLoop extends Queue
 		System.out.println("Player -  x: "+obj.x+", y: "+obj.y);
 		System.out.println();
 		*/
-		if (isEnd && current_command != null && current_command.execute(obj))
-		{
-			//System.out.println("execute "+current_command.toString()+" - "+current_number);
-			obj.checkDirection();
-			next(obj);
-			return false;
-		}
-		else
-		{
-			//System.out.println("Main : return false");	
-			return true;
-		}
-	}
-	
-	
-	public void next(GameObject obj)
-	{
 		
-		if (++current_number != commands.size())
+		if (current_command != null)
 		{
-			current_command = commands.get(current_number);
-		}
-		else 
-		{
-			//System.out.println("WhileLoop : number == size - "+condition +" ==  " +obj.current_front + " -> "+(condition == obj.current_front));	
-			//System.out.println(current_command.toString());
-			int x = obj.ahead.x;
-			int y = obj.ahead.y;
-			if (condition == obj.map[x][y])	
+			/*
+			 * Если мы в начале, то проверяем на условие
+			 */
+			if (current_number == 0)
 			{
-				isEnd = false;
+				int x=-1;
+				int y=-1;
+				
+				Point p = new Point();
+				
+				switch (term1)
+				{
+				case 1:
+					p = obj.ahead;
+					break;
+				case 0:
+					p = obj.lefty;
+					break;
+				case 2:
+					p = obj.righty;
+					break;
+				}
+				
+				x = p.x;
+				y = p.y;
+				
+				int l = obj.map.length;
+				if ((x < 0 && x>=l && y<0 && y>l) || (obj.map[x][y] != term2)  )
+				{
+					return true;
+				}
 			}
-			else 
+			
+			if (isEnd)
 			{
-				current_number = 0;
+				if (current_command.execute(obj))
+				{
+					//System.out.println(current_number);
+					current_number = ++current_number >= commands.size() ? 0 : current_number;
+					//System.out.println(current_number);
+				}
 				current_command = commands.get(current_number);
+				return false;
 			}
 		}
-		
+		return true;
 	}
 }

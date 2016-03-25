@@ -185,8 +185,10 @@ public class Compiller
 				i++;
 			}
 			
-			System.out.println("str: '"+str+"'");
+			System.out.println("str: '"+str+"'"+", state: "+state);
 			
+			
+			Queue temp = null;
 			switch (state)
 			{
 			// Обычное, добавляем команды
@@ -212,7 +214,7 @@ public class Compiller
 					stack.push(current);
 					
 					// Создали if
-					Queue temp = new ifTerm();
+					temp = new ifTerm();
 					
 					// Добавили if в родительский узел
 					current.add(temp);
@@ -232,38 +234,57 @@ public class Compiller
 					if_temp = null;
 					str.setLength(0);
 					break;
+				case "while":
+					state = 1;
+					// Запомнили родительский узел
+					stack.push(current);
+					
+					// Создали while
+					temp = new WhileLoop();
+					
+					// Добавили if в родительский узел
+					current.add(temp);
+					
+					// установили текущую очередь if
+					current = temp;
+					temp = null;
+					str.setLength(0);
+					break;
 				}
 				break;
 				default:
 					error = true;
 					error_text = "Ожидался оператор, но встречен "+str.toString();
-					break parse;
+					isEnd = false;
+				break parse;
+			// Проход по условию для if и while
 			case 1:
-				ifTerm if_temp = (ifTerm) current;
+				ControlLoop control = (ControlLoop) current;
 				switch (str.toString())
 				{
 				case "ahead":
-					if_temp.setTerm1(1);
+					control.setTerm1(1);
 					str.setLength(0);
 					break;
 				case "lefty":
-					if_temp.setTerm1(0);
+					control.setTerm1(0);
 					str.setLength(0);
 					break;
 				case "righty":
-					if_temp.setTerm1(2);
+					control.setTerm1(2);
 					str.setLength(0);
 					break;
 				case "water":
-					if_temp.setTerm2(Map.SHALLOW);
+					control.setTerm2(Map.SHALLOW);
 					str.setLength(0);
 					break;
 				case "beach":
-					if_temp.setTerm2(Map.BEACH);
+					control.setTerm2(Map.BEACH);
 					str.setLength(0);
 					break;
+				case "do":
 				case "then": 
-					if (if_temp.isAllTerm()) state = 0;
+					if (control.isAllTerm()) state = 0;
 					else
 					{
 						error = true;
