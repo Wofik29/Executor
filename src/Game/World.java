@@ -49,7 +49,7 @@ public class World implements Runnable
 		objects.add(player);
 		
 		lenght_step = 1;
-		time_sleep = 10;
+		time_sleep = 15;
 	}
 	
 	public List<GameObject> getObjects()

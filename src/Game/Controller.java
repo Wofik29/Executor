@@ -33,8 +33,16 @@ public class Controller
 	public void setProgramm(String text)
 	{
 		Compiller c = new Compiller();
-		Queue prog = c.getProgramm(text);
-		world.getPlayer().setProgramm( (MainLoop) prog);
+		try
+		{
+			Queue prog = c.getProgramm(text);
+			world.getPlayer().setProgramm( (MainLoop) prog);
+			window.setMsg("-");
+		}
+		catch (Exception ex)
+		{
+			window.setMsg(ex.getMessage());
+		}
 	}
 	
 	public void pressedKey(int key, char c)
