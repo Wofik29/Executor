@@ -17,16 +17,20 @@ public class Compiller
 		
 	}
 	
+	
 	public void setFile(String path)
 	{
 		this.path = path;
 	}
 	
+	
+	// Чтение списка команд из файла
 	public void setCommands()
 	{
 		
 	}
 	
+	// Чтение из файла
 	public void read()
 	{
 		if (path == null) return;
@@ -40,8 +44,7 @@ public class Compiller
 			
 			while (br.ready() )
 			{
-				sb.append(br.readLine()).
-					append(" ");
+				sb.append(br.readLine());
 			}
 			
 			br.close();
@@ -55,78 +58,7 @@ public class Compiller
 		//System.out.println(sb);
 	}
 	
-	
-	
-	public void getProgramm2()
-	{
-		char[] s = sb.toString().toCharArray();
-		StringBuilder com = new StringBuilder();
-		boolean condition = false;
-		for (char str : s)
-		{
-			com.append(str);
-
-			//com.delete(0, com.length());
-			//System.out.println(com);
-
-			if (condition)
-			{
-				switch(com.toString())
-				{
-				case " ": com.delete(0, com.length());
-				break;
-				case "ahead":
-					
-					com.delete(0, com.length());
-					break;
-				}
-			}
-			else
-			{
-				switch(com.toString())
-				{
-				case "forward":
-					System.out.println("GO!");
-					com.delete(0, com.length());
-					break;
-				case "left":
-					System.out.println("LEFT!");
-					com.delete(0, com.length());
-					break;
-				case "right":
-					System.out.println("RIGHT!");
-					com.delete(0, com.length());
-					break;
-				case "while":
-					System.out.println("while ");
-					com.delete(0, com.length());
-					break;
-				case "{":
-					System.out.println("starting block");
-					com.delete(0, com.length());
-					break;
-				case "}":
-					System.out.println("Endging block");
-					com.delete(0, com.length());
-					break;
-				case ")":
-					System.out.println("Ending condition");
-					com.delete(0, com.length());
-					break;
-				case "(":
-					System.out.println("Starting condition");
-					condition = true;
-					com.delete(0, com.length());
-					break;
-				case " ": 
-					com.delete(0, com.length());
-					break;
-				}
-			}
-		}
-	}
-	
-	public Queue getProgramm(String text)
+	public Queue getProgramm(String text) throws Exception
 	{
 		//StringBuilder sb = new StringBuilder(text);
 		/*
@@ -162,13 +94,7 @@ public class Compiller
 				
 				switch (chars[i])
 				{
-				case ')':
-				case '(':
-				case '=':
-				case ' ':
-				case ';':
-				case '\t':
-				case '\n':
+				case ')': case '(': case '=': case ' ':	case ';': case '\t': case '\n':
 					if (str.length() > 1)
 					{
 						repeat = false;
@@ -198,16 +124,20 @@ public class Compiller
 				case "forward":
 					current.add(new Forward());
 					str.setLength(0);
+					System.out.println("Forward");
 					break;
 				case "left":
 					current.add(new Left());
 					str.setLength(0);
+					System.out.println("left");
 					break;
 				case "right":
 					current.add(new Right());
 					str.setLength(0);
+					System.out.println("right");
 					break;
 				case "if":
+					System.out.println("if");
 					state = 1;
 					
 					// Запомнили родительский узел
@@ -227,14 +157,17 @@ public class Compiller
 				case "end":
 					current = stack.pop();
 					str.setLength(0);
+					System.out.println("end");
 					break;
 				case "else":
 					ifTerm if_temp = (ifTerm) current;
 					if_temp.setElse();
 					if_temp = null;
 					str.setLength(0);
+					System.out.println("else");
 					break;
 				case "while":
+					System.out.println("while");
 					state = 1;
 					// Запомнили родительский узел
 					stack.push(current);
@@ -250,13 +183,14 @@ public class Compiller
 					temp = null;
 					str.setLength(0);
 					break;
-				}
-				break;
 				default:
+					System.out.println("Default");
 					error = true;
 					error_text = "Ожидался оператор, но встречен "+str.toString();
 					isEnd = false;
-				break parse;
+					break parse;
+				}
+				break;
 			// Проход по условию для if и while
 			case 1:
 				ControlLoop control = (ControlLoop) current;
@@ -314,54 +248,18 @@ public class Compiller
 		if (error)
 		{
 			System.out.println(error_text);
+			throw new Exception(error_text);
+			//return null;
+		}
+		
+		if (!stack.isEmpty())
+		{
+			throw new Exception("Не закрыт цикл!");
 		}
 
 		System.out.println(programm.toString());
 		
 		return programm;
 		
-	}
-	
-	public Queue getProgramm1()
-	{
-		Stack<Queue> stack = new Stack<>();
-		
-		Queue programm = new MainLoop();
-		Queue current = programm;
-		
-		stack.push(current);
-		
-		String[] s = sb.toString().split(" ");
-		
-		for (String str : s)
-		{
-			//System.out.println(str);
-			
-			switch((str.toLowerCase()))
-			{
-			case "forward":
-				current.add(new Forward());
-				break;
-			case "left":
-				current.add(new Left());
-				break;
-			case "right":
-				current.add(new Right());
-				break;
-			case "while":
-				Queue loop = new WhileLoop();
-				current.add(current);
-				stack.push(current);
-				current = loop;
-				break;
-			case "end":
-				if (!stack.empty())	current = stack.pop();
-				// return 
-				break;
-			}
-			
-		}
-		
-		return programm;
 	}
 }

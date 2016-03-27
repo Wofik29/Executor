@@ -45,22 +45,28 @@ public class ifTerm extends ControlLoop
 				if (x >= 0 && x<l && y>=0 && y<l )
 				{
 					 // Если условия не совпадают
-					if (obj.map[x][y] != term2)
-					{
+					if (obj.map[x][y] == term2)
+						if (number_else == -1)
+							sign = commands.size();
+						else
+							//Если условие выполняется, то else будет и концом if'a
+							sign = number_else;
+					else
 						// если else есть
 						if (number_else>-1)
-							condition = false;
+						{
+							sign = commands.size();
+							current_number = number_else;
+							current_command = commands.get(current_number);
+						}
 						else
-							return true;
-					}
-					// Если условие выполняется, то else будет и концом if'a
-					//else
-						//number_else = commands.size();
+							return true;						
 				}
 				else
 					return true;
 				
 				// Проверяем есть ли условия, и устанавливаем начало
+				/*
 				if (condition)
 				{
 					sign = number_else;
@@ -71,11 +77,12 @@ public class ifTerm extends ControlLoop
 					current_number = number_else;
 					current_command = commands.get(current_number);
 				}
+				*/
 			}
 			
 			System.out.println(number_else);
 			
-			if (isEnd && current_command.execute(obj))
+			if (current_command.execute(obj))
 			{
 				if (++current_number != sign)
 				{
@@ -87,6 +94,10 @@ public class ifTerm extends ControlLoop
 					current_number = 0;
 					return true;
 				}
+			}
+			else
+			{
+				return false;
 			}
 		}
 		
