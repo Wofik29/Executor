@@ -27,10 +27,12 @@ import javax.smartcardio.ATR;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -50,6 +52,8 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Text;
+
 
 public class Window implements Runnable
 {
@@ -59,9 +63,11 @@ public class Window implements Runnable
 	private JSplitPane splitPane;
 	private JTextArea textArea;
 	private JPanel leftPanel;
+	private JPanel EditPanel;
 	private JPanel panel;
 	private JButton start;
 	private JButton stop;
+	private JLabel msg;
 	
 	// Работает все тут
 	private Thread gameThread;
@@ -98,41 +104,44 @@ public class Window implements Runnable
 		frame = new JFrame();
 		frame.setTitle("Swing + LWJGL");
 		frame.setLayout(null);
-		frame.setBounds(100, 100, 1024, 768);
+		frame.setBounds(0, 0, 1024, 768);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		textArea = new JTextArea();
 		textArea.setColumns(35);
 		textArea.setLineWrap(true);
 		
-		EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
-		BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
-		CompoundBorder comp = new CompoundBorder(bb,eb);
+		//EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
+		//BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
+		//CompoundBorder comp = new CompoundBorder(bb,eb);
 		
 		textArea.setFont(new Font("Arial", Font.BOLD, 20));
-		textArea.setBorder(comp);
-		//textArea.setBounds(0, 0, 100, frame.getHeight()-60);
-		textArea.setMinimumSize(new Dimension(320, 240));
-				
+		//textArea.setBorder(comp);
+		textArea.setBounds(0, 0, 100, 300);
+		//textArea.setMinimumSize(new Dimension(320, 240));
+		//textArea.setMaximumSize(new Dimension(100, 200));
+		
+		EditPanel = new JPanel();
+		EditPanel.setBounds(0, 0, 100, 100);
+		//EditPanel.setMaximumSize(new Dimension(100, 100));
+		//EditPanel.add(textArea);
 		// Можно как то поиграться, чтоб была подсветка текста
 		//AttributeSet mySet = StyleContext.getDefaultStyleContext().addAttribute(old, name, value)
 		
 		leftPanel = new JPanel();
-		
-		
 		leftPanel.setLayout(new BorderLayout());
-		leftPanel.setBounds(0, 0, 320,  frame.getHeight());
+		leftPanel.setBounds(0, 0, 120,  400);
+		//leftPanel.setMaximumSize(new Dimension(100, 600));
 		panel = new JPanel();
 		
 		
 		start = new JButton("Start");
 		start.setMinimumSize(new Dimension(100,50));
-		
 		start.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				
 				System.out.println("pressed start");
 				String text = textArea.getText();
 				controller.setProgramm(text);
@@ -140,18 +149,27 @@ public class Window implements Runnable
 		});
 		
 		stop = new JButton("Stop");
-		start.setMinimumSize(new Dimension(100,50));
+		
 		
 		panel.add(start);
 		panel.add(stop);
 		
+		msg = new JLabel("-");
+		msg.setBounds(0, 0, 100, 30);
+		Font f = new Font("Arial", Font.BOLD, 14);
+		msg.setForeground(java.awt.Color.RED);
+				
+		//msg.setFont(new );
+		
+		
 		leftPanel.add(panel, BorderLayout.NORTH);
 		leftPanel.add(textArea, BorderLayout.CENTER);
+		leftPanel.add(msg, BorderLayout.SOUTH);
 		
 		
 		// Разделяет frame на две части. В одной будет текст, в другой canvas
-		splitPane = new JSplitPane();
-		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight());
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
 		
 		frame.add(splitPane);
 				
@@ -190,26 +208,33 @@ public class Window implements Runnable
 			}
 		});
 		
+		//splitPane.setLayout(null);
 		splitPane.setRightComponent(canvas);
 		splitPane.setLeftComponent(leftPanel);
+		
 		//splitPane.setLeftComponent(textArea);
 		
 		// Делаем все видимое, ясно.
 		frame.setVisible(true);
 		splitPane.setVisible(true);
+		EditPanel.setVisible(true);
 		canvas.setVisible(true);
 		start.setVisible(true);
+		msg.setVisible(true);
 		
 		//При изменении основного окна, меняем и размеры компоненты, который разделяет все.
 		frame.addComponentListener(new ComponentListener() {
 			
 			@Override
-			public void componentShown(ComponentEvent arg0) {}
+			public void componentShown(ComponentEvent arg0) 
+			{
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
+			}
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) 
 			{
-				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight());
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
 			}
 			
 			@Override
@@ -217,69 +242,6 @@ public class Window implements Runnable
 			
 			@Override
 			public void componentHidden(ComponentEvent arg0) {}
-		});
-		
-		KeyListener listener = new KeyListener() {
-			
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("typed");
-			}
-			
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("released");
-			}
-			
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println(arg0.getExtendedKeyCode());
-				System.out.println(arg0.getKeyChar());
-				System.out.println("pressed");
-			}
-		};
-		
-		
-		frame.addKeyListener(listener);
-		//canvas.addKeyListener(listener);
-		splitPane.addKeyListener(listener);
-		frame.setFocusable(true);
-		
-		frame.addFocusListener(new FocusListener() {
-			
-			@Override
-			public void focusLost(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				//frame.setFocusable(true);
-				System.out.println("Frame Lost");
-			}
-			
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("Frame Gained");
-				
-			}
-		});
-		
-		textArea.addFocusListener(new FocusListener() {
-			
-			@Override
-			public void focusLost(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				frame.setFocusable(true);
-				System.out.println("Lost");
-			}
-			
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("Gained");
-				
-			}
 		});
 		
 		coordTex.put(0, new int[]{5,0}); // grass
@@ -328,7 +290,12 @@ public class Window implements Runnable
 		coordTexShip.put(2,new int[]{1,0});
 		coordTexShip.put(3,new int[]{0,1});
 		
-		System.out.println("Create Window");
+		System.out.println("Create Window : ");
+	}
+	
+	public void setMsg(String text)
+	{
+		msg.setText(text);
 	}
 	
 	private void setNeedValidation() 
@@ -402,9 +369,10 @@ public class Window implements Runnable
 			
 			try
 			{
-				
-				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
+								
+				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet1.png"));
 				ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
+
 			}
 			catch (Exception e)
 			{
@@ -611,6 +579,7 @@ public class Window implements Runnable
 	
 	public void start()
 	{
+		
 		gameThread = new Thread(this);
 		gameThread.start();
 	}
