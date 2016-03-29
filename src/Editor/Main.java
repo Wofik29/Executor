@@ -1,5 +1,7 @@
 package Editor;
 
+import javax.swing.SwingUtilities;
+
 public class Main {
 
 	/**
@@ -9,10 +11,16 @@ public class Main {
 	{
 		// TODO Auto-generated method stub
 		
-		Editor ed = new Editor();
-		ed.start();
+		Window win = new Window();
 		
-		
+		try 
+		{
+			SwingUtilities.invokeAndWait(win);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
 	}
 
 }
