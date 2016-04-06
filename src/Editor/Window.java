@@ -313,6 +313,10 @@ public class Window implements Runnable
 					{
 						out.write("0:");
 					}
+					else if (j==size-1)
+					{
+						out.write( Integer.toString(map[i][j]));
+					}
 					else
 					{
 						out.write( Integer.toString(map[i][j])+":" );
@@ -338,6 +342,7 @@ public class Window implements Runnable
 			 
 			 while (in.ready())
 			 {
+				 
 				 System.out.println(in.read());
 			 }
 			 
@@ -371,55 +376,55 @@ public class Window implements Runnable
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			break;
-		case GRASS_BEACH_IN_1:
+		case GRASS_BEACH_IN_4:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			g.setColor(new Color(255,217,00));
 			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
-			break;
-		case GRASS_BEACH_IN_2:
-			g.setColor(Color.green);
-			g.fillRect(i+1, j+1, ter_cell, ter_cell);
-			g.setColor(new Color(255,217,00));
-			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
 			break;
 		case GRASS_BEACH_IN_3:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			g.setColor(new Color(255,217,00));
+			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
+			break;
+		case GRASS_BEACH_IN_2:
+			g.setColor(Color.green);
+			g.fillRect(i+1, j+1, ter_cell, ter_cell);
+			g.setColor(new Color(255,217,00));
 			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
 			break;
-		case GRASS_BEACH_IN_4:
+		case GRASS_BEACH_IN_1:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			g.setColor(new Color(255,217,00));
 			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
 			break;
-		case GRASS_BEACH_OUT_1:
+		case GRASS_BEACH_OUT_4:
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			g.setColor(Color.green);
 			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
 			break;
-		case GRASS_BEACH_OUT_2:
+		case GRASS_BEACH_OUT_3:
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
 			g.setColor(Color.green);
 			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
 			break;
-		case GRASS_BEACH_OUT_3:
+		case GRASS_BEACH_OUT_2:
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(Color.green);
 			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
 			break;
-		case GRASS_BEACH_OUT_4:
+		case GRASS_BEACH_OUT_1:
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(Color.green);
 			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
 			break;
-		case GRASS_BEACH_1:
+		case GRASS_BEACH_3:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			g.setColor(new Color(255,217,00));
@@ -431,115 +436,115 @@ public class Window implements Runnable
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			break;
-		case GRASS_BEACH_3:
+		case GRASS_BEACH_4:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+ter_cell/2, j+1, ter_cell/2, ter_cell);
 			break;
-		case GRASS_BEACH_4 :
+		case GRASS_BEACH_1 :
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+ter_cell/2+1, ter_cell, ter_cell/2);
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			break;
-		case BEACH_SHALLOW_IN_1 :
+		case BEACH_SHALLOW_IN_4 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(new Color(0,192,255));
 			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
-			break;
-		case BEACH_SHALLOW_IN_2 :
-			g.setColor(new Color(255,217,00));
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(new Color(0,192,255));
-			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
 			break;
 		case BEACH_SHALLOW_IN_3 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(new Color(0,192,255));
+			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
+			break;
+		case BEACH_SHALLOW_IN_2 :
+			g.setColor(new Color(255,217,00));
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(new Color(0,192,255));
 			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
 			break;
-		case BEACH_SHALLOW_IN_4 :
+		case BEACH_SHALLOW_IN_1 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(new Color(0,192,255));
 			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
-			break;
-		case BEACH_SHALLOW_OUT_1 :
-			g.setColor(new Color(0,192,255));
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(new Color(255,217,00));
-			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
-			break;
-		case BEACH_SHALLOW_OUT_2 :
-			g.setColor(new Color(0,192,255));
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(new Color(255,217,00));
-			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
-			break;
-		case BEACH_SHALLOW_OUT_3 :
-			g.setColor(new Color(0,192,255));
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(new Color(255,217,00));
-			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
 			break;
 		case BEACH_SHALLOW_OUT_4 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(new Color(255,217,00));
-			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
-			break;
-		case SHALLOW_DEEP_IN_1 :
-			g.setColor(new Color(0,192,255));
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(Color.BLUE);
 			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
 			break;
-		case SHALLOW_DEEP_IN_2 :
+		case BEACH_SHALLOW_OUT_3 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(Color.BLUE);
+			g.setColor(new Color(255,217,00));
 			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
 			break;
-		case SHALLOW_DEEP_IN_3 :
+		case BEACH_SHALLOW_OUT_2 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(Color.BLUE);
+			g.setColor(new Color(255,217,00));
 			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
+			break;
+		case BEACH_SHALLOW_OUT_1 :
+			g.setColor(new Color(0,192,255));
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(new Color(255,217,00));
+			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
 			break;
 		case SHALLOW_DEEP_IN_4 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(Color.BLUE);
-			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
-			break;
-		case SHALLOW_DEEP_OUT_1 :
-			g.setColor(Color.BLUE);
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
-			g.setColor(new Color(0,192,255));
 			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
 			break;
-		case SHALLOW_DEEP_OUT_2 :
-			g.setColor(Color.BLUE);
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+		case SHALLOW_DEEP_IN_3 :
 			g.setColor(new Color(0,192,255));
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(Color.BLUE);
 			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
 			break;
-		case SHALLOW_DEEP_OUT_3 :
-			g.setColor(Color.BLUE);
-			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+		case SHALLOW_DEEP_IN_2 :
 			g.setColor(new Color(0,192,255));
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(Color.BLUE);
 			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
+			break;
+		case SHALLOW_DEEP_IN_1 :
+			g.setColor(new Color(0,192,255));
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(Color.BLUE);
+			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
 			break;
 		case SHALLOW_DEEP_OUT_4 :
 			g.setColor(Color.BLUE);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
 			g.setColor(new Color(0,192,255));
+			g.fillArc(i-ter_cell/2+1, j+ter_cell/2, ter_cell, ter_cell, 0, 90);
+			break;
+		case SHALLOW_DEEP_OUT_3 :
+			g.setColor(Color.BLUE);
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(new Color(0,192,255));
+			g.fillArc(i-ter_cell/2+1, j-ter_cell/2+1, ter_cell, ter_cell, 0, -90);
+			break;
+		case SHALLOW_DEEP_OUT_2 :
+			g.setColor(Color.BLUE);
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(new Color(0,192,255));
+			g.fillArc(i+ter_cell/2, j-ter_cell/2+1, ter_cell, ter_cell, 180, 90);
+			break;
+		case SHALLOW_DEEP_OUT_1 :
+			g.setColor(Color.BLUE);
+			g.fillRect(i+1, j+1, ter_cell, ter_cell-1);
+			g.setColor(new Color(0,192,255));
 			g.fillArc(i+ter_cell/2, j+ter_cell/2, ter_cell, ter_cell, 180, -90);
 			break;
-		case SHALLOW_DEEP_1 :
+		case SHALLOW_DEEP_3 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			g.setColor(Color.BLUE);
@@ -551,19 +556,19 @@ public class Window implements Runnable
 			g.setColor(Color.BLUE);
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			break;
-		case SHALLOW_DEEP_3 :
+		case SHALLOW_DEEP_4 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			g.setColor(Color.BLUE);
 			g.fillRect(i+ter_cell/2, j+1, ter_cell/2, ter_cell);
 			break;
-		case SHALLOW_DEEP_4 :
+		case SHALLOW_DEEP_1 :
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+ter_cell/2+1, ter_cell, ter_cell/2);
 			g.setColor(Color.BLUE);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			break;
-		case BEACH_SHALLOW_1 :
+		case BEACH_SHALLOW_3 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			g.setColor(new Color(0,192,255));
@@ -575,13 +580,13 @@ public class Window implements Runnable
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			break;
-		case BEACH_SHALLOW_3 :
+		case BEACH_SHALLOW_4 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+1, ter_cell/2, ter_cell);
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+ter_cell/2, j+1, ter_cell/2, ter_cell);
 			break;
-		case BEACH_SHALLOW_4 :
+		case BEACH_SHALLOW_1 :
 			g.setColor(new Color(255,217,00));
 			g.fillRect(i+1, j+ter_cell/2+1, ter_cell, ter_cell/2);
 			g.setColor(new Color(0,192,255));
