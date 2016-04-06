@@ -26,9 +26,6 @@ public class World implements Runnable
 		heigth = h;
 		this.step = step;
 		
-		Map m = new Map();
-		map = m.getMap();
-		
 		player = new GameObject(12, 1, step, map);
 		
 		MainLoop qe = new MainLoop();
@@ -55,6 +52,11 @@ public class World implements Runnable
 	public List<GameObject> getObjects()
 	{
 		return objects;
+	}
+	
+	public void setMap(byte[][] m)
+	{
+		map = m;
 	}
 	
 	public byte[][] getMap()

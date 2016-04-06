@@ -28,12 +28,17 @@ import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -69,7 +74,9 @@ public class Window implements Runnable
 	private JButton stop;
 	private JLabel msg;
 	
-	// Работает все тут
+	private JMenuBar menu;
+	
+	// Поток, в котором крутиться window.
 	private Thread gameThread;
 	
 	// флаг на работу
@@ -100,12 +107,20 @@ public class Window implements Runnable
 		
 		controller = c;
 		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		// Создание frame для держание всего.
 		frame = new JFrame();
 		frame.setTitle("Swing + LWJGL");
 		frame.setLayout(null);
 		frame.setBounds(0, 0, 1024, 768);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			
+		setMenu();
 		
 		textArea = new JTextArea();
 		textArea.setColumns(35);
@@ -292,6 +307,69 @@ public class Window implements Runnable
 		
 		System.out.println("Create Window : ");
 	}
+	
+	private void setMenu()
+	{
+		menu = new JMenuBar();
+		
+		JMenu file = new JMenu("File");
+		JMenu prog = new JMenu("Programm");
+		JMenu help = new JMenu("Help");
+		
+		JMenuItem load = new JMenuItem("Load");
+		JMenuItem play = new JMenuItem("Play");
+		JMenuItem about = new JMenuItem("About");
+		
+		frame.setJMenuBar(menu);
+		menu.add(file);
+		menu.add(prog);
+		menu.add(help);
+		
+		file.add(load);
+		
+		prog.add(play);
+		
+		help.add(about);
+		
+		load.addActionListener(new ActionListener() 
+		{			
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				controller.loadMap();
+			}
+		});
+		
+		about.addActionListener(new ActionListener() 
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				JFrame us = new JFrame("About");
+				us.setBounds( frame.getX()+200, frame.getY()+200, 400, 200);
+				us.setLayout(null);
+				
+				JTextArea ta = new JTextArea("Программу создал Волков Данил. \t\n" +
+								"Был использован OpenGL, Slick2D. \n" +
+								"Спрайты были взяты отсюда: ");
+				
+				ta.setBounds(0, 0, 300, 100);
+				ta.setVisible(true);
+				
+				//JLabel text = new JLabel("Программу создал Волков Данил. \t\n" +
+				//		"Был использован OpenGL, Slick2D. \n" +
+				//		"Спрайты были взяты отсюда: ");
+				//text.setBounds(0, -130, 500, 500);
+				
+				us.setVisible(true);
+				us.add(ta);
+				us.setVisible(true);
+			}
+		});
+		
+	}
+	
 	
 	public void setMsg(String text)
 	{

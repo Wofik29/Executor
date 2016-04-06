@@ -12,6 +12,8 @@ public class Controller
 	Thread thread_world;
 	Thread thread_window;
 	
+	Map map;
+	
 	final int WIDTH = 1024;
 	final int HEIGHT = 780;
 	
@@ -19,8 +21,13 @@ public class Controller
 	{
 		int step = 10;
 		world = new World(WIDTH, HEIGHT, step);
+		
+		map = new Map();
+		byte[][] m = map.getMap();
+		
 		window = new Window(this);
-		window.setMap(world.getMap());
+		window.setMap(m);
+		world.setMap(m);
 		//window.setObjects(world.getObjects());
 		
 		GameObject p =  world.getObjects().get(0);
@@ -85,6 +92,13 @@ public class Controller
         	//window.y_speed = 0;
         	break;	
         }
+	}
+	
+	public void loadMap()
+	{
+		byte[][] m = map.loadMap(); 
+		window.setMap(m);
+		world.setMap(m);
 	}
 	
 	public void stop()
