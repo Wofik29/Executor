@@ -1,5 +1,9 @@
 package Game;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.Random;
 import java.util.Stack;
 
@@ -104,6 +108,65 @@ public class Map
 		}
 	}
 	
+	public byte[][] loadMap()
+	{
+		
+		try
+		{
+			FileReader fr = new FileReader("Executor.map");
+			BufferedReader br = new BufferedReader(fr);
+			
+			StringBuilder sb = new StringBuilder();
+			
+			
+			int i=0;
+			
+			if (br.ready()) System.out.println("ready");
+			
+			while (br.ready())
+			{
+			//	map_str[i++] = br.readLine().split(":");
+				sb.append(br.readLine()).append("\n");
+			}
+			
+			String[] str = sb.toString().split("\n");
+			
+			String[][] map_str = new String[str.length][100];
+			
+			for (String s : str)
+			{
+				map_str[i++]=s.split(":");
+			}
+			
+			br.close();
+			fr.close();
+			
+			map = new byte[map_str.length][ map_str[0].length ];
+			
+			for (i=0; i<map_str.length; i++)
+			{
+				for (int j=0; j<map_str[i].length; j++)
+				{
+					map[i][j] = Byte.parseByte( map_str[i][j]);
+				}
+				
+			}
+			
+			
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		//map = new byte[1][1];
+		
+		return map;
+	}
+	
 	public Map()
 	{
 		//clear();
@@ -124,6 +187,8 @@ public class Map
 		for (int i=0; i<map.length; i++)
 			for (int j=0; j<map[i].length; j++)
 			{
+				map[i][j] = 0;
+				
 				//if (i==0 || j==0 || i==map.length-1 || j==map[i].length-1)
 				//	map[i][j] = 1;
 				//if((i % 2 != 0  && j % 2 != 0) && //если ячейка нечетная по x и y, 
