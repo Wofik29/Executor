@@ -14,7 +14,14 @@ public class Compiller
 	
 	public Compiller()
 	{
-		
+		commands.put("forward", "forward");
+		commands.put("left", "left");
+		commands.put("right", "right");
+		commands.put("ahead", "ahead");
+		commands.put("lefty", "lefty");
+		commands.put("righty", "righty");
+		commands.put("water", "water");
+		commands.put("wall", "wall");
 	}
 	
 	
@@ -66,26 +73,41 @@ public class Compiller
 		*  1 - обработка условия для цикла
 		*/
 		int state = 0;
+				
+		// Флаг, когда закончим парсить текст
+		boolean isEnd = true;
+		
+		// Вывод ошибки и текст ошибки
 		boolean error = false;
 		String error_text = "";
 		
+		// Стэк вложенности, н-р if { if ... } 
 		Stack<Queue> stack = new Stack<>();
+		
+		// программа, которую вовзращаем, и указатель на текущий цикл.
 		Queue programm = new MainLoop();
 		Queue current = programm;
 		
+		// Массив программы в виде символов
 		char[] chars = text.toCharArray(); 
-		boolean isEnd = true;
 		
+		
+		// строка, для единичного операта и etc
+		// индекс, где находимся в тексте
 		StringBuilder str = new StringBuilder();
-		
 		int index=0;
+		
 		parse: while (isEnd)
 		{
 			System.out.println("parse while");
+			
+			// повторять, пока не наткнемся на разделитель
 			boolean repeat = true;
 			int i = index;
+			
 			while (repeat)
 			{
+				// пока не конец текста
 				if (i>chars.length-1)
 				{
 					isEnd = false;
@@ -94,16 +116,22 @@ public class Compiller
 				
 				switch (chars[i])
 				{
-				case ')': case '(': case '=': case ' ':	case ';': case '\t': case '\n':
-					if (str.length() > 1)
+				/* 
+				 * Если встретили один из этих символов, значит мы запомнили один оператор.
+				 * Следовательно запоминаем это место и выходим обрабатывать.
+				 */
+				case ')': case '(': case ' ': case ';': case '\t': case '\n': case '!': 
+					repeat = false;
+					index = ++i;
+					break;
+				case '=':
+					if (chars[i-1] == '!')
 					{
-						repeat = false;
-						index = ++i;
+						str.append(chars[i-1]);
 					}
-					else
-					{
-						str.setLength(0);
-					}
+					repeat = false;
+					index = ++i;
+					
 					break;
 				default:
 					str.append(chars[i]);
@@ -196,6 +224,12 @@ public class Compiller
 				ControlLoop control = (ControlLoop) current;
 				switch (str.toString())
 				{
+				case "=":
+					control.condition = 0;
+					break;
+				case "=!":
+					control.condition = 1;
+					break;
 				case "ahead":
 					control.setTerm1(1);
 					str.setLength(0);
