@@ -1,11 +1,14 @@
 package Editor;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -24,16 +27,22 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 public class Window implements Runnable 
 {
-	Image image;
-	Image select_terrain; 
-	JFrame frame;
-	JButton save;
+	private Image image;
+	private Image select_terrain; 
+	private JFrame frame;
+	private JButton save;
+	private JMenuBar menu;
 	
 	boolean isPressed = false;
+	boolean isDraw = true;
 	
 	public final int width_canvas = 600;
 	public final int height_canvas = 600;
@@ -121,44 +130,18 @@ public class Window implements Runnable
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				saveMap();
+				JFileChooser fileopen = new JFileChooser(new File("."));
+				int ret = fileopen.showSaveDialog(null);
+				
+				if (ret == JFileChooser.APPROVE_OPTION)
+				{
+					String name = fileopen.getSelectedFile().getAbsolutePath();
+					saveMap(name);
+				}
+					
 			}
 		});
 		frame.add(save);
-		 
-		/*
-		frame.addMouseMotionListener(new MouseAdapter() 
-			{	
-				@Override
-				public void mouseMoved(MouseEvent e) 
-				{
-					System.out.println("isPre");
-					if (isPressed)
-					{
-						System.out.println("isPre");
-						Point p = new Point( e.getX(), e.getY());
-						
-						p.x -= 10;
-						p.y -=25;
-						
-						if (p.x>0 && p.x<width_canvas &&
-								p.y>0 && p.y<height_canvas)
-						{
-							map[p.x/cell][p.y/cell] = select;
-							
-						}
-						
-						p.x -= 610;
-						
-						if (p.x > 0 && p.x<40 &&
-								p.y>0 && p.y<400)
-						{
-							select = terrain[p.x/cell][p.y/cell];
-						}
-					}
-				}
-		});
-		*/
 		
 		frame.addMouseListener(new MouseAdapter() 
 			{
@@ -174,7 +157,7 @@ public class Window implements Runnable
 					Point p = new Point( arg0.getX(), arg0.getY());
 					
 					p.x -= 10;
-					p.y -=25;
+					p.y -= 30;
 					
 					if (p.x>0 && p.x<width_canvas &&
 							p.y>0 && p.y<height_canvas)
@@ -202,8 +185,6 @@ public class Window implements Runnable
 		
 		frame.setBackground(Color.white);
 		
-		
-		
 		System.out.println("end constructor");
 	}
 	
@@ -214,7 +195,6 @@ public class Window implements Runnable
 		select_terrain = frame.createImage(40, 400);
 		
 		Graphics g = select_terrain.getGraphics();
-		
 		
 		int ter_cell = 20;
 		int w = 40;
@@ -227,17 +207,17 @@ public class Window implements Runnable
 			{
 				g.setColor(Color.black);
 				g.drawRect(i, j, cell, cell);
-				
 				drawTerrain(g, i, j, terrain[i/20][j/20], ter_cell); 
 			}
 			i+=20;
 		}
 		
-		Thread t = new Thread(new Runnable() {
+		Thread t = new Thread(new Runnable() 
+		{
 			
 			@Override
-			public void run() {
-				// TODO Auto-generated method stub
+			public void run() 
+			{
 				draw();
 			}
 		});
@@ -252,12 +232,18 @@ public class Window implements Runnable
 		
 		while (frame.isVisible())
 		{
-			g.clearRect(0, 0, 600, 600);
-			
-			drawGrid(g);
-			
-			frame.getGraphics().drawImage(image, 10, 25, null);
-			frame.getGraphics().drawImage(select_terrain, 620, 25, null);
+			if (isDraw)
+			{
+				g.clearRect(0, 0, 600, 600);
+				drawGrid(g);
+				
+				int offset_x = 10;
+				int offset_y = 30;
+				frame.getGraphics().drawImage(image, offset_x, offset_y, null);
+				
+				offset_x = 620;
+				frame.getGraphics().drawImage(select_terrain, offset_x, offset_y, null);
+			}
 			try 
 			{
 				Thread.sleep(20);
@@ -276,34 +262,27 @@ public class Window implements Runnable
 		{
 			for (int j=0; j<height_canvas; j+=cell)
 			{
-				g.setColor(Color.black);
+				g.setColor(Color.BLACK);
 				g.drawRect(i, j, cell, cell);
 				drawTerrain(g, i, j, map[i/cell][j/cell], cell);
 			}
 		}
 	}
 	
-	private void saveMap()
+	private void saveMap(String name)
 	{
 		int startPosX = 0;
 		int startPosY = 0;
-		/*for (int j=0;j<size;j++)
-			for (int i=0;i<size;i++)
-				if (map[i][j] > 0)
-				{
-					startPosX = i;
-					startPosY = j;
-				}
-				*/
-		File f = new File("Executor.map");
+		
+		if (name.lastIndexOf('.') <0 ) name += ".map";
+		else if (name.substring(  name.lastIndexOf('.'), name.length()-1 ).equals("map")) name += ".map";
+		File f = new File(name);
 		
 		try
 		{
 			f.createNewFile();
 			
-			//DataOutputStream out = new DataOutputStream(new BufferedOutputStream()));
 			FileWriter out = new FileWriter(f);
-			//PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)));
 			
 			for (int i=startPosX; i<size; i++)
 			{
@@ -330,8 +309,6 @@ public class Window implements Runnable
 		{
 			e.printStackTrace();
 		}
-		
-		loadMap();
 	}
 	
 	private void loadMap()
@@ -342,7 +319,6 @@ public class Window implements Runnable
 			 
 			 while (in.ready())
 			 {
-				 
 				 System.out.println(in.read());
 			 }
 			 

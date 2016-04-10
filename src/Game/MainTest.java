@@ -14,17 +14,27 @@ public class MainTest {
 	public void test_map()
 	{
 		Map map = new Map();
-		byte[][] m = map.loadMap();
 		
-		for (int i=0; i<m.length; i++)
+		try
 		{
+			byte[][] m = map.loadMap("Executor.map");
 			
-			for (int j=0; j<m[i].length; j++)
+			for (int i=0; i<m.length; i++)
 			{
-				System.out.print(m[i][j]+" ");
+				
+				for (int j=0; j<m[i].length; j++)
+				{
+					System.out.print(m[i][j]+" ");
+				}
+				System.out.println();
 			}
-			System.out.println();
 		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		
 	}
 
 }

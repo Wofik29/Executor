@@ -70,7 +70,7 @@ public class GameObject
 	ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
 	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
 
-	GameObject(int x, int y, int s, byte[][] m)
+	GameObject(int x, int y, int s)
 	{
 		//this.x = x;
 		//this.y = y;
@@ -82,8 +82,6 @@ public class GameObject
 		y_p = y*step;
 		
 		width = height = step;
-		
-		map = m;
 		
 		programm = new MainLoop();
 		
@@ -108,9 +106,14 @@ public class GameObject
 		checkDirection();
 	}
 	
-	void setProgramm(MainLoop q)
+	public void setProgramm(MainLoop q)
 	{
 		programm = q;
+	}
+	
+	public void setMap(byte[][] m)
+	{
+		map = m;
 	}
 	
 	public void step()
