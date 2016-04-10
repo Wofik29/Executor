@@ -31,6 +31,7 @@ public class Controller
 		//window.setObjects(world.getObjects());
 		
 		GameObject p =  world.getObjects().get(0);
+		
 		window.setPlayer(p);
 		
 		thread_world = new Thread(world);
@@ -94,11 +95,20 @@ public class Controller
         }
 	}
 	
-	public void loadMap()
+	public void loadMap(String name)
 	{
-		byte[][] m = map.loadMap(); 
-		window.setMap(m);
-		world.setMap(m);
+		try
+		{
+			byte[][] m = map.loadMap(name);
+			window.setMap(m);
+			world.setMap(m);
+		}
+		catch (Exception ex)
+		{
+			window.setMsg(ex.getMessage());
+		}
+		
+		
 	}
 	
 	public void stop()

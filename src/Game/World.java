@@ -26,7 +26,7 @@ public class World implements Runnable
 		heigth = h;
 		this.step = step;
 		
-		player = new GameObject(12, 1, step, map);
+		player = new GameObject(12, 1, step);
 		
 		MainLoop qe = new MainLoop();
 		
@@ -57,6 +57,10 @@ public class World implements Runnable
 	public void setMap(byte[][] m)
 	{
 		map = m;
+		for (GameObject q : objects)
+		{
+			q.setMap(map);
+		}
 	}
 	
 	public byte[][] getMap()
@@ -88,14 +92,7 @@ public class World implements Runnable
 			
 			for (GameObject q : objects)
 			{
-				//if (!q.isStep()) q.nextStep();
-				
 				q.step();
-
-				//if (q.x < 0) q.x = 0;
-		        //if (q.x > 800) q.x = 800;
-		        //if (q.y < 0) q.y = 0;
-		        //if (q.y > 600) q.y = 600;
 			}
 			
 			try
