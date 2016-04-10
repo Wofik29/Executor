@@ -4,8 +4,6 @@ import java.awt.Point;
 
 public class ifTerm extends ControlLoop 
 {
-	
-	private boolean condition = true;
 	private int sign = -1 ;
 	
 	@Override
@@ -20,9 +18,6 @@ public class ifTerm extends ControlLoop
 			 */
 			if (current_number == 0)
 			{
-				int x=-1;
-				int y=-1;
-				
 				Point p = new Point();
 				
 				switch (term1)
@@ -38,21 +33,21 @@ public class ifTerm extends ControlLoop
 					break;
 				}
 				
-				x = p.x;
-				y = p.y;
-				
 				int l = obj.map.length;
-				if (x >= 0 && x<l && y>=0 && y<l )
+				if (p.x >= 0 && p.x<l && p.y>=0 && p.y<l )
 				{
-					 // Если условия не совпадают
-					if (obj.map[x][y] == term2)
+					if (isCondition(obj.map[p.x][p.y]))
+					{
+						// Если условие совпадает, то проверяем, есть ли else.
 						if (number_else == -1)
 							sign = commands.size();
 						else
-							//Если условие выполняется, то else будет и концом if'a
+							//Если условие выполняется и есть else, то он будет и концом if'a
 							sign = number_else;
+					}
 					else
-						// если else есть
+					{	
+						// Если не совпадает, то переходим к else, или вообще выходим.
 						if (number_else>-1)
 						{
 							sign = commands.size();
@@ -60,7 +55,8 @@ public class ifTerm extends ControlLoop
 							current_command = commands.get(current_number);
 						}
 						else
-							return true;						
+							return true;
+					}
 				}
 				else
 					return true;

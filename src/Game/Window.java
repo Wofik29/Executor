@@ -19,6 +19,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import javax.print.attribute.AttributeSet;
 import javax.smartcardio.ATR;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -316,7 +318,8 @@ public class Window implements Runnable
 		JMenu prog = new JMenu("Programm");
 		JMenu help = new JMenu("Help");
 		
-		JMenuItem load = new JMenuItem("Load");
+		JMenuItem load_map = new JMenuItem("Load map...");
+		JMenuItem save_programm = new JMenuItem("Save programm...");
 		JMenuItem play = new JMenuItem("Play");
 		JMenuItem about = new JMenuItem("About");
 		
@@ -325,20 +328,31 @@ public class Window implements Runnable
 		menu.add(prog);
 		menu.add(help);
 		
-		file.add(load);
+		file.add(load_map);
+		
+		save_programm.setEnabled(false);
+		file.add(save_programm);
 		
 		prog.add(play);
 		
 		help.add(about);
 		
-		load.addActionListener(new ActionListener() 
+		load_map.addActionListener(new ActionListener() 
 		{			
 			@Override
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				controller.loadMap();
+				JFileChooser fileopen = new JFileChooser(new File("."));
+				int ret = fileopen.showOpenDialog(null);
+				
+				if (ret == JFileChooser.APPROVE_OPTION)
+				{
+					String name = fileopen.getSelectedFile().getAbsolutePath();
+					controller.loadMap(name);
+				}
 			}
 		});
+		
 		
 		about.addActionListener(new ActionListener() 
 		{

@@ -10,6 +10,7 @@ public abstract class ControlLoop extends Queue
 	 */
 	protected int term1 = -1; 
 	protected int term2 = -1;
+	protected int condition = -1;
 	
 	// Номер элемента, с которого начинется ветка else. 
 	protected int number_else = -1;
@@ -37,6 +38,22 @@ public abstract class ControlLoop extends Queue
 		return true;
 	}
 	
+	protected boolean isCondition(int value_cell)
+	{
+		if (term1 == -1 || term2 == -1 || condition == -1) return false;
+		
+		value_cell = (value_cell != Map.SHALLOW || value_cell != Map.DEEP) ? 1 : 0;
+		
+		switch (condition)
+		{
+		case 0 : // "="
+			return value_cell == term2;
+		case 1: // "!=":
+			return value_cell != term2;
+		}
+		
+		return false;
+	}
 	
 	@Override
 	public abstract  boolean execute(GameObject obj);

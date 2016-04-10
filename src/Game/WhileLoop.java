@@ -4,11 +4,6 @@ import java.awt.Point;
 
 public class WhileLoop extends ControlLoop
 {
-	public WhileLoop()
-	{
-		
-	}
-	
 	@Override
 	public String toString() 
 	{
@@ -40,9 +35,6 @@ public class WhileLoop extends ControlLoop
 			 */
 			if (current_number == 0)
 			{
-				int x=-1;
-				int y=-1;
-				
 				Point p = new Point();
 				
 				switch (term1)
@@ -58,27 +50,22 @@ public class WhileLoop extends ControlLoop
 					break;
 				}
 				
-				x = p.x;
-				y = p.y;
-				
 				int l = obj.map.length;
-				if ((x < 0 && x>=l && y<0 && y>l) || (obj.map[x][y] != term2)  )
+				if ((p.x < 0 && p.x>=l && p.y<0 && p.y>l) || (!isCondition(obj.map[p.x][p.y])) )
 				{
 					return true;
 				}
 			}
 			
-			if (isEnd)
+			if (current_command.execute(obj))
 			{
-				if (current_command.execute(obj))
-				{
-					//System.out.println(current_number);
-					current_number = ++current_number >= commands.size() ? 0 : current_number;
-					//System.out.println(current_number);
-				}
-				current_command = commands.get(current_number);
-				return false;
+				//System.out.println(current_number);
+				current_number = ++current_number >= commands.size() ? 0 : current_number;
+				//System.out.println(current_number);
 			}
+			
+			current_command = commands.get(current_number);
+			return false;
 		}
 		return true;
 	}
