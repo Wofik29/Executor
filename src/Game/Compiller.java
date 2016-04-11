@@ -8,11 +8,11 @@ import java.util.Stack;
 
 public class Compiller 
 {
-	String path;
-	StringBuilder sb = new StringBuilder();
-	HashMap<String, String> commands = new HashMap<>();
+	private String path;
+	private StringBuilder sb = new StringBuilder();
+	private static HashMap<String, String> commands = new HashMap<>();
 	
-	public Compiller()
+	static
 	{
 		commands.put("forward", "forward");
 		commands.put("left", "left");
@@ -24,12 +24,41 @@ public class Compiller
 		commands.put("wall", "wall");
 	}
 	
+	public Compiller()
+	{
+		
+	}
+	
 	
 	public void setFile(String path)
 	{
 		this.path = path;
 	}
 	
+	public static String getSyntax()
+	{
+		String str = "";
+		
+		str = "Команды: \n" +
+			commands.get("forward") + " - 1 ход вперед\n" +
+			commands.get("left") + " - повернуть влево\n" +
+			commands.get("right") + " - повернуть вправо\n" +
+			"Значения по сторонам от коробля:\n" +
+			commands.get("ahead") + " - клетка спереди\n" + 
+			commands.get("lefty") + " - клетка слева\n" +
+			commands.get("right") + " - клетка справа\n" +
+			"Значения клеток:\n" +
+			commands.get("water") + " - Вода\n" +
+			commands.get("Земля") + " - Вода\n" +
+			"Условны оператор if: \n" +
+			"if (<condition>) then <operator> [else <operator>] end\n" +
+			"Оператор цикла while:\n" +
+			"while (<condition>) do <opearator> end\n"+
+			"<condition> - должен включать в себя одну сторону и одно значение клетки\n"+
+			"<operator> - может быть как команда, так и любой оператор цикла/условия";
+		
+		return str;
+	}
 	
 	// Чтение списка команд из файла
 	public void setCommands()

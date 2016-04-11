@@ -19,7 +19,12 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -320,21 +325,23 @@ public class Window implements Runnable
 		
 		JMenuItem load_map = new JMenuItem("Load map...");
 		JMenuItem save_programm = new JMenuItem("Save programm...");
+		JMenuItem load_programm = new JMenuItem("Load programm...");
 		JMenuItem play = new JMenuItem("Play");
 		JMenuItem about = new JMenuItem("About");
+		JMenuItem help1 = new JMenuItem("Help contents...");
 		
 		frame.setJMenuBar(menu);
 		menu.add(file);
 		menu.add(prog);
 		menu.add(help);
 		
-		file.add(load_map);
-		
-		save_programm.setEnabled(false);
+		file.add(load_programm);
 		file.add(save_programm);
+		file.add(load_map);
 		
 		prog.add(play);
 		
+		help.add(help1);
 		help.add(about);
 		
 		load_map.addActionListener(new ActionListener() 
@@ -353,6 +360,100 @@ public class Window implements Runnable
 			}
 		});
 		
+		save_programm.addActionListener(new ActionListener() 
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				JFileChooser fileopen = new JFileChooser(new File("."));
+				int ret = fileopen.showSaveDialog(null);
+				
+				if (ret == JFileChooser.APPROVE_OPTION)
+				{
+					File file = fileopen.getSelectedFile();
+					
+					try 
+					{
+						
+						BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+						
+						String text = "@ProgramExecutor\n" + textArea.getText();
+						
+						bw.write(text);
+						bw.close();
+					}
+					catch (IOException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		
+		load_programm.addActionListener(new ActionListener() 
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				JFileChooser fileopen = new JFileChooser(new File("."));
+				int ret = fileopen.showSaveDialog(null);
+				
+				if (ret == JFileChooser.APPROVE_OPTION)
+				{
+					File file = fileopen.getSelectedFile();
+					
+					try
+					{	
+						BufferedReader rw = new BufferedReader(new FileReader(file));
+						String line = rw.readLine();
+						if (line == null || line.equals("~ProgramExecutor"))
+						{
+							setMsg("Неверный файл");
+						}
+						else
+						{
+							StringBuffer text = new StringBuffer();
+							while (rw.ready())
+								text.append(rw.readLine()).append("\n");
+							
+							textArea.setText(text.toString());
+						}
+						
+						rw.close();
+					}
+					catch (IOException e1)
+					{
+						e1.printStackTrace();
+					}
+				}
+				
+			}
+		});
+		
+		help1.addActionListener(new ActionListener() 
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				JFrame frame = new JFrame("Help syntax");
+				frame.setBounds( frame.getX()+200, frame.getY()+200, 400, 400);
+				frame.setLayout(null);
+				
+				JTextPane ta = new JTextPane();
+				ta.setBounds(0, 0, 400, 400);
+				//ta.setContentType("text/html");
+				ta.setText(Compiller.getSyntax());
+				
+				ta.setVisible(true);
+				ta.setEditable(false);
+				
+				frame.add(ta);
+				frame.setVisible(true);
+			}
+		});
 		
 		about.addActionListener(new ActionListener() 
 		{
@@ -361,24 +462,46 @@ public class Window implements Runnable
 			public void actionPerformed(ActionEvent arg0) 
 			{
 				JFrame us = new JFrame("About");
+				
 				us.setBounds( frame.getX()+200, frame.getY()+200, 400, 200);
 				us.setLayout(null);
+				
+				JButton btn1 = new JButton("OK");
+				JButton btn2 = new JButton("Don't OK");
 				
 				JTextArea ta = new JTextArea("Программу создал Волков Данил. \t\n" +
 								"Был использован OpenGL, Slick2D. \n" +
 								"Спрайты были взяты отсюда: ");
+				ta.setEditable(false);
+				//ta.setForeground(java.awt.Color.red);
 				
-				ta.setBounds(0, 0, 300, 100);
+				
+				ta.setBounds(50, 0, 300, 100);
+				btn1.setBounds(40, 130, 50, 30);
+				btn2.setBounds(100, 130, 90, 30);
+				
+				ActionListener al = new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						JButton btn = (JButton) e.getSource();
+						JFrame f = (JFrame) btn.getParent().getParent().getParent().getParent(); // достаем этот Frame, т.к. он локальный и я хз как его достать еще :DD
+						f.dispose();
+					}
+				};
+				
+				btn1.addActionListener(al);
+				btn2.addActionListener(al);
+				
+				us.add(ta);
+				us.add(btn1);
+				us.add(btn2);
+				
+				us.setVisible(true);
 				ta.setVisible(true);
 				
-				//JLabel text = new JLabel("Программу создал Волков Данил. \t\n" +
-				//		"Был использован OpenGL, Slick2D. \n" +
-				//		"Спрайты были взяты отсюда: ");
-				//text.setBounds(0, -130, 500, 500);
 				
-				us.setVisible(true);
-				us.add(ta);
-				us.setVisible(true);
 			}
 		});
 		
