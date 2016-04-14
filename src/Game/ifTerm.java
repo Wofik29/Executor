@@ -102,7 +102,7 @@ public class ifTerm extends ControlLoop
 	
 	public String toString()
 	{
-		String result = "if:{ ";
+		String result = "if:{ condition:{ "+term1+" "+condition+" "+term2+" }, command:{";
 		
 		for (Command c :  commands)
 		{

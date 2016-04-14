@@ -128,7 +128,6 @@ public class Compiller
 		
 		parse: while (isEnd)
 		{
-			System.out.println("parse while");
 			
 			// повторять, пока не наткнемся на разделитель
 			boolean repeat = true;
@@ -150,17 +149,29 @@ public class Compiller
 				 * Следовательно запоминаем это место и выходим обрабатывать.
 				 */
 				case ')': case '(': case ' ': case ';': case '\t': case '\n': case '!': 
-					repeat = false;
-					index = ++i;
+					if (str.length() > 1)
+					{
+						repeat = false;
+						index = ++i;
+					}
+					else
+					{
+						str.setLength(0);
+					}
 					break;
 				case '=':
-					if (chars[i-1] == '!')
+					if (str.length() == 0)
 					{
-						str.append(chars[i-1]);
+						str.append(chars[i]);
+						if (chars[i-1] == '!')
+						{
+							str.append(chars[i-1]);
+						}
+						index = ++i;
 					}
+					else
+						index = i;
 					repeat = false;
-					index = ++i;
-					
 					break;
 				default:
 					str.append(chars[i]);
@@ -255,9 +266,11 @@ public class Compiller
 				{
 				case "=":
 					control.condition = 0;
+					str.setLength(0);
 					break;
 				case "=!":
 					control.condition = 1;
+					str.setLength(0);
 					break;
 				case "ahead":
 					control.setTerm1(1);
@@ -277,6 +290,10 @@ public class Compiller
 					break;
 				case "beach":
 					control.setTerm2(Map.BEACH);
+					str.setLength(0);
+					break;
+				case "wall":
+					control.setTerm2(40);
 					str.setLength(0);
 					break;
 				case "do":

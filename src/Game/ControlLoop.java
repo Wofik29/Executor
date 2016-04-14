@@ -40,9 +40,8 @@ public abstract class ControlLoop extends Queue
 	
 	protected boolean isCondition(int value_cell)
 	{
-		if (term1 == -1 || term2 == -1 || condition == -1) return false;
-		
 		value_cell = (value_cell != Map.SHALLOW || value_cell != Map.DEEP) ? 1 : 0;
+		if (term1 == -1 || term2 == -1 || condition == -1) return false;
 		
 		switch (condition)
 		{
