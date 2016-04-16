@@ -6,8 +6,14 @@ public class MainTest {
 		// TODO Auto-generated method stub
 		
 		MainTest test = new MainTest();
-		test.test_map();
-		
+		test.test_compiller();
+	}
+	
+	public void test_compiller()
+	{
+		Compiller c = new Compiller();
+		c.setCommands("Executor.ini");
+		System.out.println(c.printCommands());
 		
 	}
 	

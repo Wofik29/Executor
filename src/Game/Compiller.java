@@ -10,25 +10,101 @@ public class Compiller
 {
 	private String path;
 	private StringBuilder sb = new StringBuilder();
-	private static HashMap<String, String> commands = new HashMap<>();
+	private static HashMap<String, Integer> commands = new HashMap<String, Integer>(); 
+	static {{
+		commands.put("forward", 0);
+		commands.put("left", 	1);
+		commands.put("right", 	2);
+		commands.put("ahead", 	3);
+		commands.put("lefty", 	4);
+		commands.put("righty", 	5);
+		commands.put("water", 	6);
+		commands.put("wall", 	7);
+		commands.put("if", 		8);
+		commands.put("while", 	9);
+		commands.put("then", 	10);
+		commands.put("do", 		11);
+		commands.put("end", 	12);
+		commands.put("=", 		13);
+		commands.put("=!", 		14);
+		commands.put("else", 	15);
+	}};
 	
-	static
-	{
-		commands.put("forward", "forward");
-		commands.put("left", "left");
-		commands.put("right", "right");
-		commands.put("ahead", "ahead");
-		commands.put("lefty", "lefty");
-		commands.put("righty", "righty");
-		commands.put("water", "water");
-		commands.put("wall", "wall");
-	}
+	
+	private static HashMap<String, Integer> print_commands = new HashMap<>();
+	static {{
+				print_commands.put("вперед", 0);
+				print_commands.put("поворот влево", 1);
+				print_commands.put("поворот вправо", 2);
+				print_commands.put("спереди", 3);
+				print_commands.put("слева", 4);
+				print_commands.put("справа", 5);
+				print_commands.put("вода", 5);
+				print_commands.put("стена/берег", 6);
+	}};
 	
 	public Compiller()
 	{
 		
 	}
 	
+	public void setCommands(String path)
+	{
+		File f = new File(path);
+		if (!f.exists())
+		{
+			System.out.println("not file");
+		}
+		
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String lines[] = new String[10];
+			int length=0;
+
+			// Считываем все из файла 
+			while (br.ready())
+			{
+				lines[length++] = br.readLine();
+			}
+			
+			
+			for (int i=0; i<length; i++)
+			{
+				// Обрабатываем каждую строку
+				String str = lines[i];
+				String[] line = str.split(":");
+				line[0] = line[0].trim().toLowerCase();
+				line[1] = line[1].trim().toLowerCase();
+				
+				// Удаляем текущую команду и ставим с новым именем.
+				if (print_commands.containsKey(line[0]))
+				{
+					commands.put(line[1], print_commands.get(line[0]));	
+				}
+			}
+			
+			br.close();
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		
+		
+	}
+	
+	public String printCommands()
+	{
+		String result = "";
+		
+		for (String str : commands.keySet())
+		{
+			result += str + " - "+ commands.get(str) + "\n";
+		}		
+		
+		return result;
+	}
 	
 	public void setFile(String path)
 	{
@@ -49,7 +125,7 @@ public class Compiller
 			commands.get("right") + " - клетка справа\n" +
 			"Значения клеток:\n" +
 			commands.get("water") + " - Вода\n" +
-			commands.get("Земля") + " - Вода\n" +
+			commands.get("wall") + " - Берег\n" +
 			"Условны оператор if: \n" +
 			"if (<condition>) then <operator> [else <operator>] end\n" +
 			"Оператор цикла while:\n" +
@@ -58,12 +134,6 @@ public class Compiller
 			"<operator> - может быть как команда, так и любой оператор цикла/условия";
 		
 		return str;
-	}
-	
-	// Чтение списка команд из файла
-	public void setCommands()
-	{
-		
 	}
 	
 	// Чтение из файла
@@ -96,6 +166,7 @@ public class Compiller
 	
 	public Queue getProgramm(String text) throws Exception
 	{
+		System.out.println(commands.get("left"));
 		//StringBuilder sb = new StringBuilder(text);
 		/*
 		*  0 - обычное
@@ -179,32 +250,28 @@ public class Compiller
 				i++;
 			}
 			
-			System.out.println("str: '"+str+"'"+", state: "+state);
-			
+			String operation = str.toString();
+			str.setLength(0);
+			int current_key = commands.get(operation) == null ? -1 : commands.get(operation);
+			System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
 			
 			Queue temp = null;
 			switch (state)
 			{
 			// Обычное, добавляем команды
 			case 0:
-				switch (str.toString())
+				switch (current_key)
 				{
-				case "forward":
+				case 0: // "forward
 					current.add(new Forward());
-					str.setLength(0);
-					System.out.println("Forward");
 					break;
-				case "left":
+				case 1: // "left"
 					current.add(new Left());
-					str.setLength(0);
-					System.out.println("left");
 					break;
-				case "right":
+				case 2: //"right":
 					current.add(new Right());
-					str.setLength(0);
-					System.out.println("right");
 					break;
-				case "if":
+				case 8: // "if":
 					System.out.println("if");
 					state = 1;
 					
@@ -220,21 +287,18 @@ public class Compiller
 					// установили текущую очередь if
 					current = temp;
 					temp = null;
-					str.setLength(0);
 					break;
-				case "end":
+				case 12: //"end":
 					current = stack.pop();
-					str.setLength(0);
 					System.out.println("end");
 					break;
-				case "else":
+				case 15: //"else":
 					ifTerm if_temp = (ifTerm) current;
 					if_temp.setElse();
 					if_temp = null;
-					str.setLength(0);
 					System.out.println("else");
 					break;
-				case "while":
+				case 9: //"while":
 					System.out.println("while");
 					state = 1;
 					// Запомнили родительский узел
@@ -249,12 +313,11 @@ public class Compiller
 					// установили текущую очередь if
 					current = temp;
 					temp = null;
-					str.setLength(0);
 					break;
 				default:
 					System.out.println("Default");
 					error = true;
-					error_text = "Ожидался оператор, но встречен "+str.toString();
+					error_text = "Ожидался оператор, но встречен '"+operation+"'";
 					isEnd = false;
 					break parse;
 				}
@@ -262,42 +325,31 @@ public class Compiller
 			// Проход по условию для if и while
 			case 1:
 				ControlLoop control = (ControlLoop) current;
-				switch (str.toString())
+				switch (current_key)
 				{
-				case "=":
+				case 13: // "=":
 					control.condition = 0;
-					str.setLength(0);
 					break;
-				case "=!":
+				case 14: // "=!":
 					control.condition = 1;
-					str.setLength(0);
 					break;
-				case "ahead":
+				case 3: // "ahead":
 					control.setTerm1(1);
-					str.setLength(0);
 					break;
-				case "lefty":
+				case 4: // "lefty":
 					control.setTerm1(0);
-					str.setLength(0);
 					break;
-				case "righty":
+				case 5: // "righty":
 					control.setTerm1(2);
-					str.setLength(0);
 					break;
-				case "water":
+				case 6: // "water":
 					control.setTerm2(Map.SHALLOW);
-					str.setLength(0);
 					break;
-				case "beach":
-					control.setTerm2(Map.BEACH);
-					str.setLength(0);
-					break;
-				case "wall":
+				case 7: // "wall":
 					control.setTerm2(40);
-					str.setLength(0);
 					break;
-				case "do":
-				case "then": 
+				case 11: // "do":
+				case 10: // "then": 
 					if (control.isAllTerm()) state = 0;
 					else
 					{
@@ -305,13 +357,10 @@ public class Compiller
 						error_text = "Условие не полное!";
 						break parse;
 					}
-					// TODO Проверка, полностью ли написано условие.
-					str.setLength(0);
 					break;
 				default:
 					error = true;
-					error_text = "Ожидалось условие, но встречен "+str;
-					// TODO вывод ошибки "Ожидалось условие, но нашел str
+					error_text = "Ожидалось условие, но встречен "+operation;
 					break parse;
 				}
 			case 2:
@@ -340,6 +389,5 @@ public class Compiller
 		System.out.println(programm.toString());
 		
 		return programm;
-		
 	}
 }

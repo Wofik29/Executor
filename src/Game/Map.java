@@ -90,8 +90,7 @@ public class Map
 	{
 		File file = new File(name);
 		if (!file.exists()) throw new Exception("No such file");
-		
-		if (!name.substring(  name.lastIndexOf('.'), name.length()-1 ).equals("map"))  throw new Exception("File is ");
+		if (!name.substring(  name.lastIndexOf('.'), name.length()-1 ).equals("map"))  throw new Exception("Incorrect file extension");
 		
 		try
 		{
