@@ -6,46 +6,19 @@ import java.util.List;
 
 public class World implements Runnable
 {
-	private int width;
-	private int heigth;
-	private int step;
-	
 	private volatile List<GameObject> objects = new ArrayList<>();
 	private GameObject player;
-	
-	private int lenght_step;
 	private long time_sleep;
 	
-	boolean isGame = false;
+	private boolean isGame = false;
 	
 	private byte[][] map;
 	
 	World(int w, int h, int step)
 	{
-		width = w;
-		heigth = h;
-		this.step = step;
-		
 		player = new GameObject(12, 1, step);
 		
-		MainLoop qe = new MainLoop();
-		
-		Queue wh = new WhileLoop();
-		wh.add(new Forward());
-		wh.add(new Forward());
-		wh.add(new Left());
-		wh.add(new Forward());
-		wh.add(new Left());
-		wh.add(new Forward());
-		wh.add(new Left());
-		wh.add(new Forward());
-		qe.add(wh);
-		
-		//player.setProgramm(qe);
-		
 		objects.add(player);
-		
-		lenght_step = 1;
 		time_sleep = 15;
 	}
 	
@@ -79,13 +52,13 @@ public class World implements Runnable
 		mainLoop();
 	}
 	
-	void stop()
+	public void stop()
 	{
 		isGame = false;
 	}
 	
 	
-	void mainLoop()
+	private void mainLoop()
 	{
 		while (isGame)
 		{

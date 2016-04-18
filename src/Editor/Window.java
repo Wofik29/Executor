@@ -36,25 +36,21 @@ import javax.swing.JMenuItem;
 public class Window implements Runnable 
 {
 	private Image image;
-	private Image select_terrain; 
+	private Image choice_terrain; 
 	private JFrame frame;
-	private JButton save;
-	private JMenuBar menu;
 	
-	boolean isPressed = false;
-	boolean isDraw = true;
+	private boolean isPressed = false;
+	private boolean isDraw = true;
 	
 	public final int width_canvas = 600;
 	public final int height_canvas = 600;
 	private final int size = 30;
 	
-	int x = 0;
+	private byte select;
+	private int cell = width_canvas/size;
 	
-	byte select;
-	int cell = width_canvas/size;
-	
-	byte[][] map;
-	byte[][] terrain;
+	private byte[][] map;
+	private byte[][] terrain;
 	
 	public static final byte  GRASS = 0;
 	public static final byte  DEEP = 1;
@@ -123,7 +119,7 @@ public class Window implements Runnable
 		frame.setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		save = new JButton("Save");
+		JButton save = new JButton("Save");
 		save.setBounds(10,620, 80, 20);
 		save.addActionListener(new ActionListener() {
 			
@@ -192,9 +188,9 @@ public class Window implements Runnable
 	{
 		frame.setVisible(true);
 		image = frame.createImage(width_canvas, height_canvas);
-		select_terrain = frame.createImage(40, 400);
+		choice_terrain = frame.createImage(40, 400);
 		
-		Graphics g = select_terrain.getGraphics();
+		Graphics g = choice_terrain.getGraphics();
 		
 		int ter_cell = 20;
 		int w = 40;
@@ -242,7 +238,7 @@ public class Window implements Runnable
 				frame.getGraphics().drawImage(image, offset_x, offset_y, null);
 				
 				offset_x = 620;
-				frame.getGraphics().drawImage(select_terrain, offset_x, offset_y, null);
+				frame.getGraphics().drawImage(choice_terrain, offset_x, offset_y, null);
 			}
 			try 
 			{

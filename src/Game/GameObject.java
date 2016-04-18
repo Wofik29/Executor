@@ -2,8 +2,6 @@ package Game;
 
 import java.awt.Point;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
@@ -12,26 +10,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class GameObject 
 {
 	// Координаты в мапе
-	//int x;
-	//int y;
-	
-	Point location = new Point();
+	public Point location = new Point();
 	
 	// Пиксельные координаты
-	int x_p;
-	int y_p;
+	private int x_p;
+	private int y_p;
 	
-	int width;
-	int height;
+	public int rotation;
+	private int current_rotation;
 	
-	int rotation;
-	int current_rotation;
+	public byte[][] map;
+	private int step;
 	
-	byte[][] map;
-	int step;
-	
-	boolean isGo = true;
-	boolean isControl = true;
+	private boolean isGo = true;
+	private boolean isControl = false;
 		
 	/* 
 	 * direction: 
@@ -44,12 +36,11 @@ public class GameObject
 	 * 1 - left
 	 * 2 - right 
 	 */
-	int direction;
+	public int direction;
+	public Point ahead,lefty,righty;
 	
-	Point ahead,lefty,righty;
-	int current;
 	
-	static Point[][] mix = new Point[4][3];
+	private static Point[][] mix = new Point[4][3];
 	static 
 	{	
 		mix[0][0] = new Point(0,1);
@@ -66,9 +57,9 @@ public class GameObject
 		mix[3][2] = mix[1][0];
 	}
 	
-	MainLoop programm;
-	ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
-	HashMap<Integer, Integer> direct = new HashMap<Integer, Integer>();
+	private MainLoop programm;
+	private ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
+	public HashMap<Integer, Integer> directs = new HashMap<Integer, Integer>();
 
 	GameObject(int x, int y, int s)
 	{
@@ -81,23 +72,21 @@ public class GameObject
 		x_p = x*step;
 		y_p = y*step;
 		
-		width = height = step;
 		
 		programm = new MainLoop();
 		
 		direction = 0;
 		current_rotation = rotation = 0;
-		current = -1;
 		
-		direct.put(0, 0);
-		direct.put(90, 3);
-		direct.put(180, 2);
-		direct.put(270, 1);
-		direct.put(-90, 1);
-		direct.put(-180, 2);
-		direct.put(-270, 3);
-		direct.put(-360, 0);
-		direct.put(360, 0);
+		directs.put(0, 0);
+		directs.put(90, 3);
+		directs.put(180, 2);
+		directs.put(270, 1);
+		directs.put(-90, 1);
+		directs.put(-180, 2);
+		directs.put(-270, 3);
+		directs.put(-360, 0);
+		directs.put(360, 0);
 		
 		ahead = new Point();
 		lefty = new Point();
@@ -114,6 +103,11 @@ public class GameObject
 	public void setMap(byte[][] m)
 	{
 		map = m;
+	}
+	
+	public void setGo()
+	{
+		isGo = true;
 	}
 	
 	public void step()
@@ -180,16 +174,16 @@ public class GameObject
 		commands.add(c);
 	}
 	
-	public void next()
+	private void next()
 	{
 		if (isControl && !commands.isEmpty())
 		{
 			commands.poll().execute(this);
 		}
 		else
-		if (programm != null) {
+		if (programm != null && programm.getSize() > 0) {
 			//System.out.println("execute");
-			programm.execute(this);
+			if (programm.execute(this)) isGo = false;
 		}
 	}
 	

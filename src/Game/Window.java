@@ -2,23 +2,13 @@ package Game;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,12 +16,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 
-import javax.print.attribute.AttributeSet;
-import javax.smartcardio.ATR;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -42,21 +28,11 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.StyleContext;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.TrueTypeFont;
@@ -64,23 +40,14 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Text;
-
 
 public class Window implements Runnable
 {
 	// Отрисовывается все тут
 	private JFrame frame;
 	private Canvas canvas;
-	private JSplitPane splitPane;
 	private JTextArea textArea;
-	private JPanel leftPanel;
-	private JPanel EditPanel;
-	private JPanel panel;
-	private JButton start;
-	private JButton stop;
 	private JLabel msg;
-	
 	private JMenuBar menu;
 	
 	// Поток, в котором крутиться window.
@@ -93,19 +60,19 @@ public class Window implements Runnable
 	private boolean needUpdateViewport = false;
 	
 	// Массив к текстурными координатами.
-	HashMap<Integer , int[]> coordTex = new HashMap<Integer, int[]>(70);
-	HashMap<Integer , int[]> coordTexShip = new HashMap<Integer, int[]>(50);
+	private HashMap<Integer , int[]> coordTex = new HashMap<Integer, int[]>(70);
+	private HashMap<Integer , int[]> coordTexShip = new HashMap<Integer, int[]>(50);
 
 	// текстуры земли и всего вокруг 
-	Texture sprites;
-	Texture ship;
+	private Texture sprites;
+	private Texture ship;
 	
 	byte[][] map;
 	
-	GameObject player;
+	private GameObject player;
 	
 	// объект для вывода текста на OpenGL
-	TrueTypeFont font;
+	private TrueTypeFont font;
 	
 	private Controller controller;
 	
@@ -129,34 +96,29 @@ public class Window implements Runnable
 			
 		setMenu();
 		
+		JSplitPane splitPane;
+		JPanel leftPanel;
+		JPanel EditPanel;
+		JPanel panel;
+		
 		textArea = new JTextArea();
 		textArea.setColumns(35);
 		textArea.setLineWrap(true);
-		
-		//EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
-		//BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
-		//CompoundBorder comp = new CompoundBorder(bb,eb);
-		
 		textArea.setFont(new Font("Arial", Font.BOLD, 20));
-		//textArea.setBorder(comp);
-		textArea.setBounds(0, 0, 100, 300);
-		//textArea.setMinimumSize(new Dimension(320, 240));
-		//textArea.setMaximumSize(new Dimension(100, 200));
+		textArea.setBounds(0, 0, 100, 200);
 		
 		EditPanel = new JPanel();
 		EditPanel.setBounds(0, 0, 100, 100);
-		//EditPanel.setMaximumSize(new Dimension(100, 100));
-		//EditPanel.add(textArea);
 		// Можно как то поиграться, чтоб была подсветка текста
 		//AttributeSet mySet = StyleContext.getDefaultStyleContext().addAttribute(old, name, value)
 		
 		leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
-		leftPanel.setBounds(0, 0, 120,  400);
-		//leftPanel.setMaximumSize(new Dimension(100, 600));
+		leftPanel.setBounds(0, 0, 120, frame.getHeight());
 		panel = new JPanel();
 		
-		
+		JButton start;
+		JButton stop;
 		start = new JButton("Start");
 		start.setMinimumSize(new Dimension(100,50));
 		start.addActionListener(new ActionListener() {
@@ -176,24 +138,27 @@ public class Window implements Runnable
 		panel.add(start);
 		panel.add(stop);
 		
-		msg = new JLabel("-");
-		msg.setBounds(0, 0, 100, 30);
-		Font f = new Font("Arial", Font.BOLD, 14);
-		msg.setForeground(java.awt.Color.RED);
 				
 		//msg.setFont(new );
 		
 		
 		leftPanel.add(panel, BorderLayout.NORTH);
 		leftPanel.add(textArea, BorderLayout.CENTER);
-		leftPanel.add(msg, BorderLayout.SOUTH);
+		//leftPanel.add(msg, BorderLayout.SOUTH);
 		
 		
 		// Разделяет frame на две части. В одной будет текст, в другой canvas
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
+		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
+		
+		msg = new JLabel(frame.getHeight()+ "");
+		msg.setBounds(0, splitPane.getHeight(), 100, 30);
+		Font f = new Font("Arial", Font.BOLD, 14);
+		msg.setForeground(java.awt.Color.RED);
+		
 		
 		frame.add(splitPane);
+		frame.add(msg);
 				
 		// Canvas будет контейнером для OpenGL
 		canvas = new Canvas() {
@@ -250,13 +215,15 @@ public class Window implements Runnable
 			@Override
 			public void componentShown(ComponentEvent arg0) 
 			{
-				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
+				msg.setBounds(0, splitPane.getHeight(), 100, 30);
 			}
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) 
 			{
-				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-40);
+				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
+				msg.setBounds(0, splitPane.getHeight(), 100, 30);
 			}
 			
 			@Override
@@ -758,12 +725,12 @@ public class Window implements Runnable
 		Display.sync(60);
 	}
 	
-	public void render()
+	private void render()
 	{
 		drawMap();
 	}
 	
-	void drawTexture(float px, float py, float pz, float tx, float ty)
+	private void drawTexture(float px, float py, float pz, float tx, float ty)
 	{
 		GL11.glPushMatrix();
 		GL11.glTranslatef(px, py, pz);

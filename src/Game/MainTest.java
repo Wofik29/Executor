@@ -13,7 +13,17 @@ public class MainTest {
 	{
 		Compiller c = new Compiller();
 		c.setCommands("Executor.ini");
-		System.out.println(c.printCommands());
+		
+		String text = "left go2 procedure go left endprocedure procedure go2 go left endprocedure"; 
+		Queue prog;
+		try
+		{
+			prog = c.getProgramm(text);
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
 		
 	}
 	
