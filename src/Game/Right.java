@@ -6,7 +6,7 @@ public class Right implements Command
 	{
 		obj.rotation += 90;
 		obj.checkRotation();
-		obj.direction = obj.direct.get(obj.rotation);
+		obj.direction = obj.directs.get(obj.rotation);
 		
 		return true;
 	}
