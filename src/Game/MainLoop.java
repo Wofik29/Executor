@@ -7,9 +7,10 @@ public class MainLoop extends Queue
 	public String toString()
 	{
 		String result ="MainLoop: { ";
-		for (Command c : commands)
+		for (int i=0; i< commands.size(); i++)
 		{
-			result += c.toString();
+			Command c = commands.get(i);
+			result += c.toString()+", ";
 		}
 		return result+" }";
 	}
@@ -23,18 +24,14 @@ public class MainLoop extends Queue
 		 * если в if вернеться true, то данная команда завершилась и мы выполняем следующую команду.
 		 * Иначе эта команда цикл/блок и в нем не закончились команды.
 		 */
+		//System.out.println(current_command.toString());
 		if (isEnd && current_command != null && current_command.execute(obj))
 		{
-			//System.out.println("execute "+current_command.toString()+" - "+current_number);
-			//System.out.println("mainLoop: "+isEnd);
-			
 			next();
-			return true;
 		}
-		else
-		{
-			return false;
-		}
+		
+		// как только стент не true, то закончилось
+		return !isEnd;
 	}
 	
 	private void next()
@@ -49,5 +46,10 @@ public class MainLoop extends Queue
 			//current_command = commands.get(current_number);
 			isEnd = false;
 		}
+	}
+	
+	public int getSize()
+	{
+		return commands.size();
 	}
 }
