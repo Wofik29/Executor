@@ -10,6 +10,8 @@ public class Compiller
 {
 	private String path;
 	private StringBuilder sb = new StringBuilder();
+	private HashMap<String, Queue> procedures = new HashMap<>();
+	
 	private static HashMap<String, Integer> commands = new HashMap<String, Integer>(); 
 	static {{
 		commands.put("forward", 0);
@@ -140,9 +142,12 @@ public class Compiller
 	public void read()
 	{
 		if (path == null) return;
+		
 		File f = new File(path);
 		FileReader fr;
 		BufferedReader br;
+		
+		sb.setLength(0);
 		try
 		{
 			fr = new FileReader(f);
@@ -166,20 +171,88 @@ public class Compiller
 	
 	public Queue getProgramm(String text) throws Exception
 	{
-		System.out.println(commands.get("left"));
 		//StringBuilder sb = new StringBuilder(text);
 		/*
 		*  0 - обычное
 		*  1 - обработка условия для цикла
 		*/
+		Queue programm = new MainLoop();
+		
+		sb.setLength(0);
+		sb.append(text);
+		
+		int start_index = -1;
+		// Находим процедуры
+		while ( -1 < ( start_index = sb.indexOf("procedure")) )
+		{
+			
+			
+			// Находим где заканчивается слово procedure
+			int start_name = sb.indexOf(" ", start_index);
+			
+			// и где заканчивается название процедуры
+			int end_name = -1;// = sb.indexOf(" ", start_name+1);
+			
+			int i = start_name+1;
+			while (end_name < 0 && i<sb.length()-1)
+			{
+				char c = sb.charAt(i);
+				if (c == ' ' || c == '\n' ) 
+				{
+					end_name = i;
+				}
+				i++;
+			}
+			
+			// Запоминаем название процедуры
+			String name = sb.substring(start_name, end_name);
+			name = name.trim();
+			
+			// Удаляем строчку с именем и ключевым словом
+			sb.delete(start_index, end_name);
+			
+			// Находим конец процедуры
+			int end_index = sb.indexOf("endprocedure", start_index);
+			
+			// запоминаем текст
+			
+			String procedure = sb.substring(start_index, end_index);
+			
+			
+			// удаляем текст процедуры
+			//end_index = sb.indexOf(" ", end_index);
+			i = end_index+1;
+			end_index = -1;
+			while (end_index < 0 && i<sb.length()-1)
+			{
+				char c = sb.charAt(i);
+				if (c == ' ' || c == '\n' ) 
+				{
+					end_index = i;
+				}
+				i++;
+			}
+			
+			end_index = end_index == -1 ? sb.length() : end_index;
+			sb.delete(start_index, end_index);
+			// парсим и запоминаем процедуру
+			Queue temp = parseString(procedure);
+			procedures.put(name, temp);
+			
+		}
+		
+		
+		programm = parseString(sb.toString());
+		
+		return programm;
+	}
+	
+	private Queue parseString(String text) throws Exception
+	{
 		int state = 0;
-				
+		
 		// Флаг, когда закончим парсить текст
 		boolean isEnd = true;
-		
-		// Вывод ошибки и текст ошибки
-		boolean error = false;
-		String error_text = "";
 		
 		// Стэк вложенности, н-р if { if ... } 
 		Stack<Queue> stack = new Stack<>();
@@ -197,7 +270,7 @@ public class Compiller
 		StringBuilder str = new StringBuilder();
 		int index=0;
 		
-		parse: while (isEnd)
+		while (isEnd)
 		{
 			
 			// повторять, пока не наткнемся на разделитель
@@ -250,9 +323,20 @@ public class Compiller
 				i++;
 			}
 			
+			if (str.length() < 1) 
+			{
+				continue;
+			}
 			String operation = str.toString();
 			str.setLength(0);
 			int current_key = commands.get(operation) == null ? -1 : commands.get(operation);
+			
+			
+			if (current_key == -1 && procedures.containsKey(operation))
+			{
+				state = 3;
+			}
+			
 			System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
 			
 			Queue temp = null;
@@ -316,10 +400,7 @@ public class Compiller
 					break;
 				default:
 					System.out.println("Default");
-					error = true;
-					error_text = "Ожидался оператор, но встречен '"+operation+"'";
-					isEnd = false;
-					break parse;
+					throw new Exception("Ожидался оператор, но встречен '"+operation+"'");
 				}
 				break;
 			// Проход по условию для if и while
@@ -353,15 +434,11 @@ public class Compiller
 					if (control.isAllTerm()) state = 0;
 					else
 					{
-						error = true;
-						error_text = "Условие не полное!";
-						break parse;
+						throw new Exception("Условие не полное!");
 					}
 					break;
 				default:
-					error = true;
-					error_text = "Ожидалось условие, но встречен "+operation;
-					break parse;
+					throw new Exception("Ожидалось условие, но встречен "+operation);
 				}
 			case 2:
 				switch (str.toString())
@@ -369,25 +446,18 @@ public class Compiller
 					
 				}
 				break;
-			case 3:
+			case 3: // добавление процедуры
+				current.add(procedures.get(operation));
+				state = 0;
 				break;
 			}
-		}
-		
-		if (error)
-		{
-			System.out.println(error_text);
-			throw new Exception(error_text);
-			//return null;
 		}
 		
 		if (!stack.isEmpty())
 		{
 			throw new Exception("Не закрыт цикл!");
 		}
-
-		System.out.println(programm.toString());
 		
-		return programm;
+		return current;
 	}
 }
