@@ -6,13 +6,12 @@ import org.lwjgl.input.Keyboard;
 
 public class Controller  
 {
-	Window window;
-	World world;
+	private Window window;
+	private World world;
 	
-	Thread thread_world;
-	Thread thread_window;
+	private Thread thread_world;
 	
-	Map map;
+	private Map map;
 	
 	final int WIDTH = 1024;
 	final int HEIGHT = 780;
@@ -28,7 +27,6 @@ public class Controller
 		window = new Window(this);
 		window.setMap(m);
 		world.setMap(m);
-		//window.setObjects(world.getObjects());
 		
 		GameObject p =  world.getObjects().get(0);
 		
@@ -44,12 +42,14 @@ public class Controller
 		try
 		{
 			Queue prog = c.getProgramm(text);
-			world.getPlayer().setProgramm( (MainLoop) prog);
+			GameObject p = world.getPlayer();
+			p.setProgramm( (MainLoop) prog);
+			p.setGo();
 			window.setMsg("-");
 		}
 		catch (Exception ex)
 		{
-			window.setMsg(ex.getMessage());
+			window.setMsg("Error: "+ex.getMessage());
 		}
 	}
 	
@@ -119,12 +119,7 @@ public class Controller
 	public void start()
 	{
 		window.start();
-		//thread_window.start();
-		//EventQueue.invokeLater(window);
 		thread_world.start();
-		
-		
-		//	world.stop();
 	}
 	
 	
