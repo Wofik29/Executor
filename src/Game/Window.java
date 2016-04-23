@@ -49,6 +49,7 @@ public class Window implements Runnable
 	private JTextArea textArea;
 	private JLabel msg;
 	private JMenuBar menu;
+	private JSplitPane splitPane;
 	
 	// Поток, в котором крутиться window.
 	private Thread gameThread;
@@ -96,7 +97,7 @@ public class Window implements Runnable
 			
 		setMenu();
 		
-		JSplitPane splitPane;
+		
 		JPanel leftPanel;
 		JPanel EditPanel;
 		JPanel panel;
@@ -152,7 +153,7 @@ public class Window implements Runnable
 		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
 		
 		msg = new JLabel(frame.getHeight()+ "");
-		msg.setBounds(0, splitPane.getHeight(), 100, 30);
+		msg.setBounds(0, splitPane.getHeight(), 500, 30);
 		Font f = new Font("Arial", Font.BOLD, 14);
 		msg.setForeground(java.awt.Color.RED);
 		
@@ -216,14 +217,14 @@ public class Window implements Runnable
 			public void componentShown(ComponentEvent arg0) 
 			{
 				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(0, splitPane.getHeight(), 100, 30);
+				msg.setBounds(0, splitPane.getHeight(), 500, 30);
 			}
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) 
 			{
 				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(0, splitPane.getHeight(), 100, 30);
+				msg.setBounds(0, splitPane.getHeight(), 500, 30);
 			}
 			
 			@Override
@@ -637,19 +638,17 @@ public class Window implements Runnable
 				Yo += height / 2;
 				
 				t = coordTex.get((int)map[y][x]);
-				
 				drawTexture(Xo, Yo, 0, t[0], t[1]);	
 			}
-			
-			
 		}
 	    if (player != null)
 	    {
-	    	float y = player.location.x+1;
-	    	float x = player.location.y+1;
+	    	
+	    	float y = player.getLocation().x+1;
+	    	float x = player.getLocation().y+1;
 	    	Xc = C - (width / 2 * y);
 	    	Xo = Xc + (x * (width / 2));
-	    	Yo = (height / 2) * y + player.location.y*(height/2);
+	    	Yo = (height / 2) * y + player.getLocation().y*(height/2);
 	    	
 	    	
 	    	font.drawString(0, 0, "X: "+x+" Y: "+y);

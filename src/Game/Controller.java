@@ -1,7 +1,4 @@
 package Game;
-import java.awt.EventQueue;
-import java.util.Stack;
-
 import org.lwjgl.input.Keyboard;
 
 public class Controller  
@@ -19,7 +16,7 @@ public class Controller
 	public void init()
 	{
 		int step = 10;
-		world = new World(WIDTH, HEIGHT, step);
+		world = new World(WIDTH, HEIGHT, step, this);
 		
 		map = new Map();
 		byte[][] m = map.getMap();
@@ -46,6 +43,7 @@ public class Controller
 			p.setProgramm( (MainLoop) prog);
 			p.setGo();
 			window.setMsg("-");
+			world.run();
 		}
 		catch (Exception ex)
 		{
@@ -107,8 +105,11 @@ public class Controller
 		{
 			window.setMsg(ex.getMessage());
 		}
-		
-		
+	}
+	
+	public void setMsg(String str)
+	{
+		window.setMsg(str);
 	}
 	
 	public void stop()
@@ -117,6 +118,11 @@ public class Controller
 	}
 	
 	public void start()
+	{
+		world.run();
+	}
+	
+	public void run()
 	{
 		window.start();
 		thread_world.start();
