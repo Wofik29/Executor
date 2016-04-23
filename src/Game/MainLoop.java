@@ -15,10 +15,10 @@ public class MainLoop extends Queue
 		return result+" }";
 	}
 	
-	public boolean execute(GameObject obj)
+	public boolean execute(GameObject obj) throws Exception
 	{
 		//System.out.println("execute "+current_command.toString()+" - "+current_number);
-		
+		if (current_number == 0) isEnd = true;
 		/*
 		 * execute возвращает bool
 		 * если в if вернеться true, то данная команда завершилась и мы выполняем следующую команду.
@@ -42,8 +42,8 @@ public class MainLoop extends Queue
 		}
 		else 
 		{
-			//current_number = 0;
-			//current_command = commands.get(current_number);
+			current_number = 0;
+			current_command = commands.get(current_number);
 			isEnd = false;
 		}
 	}

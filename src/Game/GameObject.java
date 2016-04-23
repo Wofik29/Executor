@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class GameObject 
 {
 	// Координаты в мапе
-	public Point location = new Point();
+	private Point location = new Point();
 	
 	// Пиксельные координаты
 	private int x_p;
@@ -19,7 +19,8 @@ public class GameObject
 	public int rotation;
 	private int current_rotation;
 	
-	public byte[][] map;
+	//public static volatile byte[][] map;
+	private byte current_cell;
 	private int step;
 	
 	private boolean isGo = true;
@@ -72,7 +73,6 @@ public class GameObject
 		x_p = x*step;
 		y_p = y*step;
 		
-		
 		programm = new MainLoop();
 		
 		direction = 0;
@@ -102,7 +102,9 @@ public class GameObject
 	
 	public void setMap(byte[][] m)
 	{
-		map = m;
+		//map = m;
+		current_cell = World.map[location.x][location.y];
+		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
 	public void setGo()
@@ -110,8 +112,9 @@ public class GameObject
 		isGo = true;
 	}
 	
-	public void step()
+	public void step() throws Exception
 	{
+		if (World.map == null) return;
 		
 		if (x_p >= location.x*step) x_p --;
 		if (x_p < location.x*step) x_p ++;
@@ -140,9 +143,21 @@ public class GameObject
 		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
 	}
 	
+	public void setLocation(Point p)
+	{
+		World.map[location.x][location.y] = current_cell;
+		location = p;
+		World.map[location.x][location.y] = Map.SHIP;
+	}
+	
+	public Point getLocation()
+	{
+		return location;
+	}
+	
 	public void checkDirection()
 	{
-		if (map!=null)
+		if (World.map!=null)
 		{
 			Point p = mix[direction][1];
 			ahead.setLocation(location.x+p.x, location.y+p.y);
@@ -174,7 +189,7 @@ public class GameObject
 		commands.add(c);
 	}
 	
-	private void next()
+	private void next() throws Exception
 	{
 		if (isControl && !commands.isEmpty())
 		{

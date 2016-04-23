@@ -9,15 +9,14 @@ public class World implements Runnable
 	private volatile List<GameObject> objects = new ArrayList<>();
 	private GameObject player;
 	private long time_sleep;
-	
+	private Controller controller;
 	private boolean isGame = false;
+	public static volatile byte[][] map;
 	
-	private byte[][] map;
-	
-	World(int w, int h, int step)
+	World(int w, int h, int step, Controller c)
 	{
 		player = new GameObject(12, 1, step);
-		
+		controller = c;
 		objects.add(player);
 		time_sleep = 15;
 	}
@@ -29,16 +28,7 @@ public class World implements Runnable
 	
 	public void setMap(byte[][] m)
 	{
-		map = m;
-		for (GameObject q : objects)
-		{
-			q.setMap(map);
-		}
-	}
-	
-	public byte[][] getMap()
-	{
-		return map;
+		map = m.clone();
 	}
 	
 	public GameObject getPlayer()
@@ -65,7 +55,15 @@ public class World implements Runnable
 			
 			for (GameObject q : objects)
 			{
-				q.step();
+				try
+				{
+					q.step();
+				}
+				catch (Exception ex)
+				{
+					controller.setMsg(ex.getMessage());
+					stop();
+				}
 			}
 			
 			try

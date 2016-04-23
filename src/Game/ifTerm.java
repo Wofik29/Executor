@@ -7,7 +7,7 @@ public class ifTerm extends ControlLoop
 	private int sign = -1 ;
 	
 	@Override
-	public boolean execute(GameObject obj)
+	public boolean execute(GameObject obj) throws Exception
 	{
 	
 		if (current_command != null)
@@ -33,10 +33,10 @@ public class ifTerm extends ControlLoop
 					break;
 				}
 				
-				int l = obj.map.length;
+				int l = World.map.length;
 				if (p.x >= 0 && p.x<l && p.y>=0 && p.y<l )
 				{
-					if (isCondition(obj.map[p.x][p.y]))
+					if (isCondition(World.map[p.x][p.y]))
 					{
 						// Если условие совпадает, то проверяем, есть ли else.
 						if (number_else == -1)

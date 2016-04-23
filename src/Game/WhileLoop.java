@@ -18,7 +18,7 @@ public class WhileLoop extends ControlLoop
 	};
 	
 	@Override
-	public boolean execute(GameObject obj)
+	public boolean execute(GameObject obj) throws Exception
 	{
 		/*
 		System.out.println("WhileLoop : "+current_command.toString());
@@ -50,8 +50,8 @@ public class WhileLoop extends ControlLoop
 					break;
 				}
 				
-				int l = obj.map.length;
-				if ((p.x < 0 && p.x>=l && p.y<0 && p.y>l) || (!isCondition(obj.map[p.x][p.y])) )
+				int l = World.map.length;
+				if ((p.x < 0 && p.x>=l && p.y<0 && p.y>l) || (!isCondition(World.map[p.x][p.y])) )
 				{
 					return true;
 				}
