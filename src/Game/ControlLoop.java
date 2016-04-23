@@ -55,6 +55,6 @@ public abstract class ControlLoop extends Queue
 	}
 	
 	@Override
-	public abstract  boolean execute(GameObject obj);
+	public abstract  boolean execute(GameObject obj) throws Exception;
 
 }

@@ -31,6 +31,6 @@ abstract public class Queue implements Command
 		return result;
 	}
 	
-	abstract public boolean execute(GameObject obj);
+	abstract public boolean execute(GameObject obj) throws Exception;
 	
 }
