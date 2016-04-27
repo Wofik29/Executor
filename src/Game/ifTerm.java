@@ -1,7 +1,5 @@
 package Game;
 
-import java.awt.Point;
-
 public class ifTerm extends ControlLoop 
 {
 	private int sign = -1 ;
@@ -18,65 +16,35 @@ public class ifTerm extends ControlLoop
 			 */
 			if (current_number == 0)
 			{
-				Point p = new Point();
-				
-				switch (term1)
+				switch (isCondition(obj))
 				{
-				case 1:
-					p = obj.ahead;
-					break;
-				case 0:
-					p = obj.lefty;
-					break;
-				case 2:
-					p = obj.righty;
-					break;
-				}
-				
-				int l = World.map.length;
-				if (p.x >= 0 && p.x<l && p.y>=0 && p.y<l )
-				{
-					if (isCondition(World.map[p.x][p.y]))
-					{
-						// Если условие совпадает, то проверяем, есть ли else.
+				case 0:	// Если условие совпадает, то проверяем, есть ли else.
 						if (number_else == -1)
 							sign = commands.size();
 						else
 							//Если условие выполняется и есть else, то он будет и концом if'a
 							sign = number_else;
+					break;
+				case 1:	// Если не совпадает, то переходим к else, или вообще выходим.
+					if (number_else>-1)
+					{
+						sign = commands.size();
+						current_number = number_else;
+						current_command = commands.get(current_number);
 					}
 					else
-					{	
-						// Если не совпадает, то переходим к else, или вообще выходим.
-						if (number_else>-1)
-						{
-							sign = commands.size();
-							current_number = number_else;
-							current_command = commands.get(current_number);
-						}
-						else
-							return true;
-					}
-				}
-				else
+						return true;
+					
+					break;
+				case -1:
+					System.out.println("return -1");
 					return true;
+					
+				}
 				
-				// Проверяем есть ли условия, и устанавливаем начало
-				/*
-				if (condition)
-				{
-					sign = number_else;
-				}
-				else
-				{
-					sign = commands.size();
-					current_number = number_else;
-					current_command = commands.get(current_number);
-				}
-				*/
 			}
 			
-			System.out.println(number_else);
+			System.out.println("ifTerm: "+current_command.toString());
 			
 			if (current_command.execute(obj))
 			{
@@ -88,6 +56,7 @@ public class ifTerm extends ControlLoop
 				else
 				{
 					current_number = 0;
+					current_command = commands.get(current_number);
 					return true;
 				}
 			}

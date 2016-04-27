@@ -35,23 +35,7 @@ public class WhileLoop extends ControlLoop
 			 */
 			if (current_number == 0)
 			{
-				Point p = new Point();
-				
-				switch (term1)
-				{
-				case 1:
-					p = obj.ahead;
-					break;
-				case 0:
-					p = obj.lefty;
-					break;
-				case 2:
-					p = obj.righty;
-					break;
-				}
-				
-				int l = World.map.length;
-				if ((p.x < 0 && p.x>=l && p.y<0 && p.y>l) || (!isCondition(World.map[p.x][p.y])) )
+				if  (isCondition(obj) != 0)
 				{
 					return true;
 				}
