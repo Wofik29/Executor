@@ -64,8 +64,6 @@ public class GameObject
 
 	GameObject(int x, int y, int s)
 	{
-		//this.x = x;
-		//this.y = y;
 		location.x = x;
 		location.y = y;
 		step = s;
@@ -100,9 +98,8 @@ public class GameObject
 		programm = q;
 	}
 	
-	public void setMap(byte[][] m)
+	public void setMap()
 	{
-		//map = m;
 		current_cell = World.map[location.x][location.y];
 		World.map[location.x][location.y] = Map.SHIP;
 	}
@@ -127,6 +124,9 @@ public class GameObject
 		{
 			System.out.println("rot: "+rotation);
 			System.out.println("cur_rot: "+current_rotation);
+			//System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
+			//System.out.println("x: "+location.x+", y: "+location.y+", direction: "+direction);
+			//System.out.println("x: "+ahead.x+", y: "+ahead.y+", map: "+World.map[ahead.x][ahead.y]);
 		}
 		
 		if (current_rotation > rotation) current_rotation -= 2;
@@ -134,19 +134,20 @@ public class GameObject
 		
 		if (isGo && x_p == location.x*step && y_p == location.y*step && current_rotation == rotation)
 		{
+			next();
 			checkDirection();
 			checkRotation();
-			next();
 			//isGo = false;
 		}
-		
-		//System.out.println("x : "+x+", y: "+y+", x_p : "+x_p+", y_p : "+y_p+", direction : "+direction+", rotation: "+rotation+", current_rotation: "+current_rotation);
+
 	}
 	
 	public void setLocation(Point p)
 	{
 		World.map[location.x][location.y] = current_cell;
-		location = p;
+		location.x = p.x;
+		location.y = p.y;
+		current_cell = World.map[location.x][location.y];
 		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
@@ -167,19 +168,19 @@ public class GameObject
 		
 			p = mix[direction][2];
 			righty.setLocation(location.x+p.x, location.y+p.y);
-		}
-		
-		//System.out.println("");
-		//System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
-		//System.out.println("x: "+location.x+", y: "+location.y+", direction: "+direction);
-		
+		}	
 	}
 	
 	public void checkRotation()
 	{
-		if (current_rotation == 360 || current_rotation == -360)
+		if (rotation == 360)
 		{
-			current_rotation = 0;
+			current_rotation = -90;
+			rotation = 0;
+		}
+		if (rotation == -360)
+		{
+			current_rotation = 90;
 			rotation = 0;
 		}
 	}
@@ -196,10 +197,12 @@ public class GameObject
 			commands.poll().execute(this);
 		}
 		else
-		if (programm != null && programm.getSize() > 0) {
-			//System.out.println("execute");
+		if (programm != null && programm.getSize() > 0) 
+		{
 			if (programm.execute(this)) isGo = false;
 		}
+		
+		
 	}
 	
 }

@@ -274,6 +274,7 @@ public class Window implements Runnable
 		coordTex.put(37, new int[]{7,3}); // beach-shallow-2
 		coordTex.put(38, new int[]{4,4}); // beach-shallow-3
 		coordTex.put(39, new int[]{4,2}); // beach-shallow-4
+		coordTex.put(41, new int[]{0,5}); // Jewel
 		
 		coordTexShip.put(0,new int[]{0,0});
 		coordTexShip.put(1,new int[]{1,1});
@@ -438,8 +439,9 @@ public class Window implements Runnable
 				JButton btn2 = new JButton("Don't OK");
 				
 				JTextArea ta = new JTextArea("Программу создал Волков Данил. \t\n" +
-								"Был использован OpenGL, Slick2D. \n" +
-								"Спрайты были взяты отсюда: ");
+								"Был использован OpenGL, Slick2D. \n\n" +
+								"Спрайты были взяты отсюда: http://opengameart.org/content/unknown-horizons-tileset\n "+
+								"Credit me as either Daniel Stephens or Scribe and a link back to Unknown Horizons and\nOGA would be appreciated!");
 				ta.setEditable(false);
 				//ta.setForeground(java.awt.Color.red);
 				
@@ -553,7 +555,7 @@ public class Window implements Runnable
 			try
 			{
 								
-				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet1.png"));
+				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
 				ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
 
 			}
@@ -602,7 +604,7 @@ public class Window implements Runnable
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(0, 0, 0);
+		GL11.glTranslatef(0,0,0);//player.getLocation().x*32, player.getLocation().y*32, 0);
 		GL11.glScalef(1f,1f, 0);
 		
 		// Подключаем текстуру.
@@ -628,8 +630,6 @@ public class Window implements Runnable
 		{
 			// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
             Yo = (height / 2) * y;
-
-            
             Xc = C - (width / 2 * y);
 			
 			for (int x=0; x<map[y].length; x++)
@@ -638,7 +638,8 @@ public class Window implements Runnable
 				Yo += height / 2;
 				
 				t = coordTex.get((int)map[y][x]);
-				drawTexture(Xo, Yo, 0, t[0], t[1]);	
+				if (t == null) System.out.println(map[y][x]);
+				drawTexture(Xo, Yo, 0, t[0], t[1]);
 			}
 		}
 	    if (player != null)
@@ -648,7 +649,7 @@ public class Window implements Runnable
 	    	float x = player.getLocation().y+1;
 	    	Xc = C - (width / 2 * y);
 	    	Xo = Xc + (x * (width / 2));
-	    	Yo = (height / 2) * y + player.getLocation().y*(height/2);
+	    	Yo = (height / 2) * y + (x-1)*(height/2);
 	    	
 	    	
 	    	font.drawString(0, 0, "X: "+x+" Y: "+y);

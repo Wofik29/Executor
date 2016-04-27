@@ -28,8 +28,16 @@ public class World implements Runnable
 	
 	public void setMap(byte[][] m)
 	{
-		map = m.clone();
-	}
+		map = new byte[m.length][m[0].length];
+		for (int i=0; i < m.length; i++)
+		{
+			for (int k=0; k < m[i].length; k++)
+			{
+				map[i][k] = m[i][k];
+			}
+		}
+		player.setMap();
+	}	
 	
 	public GameObject getPlayer()
 	{
@@ -53,6 +61,7 @@ public class World implements Runnable
 		while (isGame)
 		{
 			
+			//System.out.println("step world");
 			for (GameObject q : objects)
 			{
 				try
