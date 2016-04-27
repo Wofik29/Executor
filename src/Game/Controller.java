@@ -43,7 +43,6 @@ public class Controller
 			p.setProgramm( (MainLoop) prog);
 			p.setGo();
 			window.setMsg("-");
-			world.run();
 		}
 		catch (Exception ex)
 		{
