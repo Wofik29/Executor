@@ -30,6 +30,8 @@ public class Compiller
 		commands.put("=", 		13);
 		commands.put("=!", 		14);
 		commands.put("else", 	15);
+		commands.put("jewel", 	16);
+		commands.put("ship", 	17);
 	}};
 	
 	
@@ -43,6 +45,7 @@ public class Compiller
 				print_commands.put("справа", 5);
 				print_commands.put("вода", 5);
 				print_commands.put("стена/берег", 6);
+				print_commands.put("Клад", 16);
 	}};
 	
 	public Compiller()
@@ -241,9 +244,9 @@ public class Compiller
 			
 		}
 		
-		
 		programm = parseString(sb.toString());
-		
+		programm.toString();
+		System.out.println("End Parse");
 		return programm;
 	}
 	
@@ -427,7 +430,13 @@ public class Compiller
 					control.setTerm2(Map.SHALLOW);
 					break;
 				case 7: // "wall":
-					control.setTerm2(40);
+					control.setTerm2(Map.BEACH);
+					break;
+				case 16: // Клад
+					control.setTerm2(Map.JEWEL);
+					break;
+				case 17:
+					control.setTerm2(Map.SHIP);
 					break;
 				case 11: // "do":
 				case 10: // "then": 

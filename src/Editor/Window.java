@@ -92,6 +92,7 @@ public class Window implements Runnable
 	public static final byte  BEACH_SHALLOW_2 = 37;
 	public static final byte  BEACH_SHALLOW_3 = 38;
 	public static final byte  BEACH_SHALLOW_4 = 39;
+	public static final byte  JEWEL = 41;
 	
 	public Window()
 	{
@@ -563,6 +564,9 @@ public class Window implements Runnable
 			g.fillRect(i+1, j+ter_cell/2+1, ter_cell, ter_cell/2);
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
+			break;
+		case JEWEL:
+			
 			break;
 		}
 	}
