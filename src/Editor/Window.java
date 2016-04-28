@@ -105,15 +105,16 @@ public class Window implements Runnable
 				map[i][j] = -1;
 			}
 		
-		terrain = new byte[2][20];
+		terrain = new byte[2][21];
 		byte m = 0;
 		for (int i=0; i<2; i++)
-			for (int j=0; j<20; j++)
+			for (int j=0; j<21; j++)
 			{
 				terrain[i][j] = m;
 				m++;
 				
 			}
+		System.out.println(m);
 		
 		frame = new JFrame("Editor");
 		frame.setSize(800, 800);
@@ -166,7 +167,7 @@ public class Window implements Runnable
 					p.x -= 610;
 					
 					if (p.x > 0 && p.x<40 &&
-							p.y>0 && p.y<400)
+							p.y>0 && p.y<420)
 					{
 						select = terrain[p.x/cell][p.y/cell];
 					}
@@ -189,22 +190,22 @@ public class Window implements Runnable
 	{
 		frame.setVisible(true);
 		image = frame.createImage(width_canvas, height_canvas);
-		choice_terrain = frame.createImage(40, 400);
+		choice_terrain = frame.createImage(40, 420);
 		
 		Graphics g = choice_terrain.getGraphics();
 		
 		int ter_cell = 20;
 		int w = 40;
-		int h = 400;
+		int h = ter_cell*21;
 		int i = 0;
 		while (i<w)
 		{
-			
 			for (int j=0;j<h;j+=20)
 			{
 				g.setColor(Color.black);
 				g.drawRect(i, j, cell, cell);
-				drawTerrain(g, i, j, terrain[i/20][j/20], ter_cell); 
+				drawTerrain(g, i, j, terrain[i/20][j/20], ter_cell);
+				System.out.println("terrain: "+terrain[i/20][j/20]+", x: "+i+", y: "+j);
 			}
 			i+=20;
 		}
@@ -262,6 +263,7 @@ public class Window implements Runnable
 				g.setColor(Color.BLACK);
 				g.drawRect(i, j, cell, cell);
 				drawTerrain(g, i, j, map[i/cell][j/cell], cell);
+				
 			}
 		}
 	}
@@ -291,11 +293,13 @@ public class Window implements Runnable
 					}
 					else if (j==size-1)
 					{
-						out.write( Integer.toString(map[i][j]));
+						int k = map[i][j]== 40 ? 0 : map[i][j];
+						out.write( Integer.toString(k));
 					}
 					else
 					{
-						out.write( Integer.toString(map[i][j])+":" );
+						int k = map[i][j]== 40 ? 0 : map[i][j];
+						out.write( Integer.toString(k)+":" );
 					}
 				}
 				out.write("\n");
@@ -331,6 +335,7 @@ public class Window implements Runnable
 	private void drawTerrain(Graphics g, int i, int j, byte type, int ter_cell)
 	{
 		// TODO оптимизировать
+		
 		switch (type)
 		{
 		case GRASS:
@@ -566,7 +571,28 @@ public class Window implements Runnable
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			break;
 		case JEWEL:
+			g.setColor(new Color(235, 16, 53));
+			int x=i+1;
+			int y=j+1;
+			g.fillPolygon( new int[]{x+9, x+19, x+19, x+9, x, x} ,
+						   new int[]{y, y+(20/3), y+(40/3), y+19, y+(40/3), y+(20/3) }, 6);
+			g.setColor(Color.BLACK);
+			g.drawLine(x+9, y, x+5, y+20/2);
+			g.drawLine(x+5, y+20/2, x+9, y+19);
 			
+			g.drawLine(x+9, y, x+14, y+20/2);
+			g.drawLine(x+14, y+20/2, x+9, y+19);
+			
+			g.drawLine(x+5, y+20/2, x, y+20/3);
+			g.drawLine(x+5, y+20/2, x, y+40/3);
+			
+			g.drawLine(x+14, y+20/2, x+19, y+20/3);
+			g.drawLine(x+14, y+20/2, x+19, y+40/3);
+			
+			g.drawLine(x+5, y+20/2,x+14, y+20/2);
+			
+			g.setColor(Color.white);
+			g.fillOval(x+4, y+4, 3, 3);
 			break;
 		}
 	}
