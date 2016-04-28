@@ -15,7 +15,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -71,6 +73,8 @@ public class Window implements Runnable
 	byte[][] map;
 	
 	private GameObject player;
+	private GameObject another_ship;
+	//private volatile List<GameObject> objects = new ArrayList<>();
 	
 	// объект для вывода текста на OpenGL
 	private TrueTypeFont font;
@@ -92,7 +96,7 @@ public class Window implements Runnable
 		frame = new JFrame();
 		frame.setTitle("Swing + LWJGL");
 		frame.setLayout(null);
-		frame.setBounds(0, 0, 1024, 768);
+		frame.setBounds(0, 0, 1280, 768);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
 		setMenu();
@@ -492,6 +496,10 @@ public class Window implements Runnable
 	{
 		player = obj;
 	}
+	public void setShip(GameObject obj)
+	{
+		another_ship = obj;
+	}
 	
 	public void setMap(byte[][] m)
 	{
@@ -604,7 +612,7 @@ public class Window implements Runnable
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(0,0,0);//player.getLocation().x*32, player.getLocation().y*32, 0);
+		GL11.glTranslatef(0, 0, 0);//player.getLocation().x, player.getLocation().y, 0);
 		GL11.glScalef(1f,1f, 0);
 		
 		// Подключаем текстуру.
@@ -653,19 +661,29 @@ public class Window implements Runnable
 	    	
 	    	
 	    	font.drawString(0, 0, "X: "+x+" Y: "+y);
-			drawShip(Xo,Yo);
+			drawShip(Xo,Yo, coordTexShip.get(player.direction));
 		}
+	    if (another_ship != null)
+	    {
+	    	float y = another_ship.getLocation().x+1;
+	    	float x = another_ship.getLocation().y+1;
+	    	Xc = C - (width / 2 * y);
+	    	Xo = Xc + (x * (width / 2));
+	    	Yo = (height / 2) * y + (x-1)*(height/2);
+	    	
+	    	drawShip(Xo,Yo, coordTexShip.get(another_ship.direction));
+	    }
 		//drawShip();
 		GL11.glPopMatrix(); 
 	}
 	
-	private void drawShip(float x, float y)
+	private void drawShip(float x, float y, int[] t)
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
 		float tex_width = 1f/2f;
 		float tex_height = 1f/2f;
-		int[] t = coordTexShip.get(player.direction);
+		//int[] t = coordTexShip.get(player.direction);
 		
 
 		GL11.glTranslatef(x,y, 0);
