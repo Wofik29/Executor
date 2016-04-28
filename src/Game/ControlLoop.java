@@ -58,8 +58,13 @@ public abstract class ControlLoop extends Queue
 			break;
 		}
 		
-		int l = World.map.length;
-		if (p.x < 0 || p.x>l || p.y<0 || p.y>l )	return -1;
+		int value_cell =  World.map[p.x][p.y];
+		value_cell = (3 < value_cell && value_cell< 40) ? Map.BEACH : value_cell; 
+		System.out.println("ControlLoop: { condition: "+condition+", term1: "+term1+", term2: "+term2+", value_cell: "+value_cell+", map: "+World.map[p.x][p.y]+" }");
+		
+		int l_x = World.map.length;
+		int l_y = World.map[0].length;
+		if (p.x < 0 || p.x>l_x || p.y<0 || p.y>l_y )	return -1;
 		if (term1 == -1 || term2 == -1 || condition == -1) return -1;
 		
 		/*
@@ -67,10 +72,8 @@ public abstract class ControlLoop extends Queue
 		 * Остается только вода, корабль и клад
 		 */
 		
-		int value_cell =  World.map[p.x][p.y];
-		value_cell = (3 < value_cell && value_cell< 40) ? Map.BEACH : value_cell; 
 		
-		System.out.println("ControlLoop: { condition: "+condition+", term1: "+term1+", term2: "+term2+", value_cell: "+value_cell+", map: "+World.map[p.x][p.y]+" }");
+		
 		
 		switch (condition)
 		{
