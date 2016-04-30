@@ -26,8 +26,9 @@ public class Controller
 		world.setMap(m);
 		
 		GameObject p =  world.getObjects().get(0);
-		
 		window.setPlayer(p);
+		p =  world.getObjects().get(1);
+		window.setShip(p);
 		
 		thread_world = new Thread(world);
 		//thread_window = new Thread(window);
@@ -43,6 +44,7 @@ public class Controller
 			p.setProgramm( (MainLoop) prog);
 			p.setGo();
 			window.setMsg("-");
+			//start();
 		}
 		catch (Exception ex)
 		{
@@ -118,7 +120,7 @@ public class Controller
 	
 	public void start()
 	{
-		world.run();
+		thread_world.start();
 	}
 	
 	public void run()
