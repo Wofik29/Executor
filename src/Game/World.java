@@ -78,8 +78,6 @@ public class World implements Runnable
 	{
 		while (isGame)
 		{
-			
-			//System.out.println("step world");
 			for (GameObject q : objects)
 			{
 				try
@@ -88,9 +86,9 @@ public class World implements Runnable
 				}
 				catch (Exception ex)
 				{
-					ex.printStackTrace();
+					//ex.printStackTrace();
 					controller.setMsg(ex.getMessage());
-					stop();
+					q.stop();
 				}
 			}
 			

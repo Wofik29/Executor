@@ -2,7 +2,7 @@ package Game;
 
 public class Forward implements Command 
 {
-	public boolean execute(GameObject obj)
+	public boolean execute(GameObject obj) throws Exception
 	{
 		int x = obj.ahead.x;
 		int y = obj.ahead.y;
@@ -13,11 +13,11 @@ public class Forward implements Command
 		}
 		else if (World.map[x][y] == Map.SHIP)
 		{
-			new Exception("Корабль не может проплыть сквозь другой");
+			throw new Exception("Корабль не может проплыть сквозь другой");
 		}
 		else
 		{
-			new Exception("Корабль не может плыть по суши");
+			throw new Exception("Корабль не может плыть по суши");
 		}
 		
 		return true;

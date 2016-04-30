@@ -110,6 +110,11 @@ public class GameObject
 		isGo = true;
 	}
 	
+	public void stop()
+	{
+		isGo = false;
+	}
+	
 	public void step() throws Exception
 	{
 		if (World.map == null) return;
