@@ -255,13 +255,13 @@ public class Window implements Runnable
 		coordTex.put(14, new int[]{7,4}); // grass-beach-3
 		coordTex.put(15, new int[]{3,3}); // grass-beach-4
 		coordTex.put(16, new int[]{2,0}); // beach-shallow-in-1
-		coordTex.put(17, new int[]{2,4}); // beach-shallow-in-2
+		coordTex.put(17, new int[]{7,0}); // beach-shallow-in-2
 		coordTex.put(18, new int[]{6,0}); // beach-shallow-in-3
-		coordTex.put(19, new int[]{7,0}); // beach-shallow-in-4
+		coordTex.put(19, new int[]{2,4}); // beach-shallow-in-4
 		coordTex.put(20, new int[]{0,4}); // beach-shallow-out-1
-		coordTex.put(21, new int[]{4,0}); // beach-shallow-out-2
+		coordTex.put(21, new int[]{0,1}); // beach-shallow-out-2
 		coordTex.put(22, new int[]{6,4}); // beach-shallow-out-3
-		coordTex.put(23, new int[]{0,1}); // beach-shallow-out-4
+		coordTex.put(23, new int[]{4,0}); // beach-shallow-out-4
 		coordTex.put(24, new int[]{1,0}); // shallow-deep-in-1
 		coordTex.put(25, new int[]{0,2}); // shallow-deep-in-2
 		coordTex.put(26, new int[]{2,1}); // shallow-deep-in-3
@@ -274,16 +274,16 @@ public class Window implements Runnable
 		coordTex.put(33, new int[]{5,1}); // shallow-deep-2
 		coordTex.put(34, new int[]{3,1}); // shallow-deep-3
 		coordTex.put(35, new int[]{3,0}); // shallow-deep-4
-		coordTex.put(36, new int[]{3,2}); // beach-shallow-1
-		coordTex.put(37, new int[]{7,3}); // beach-shallow-2
-		coordTex.put(38, new int[]{4,4}); // beach-shallow-3
-		coordTex.put(39, new int[]{4,2}); // beach-shallow-4
+		coordTex.put(36, new int[]{7,3}); // beach-shallow-1
+		coordTex.put(37, new int[]{3,2}); // beach-shallow-2
+		coordTex.put(38, new int[]{4,2}); // beach-shallow-3
+		coordTex.put(39, new int[]{4,4}); // beach-shallow-4
 		coordTex.put(41, new int[]{0,5}); // Jewel
 		
-		coordTexShip.put(0,new int[]{0,0});
-		coordTexShip.put(1,new int[]{1,1});
-		coordTexShip.put(2,new int[]{1,0});
-		coordTexShip.put(3,new int[]{0,1});
+		coordTexShip.put(0,new int[]{1,1});
+		coordTexShip.put(1,new int[]{0,0});
+		coordTexShip.put(2,new int[]{0,1});
+		coordTexShip.put(3,new int[]{1,0});
 		
 		System.out.println("Create Window : ");
 	}
@@ -612,12 +612,69 @@ public class Window implements Runnable
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(0, 0, 0);//player.getLocation().x, player.getLocation().y, 0);
+		GL11.glTranslatef(600, 0, 0);//player.getLocation().x, player.getLocation().y, 0);
 		GL11.glScalef(1f,1f, 0);
 		
 		// Подключаем текстуру.
 		sprites.bind();
 		
+		int[] t = new int[2];
+		int width = 64;
+		int height = 32;
+		for (int x=0; x<map.length; x++)
+			for (int y=0; y<map[x].length; y++)
+			{
+				float sx = x*width/2;
+				float sy = y*height;
+				
+				float _sx = sx - sy;
+				float _sy = (sx+sy)/2; 
+								
+				t = coordTex.get((int)map[x][y]);
+				if (t == null) System.out.println(map[x][y]);
+				drawTexture(_sx, _sy, 0, t[0], t[1]);
+			}
+		 
+		if (player != null)
+	    {
+	    	
+	    	float x = player.getLocation().x;
+	    	float y = player.getLocation().y;
+	    	
+	    	float sx = x*width/2;
+			float sy = y*height;
+			
+			float _sx = sx - sy;
+			float _sy = (sx+sy)/2;
+			
+			//_sx = player.x_p+sx;
+	    	//_sy = player.y_p+sy;
+	    	
+			
+	    	font.drawString(0, 0, "X: "+x+" Y: "+y+" x_p: "+_sx+ " y_p: "+_sy);
+	    	
+			drawShip(_sx,_sy, coordTexShip.get(player.direction));
+		}
+		
+		if (another_ship != null)
+	    {
+	    	
+	    	float x = another_ship.getLocation().x;
+	    	float y = another_ship.getLocation().y;
+	    	
+	    	float sx = x*width/2;
+			float sy = y*height;
+			
+			float _sx = sx - sy;
+			float _sy = (sx+sy)/2;
+			
+			//_sx = player.x_p+sx;
+	    	//_sy = player.y_p+sy;
+	    	
+			drawShip(_sx,_sy, coordTexShip.get(another_ship.direction));
+		}
+		GL11.glPopMatrix();
+		/*
 		// Координаты середины текстурного квадрата
 		float Xo = 0;
 	    float Yo = 0;
@@ -650,19 +707,7 @@ public class Window implements Runnable
 				drawTexture(Xo, Yo, 0, t[0], t[1]);
 			}
 		}
-	    if (player != null)
-	    {
-	    	
-	    	float y = player.getLocation().x+1;
-	    	float x = player.getLocation().y+1;
-	    	Xc = C - (width / 2 * y);
-	    	Xo = Xc + (x * (width / 2));
-	    	Yo = (height / 2) * y + (x-1)*(height/2);
-	    	
-	    	
-	    	font.drawString(0, 0, "X: "+x+" Y: "+y);
-			drawShip(Xo,Yo, coordTexShip.get(player.direction));
-		}
+	    
 	    if (another_ship != null)
 	    {
 	    	float y = another_ship.getLocation().x+1;
@@ -674,7 +719,21 @@ public class Window implements Runnable
 	    	drawShip(Xo,Yo, coordTexShip.get(another_ship.direction));
 	    }
 		//drawShip();
-		GL11.glPopMatrix(); 
+		 * 
+		 */
+		
+	}
+	
+	private void drawRect(float x, float y)
+	{
+		GL11.glPushMatrix();
+		
+		GL11.glTranslatef(x,y, 0);
+		GL11.glColor3f(0.9f, 0, 0);
+		GL11.glRectd(x, y, x+200, y+32);
+					
+		
+		GL11.glPopMatrix();
 	}
 	
 	private void drawShip(float x, float y, int[] t)
@@ -683,11 +742,9 @@ public class Window implements Runnable
 		GL11.glPushMatrix();
 		float tex_width = 1f/2f;
 		float tex_height = 1f/2f;
-		//int[] t = coordTexShip.get(player.direction);
 		
 
 		GL11.glTranslatef(x,y, 0);
-		//GL11.glScalef(scal,scal, 0);
 		ship.bind();
 		GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height);

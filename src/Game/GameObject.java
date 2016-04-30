@@ -13,8 +13,8 @@ public class GameObject
 	private Point location = new Point();
 	
 	// Пиксельные координаты
-	private int x_p;
-	private int y_p;
+	public int x_p;
+	public int y_p;
 	
 	public int rotation;
 	private int current_rotation;
@@ -28,10 +28,10 @@ public class GameObject
 		
 	/* 
 	 * direction: 
-	 * 0 - вниз-влево 
-	 * 1 - вниз-вправо
-	 * 2 - вверх-вправо
-	 * 3 - вверх-влево
+	 * 0 - вниз-вправо
+	 * 1 - вниз-влево
+	 * 2 - вверх-влево
+	 * 3 - вверх-вправо
 	 * side:
 	 * 0 - front
 	 * 1 - left
@@ -74,17 +74,18 @@ public class GameObject
 		programm = new MainLoop();
 		
 		direction = 0;
-		current_rotation = rotation = 0;
 		
-		directs.put(0, 0);
-		directs.put(90, 3);
-		directs.put(180, 2);
-		directs.put(270, 1);
-		directs.put(-90, 1);
-		directs.put(-180, 2);
-		directs.put(-270, 3);
-		directs.put(-360, 0);
-		directs.put(360, 0);
+		directs.put(90, 0);
+		directs.put(0, 3);
+		directs.put(180, 1);
+		directs.put(270, 2);
+		
+		directs.put(-90, 2);
+		directs.put(-180, 1);
+		directs.put(-270, 0);
+		directs.put(-360, 3);
+		directs.put(360, 3);
+		current_rotation = rotation = 90;
 		
 		ahead = new Point();
 		lefty = new Point();
@@ -134,6 +135,7 @@ public class GameObject
 		
 		if (isGo && x_p == location.x*step && y_p == location.y*step && current_rotation == rotation)
 		{
+			
 			next();
 			checkDirection();
 			checkRotation();
