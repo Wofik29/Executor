@@ -115,7 +115,7 @@ public class Controller
 	
 	public void stop()
 	{
-		world.stop();
+		world.getPlayer().stop();
 	}
 	
 	public void start()

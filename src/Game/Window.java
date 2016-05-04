@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -31,6 +32,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -68,7 +70,7 @@ public class Window implements Runnable
 
 	// текстуры земли и всего вокруг 
 	private Texture sprites;
-	private Texture ship;
+	private Texture texture_ship;
 	
 	byte[][] map;
 	
@@ -110,7 +112,7 @@ public class Window implements Runnable
 		textArea.setColumns(35);
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Arial", Font.BOLD, 20));
-		textArea.setBounds(0, 0, 100, 200);
+		textArea.setBounds(0, 0, 300, 200);
 		
 		EditPanel = new JPanel();
 		EditPanel.setBounds(0, 0, 100, 100);
@@ -119,7 +121,7 @@ public class Window implements Runnable
 		
 		leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
-		leftPanel.setBounds(0, 0, 120, frame.getHeight());
+		leftPanel.setBounds(0, 0, 300, frame.getHeight());
 		panel = new JPanel();
 		
 		JButton start;
@@ -138,29 +140,31 @@ public class Window implements Runnable
 		});
 		
 		stop = new JButton("Stop");
-		
+		stop.addActionListener(new ActionListener() 
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				controller.stop();
+			}
+		});
 		
 		panel.add(start);
 		panel.add(stop);
 		
-				
-		//msg.setFont(new );
-		
-		
 		leftPanel.add(panel, BorderLayout.NORTH);
 		leftPanel.add(textArea, BorderLayout.CENTER);
-		//leftPanel.add(msg, BorderLayout.SOUTH);
-		
 		
 		// Разделяет frame на две части. В одной будет текст, в другой canvas
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
 		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
 		
-		msg = new JLabel(frame.getHeight()+ "");
+		msg = new JLabel("No errors");
 		msg.setBounds(0, splitPane.getHeight(), 500, 30);
-		Font f = new Font("Arial", Font.BOLD, 14);
 		msg.setForeground(java.awt.Color.RED);
-		
+		//msg.setBorder(BorderFactory.createEtchedBorder());
+		msg.setBorder(BorderFactory.createLineBorder(java.awt.Color.black));
 		
 		frame.add(splitPane);
 		frame.add(msg);
@@ -221,14 +225,14 @@ public class Window implements Runnable
 			public void componentShown(ComponentEvent arg0) 
 			{
 				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(0, splitPane.getHeight(), 500, 30);
+				msg.setBounds(10, splitPane.getHeight()+5, 500, 30);
 			}
 			
 			@Override
 			public void componentResized(ComponentEvent arg0) 
 			{
 				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(0, splitPane.getHeight(), 500, 30);
+				msg.setBounds(10, splitPane.getHeight()+5, 500, 30);
 			}
 			
 			@Override
@@ -436,23 +440,25 @@ public class Window implements Runnable
 			{
 				JFrame us = new JFrame("About");
 				
-				us.setBounds( frame.getX()+200, frame.getY()+200, 400, 200);
+				us.setBounds( frame.getX()+200, frame.getY()+200, 600, 400);
 				us.setLayout(null);
 				
 				JButton btn1 = new JButton("OK");
 				JButton btn2 = new JButton("Don't OK");
 				
-				JTextArea ta = new JTextArea("Программу создал Волков Данил. \t\n" +
-								"Был использован OpenGL, Slick2D. \n\n" +
-								"Спрайты были взяты отсюда: http://opengameart.org/content/unknown-horizons-tileset\n "+
-								"Credit me as either Daniel Stephens or Scribe and a link back to Unknown Horizons and\nOGA would be appreciated!");
+				JTextArea ta = new JTextArea("Был использован OpenGL, Slick2D. \n\n" +
+								"Спрайты использованы с этого адреса:\nhttp://opengameart.org/content/unknown-horizons-tileset \n"+
+								"Создатели спрайтов:\nCredit me as either Daniel Stephens or Scribe and a link back to Unknown Horizons and\nOGA would be appreciated!\n\n"+
+								"Разработчик: Волков Данил\n"+
+								"e-mail: Linad29@mail.ru\n\n"
+								+ "Данная работа была сделана в рамках защиты димлома в ПГГПУ. 2016г.");
 				ta.setEditable(false);
-				//ta.setForeground(java.awt.Color.red);
+				ta.setBackground( us.getBackground() );
 				
-				
-				ta.setBounds(50, 0, 300, 100);
-				btn1.setBounds(40, 130, 50, 30);
-				btn2.setBounds(100, 130, 90, 30);
+				ta.setFont(new Font("Times New Roman", Font.TRUETYPE_FONT , 16));
+				ta.setBounds(10, 0, 550, 300);
+				btn1.setBounds(40, us.getHeight()-100, 50, 30);
+				btn2.setBounds(100, us.getHeight()-100, 90, 30);
 				
 				ActionListener al = new ActionListener() {
 					
@@ -460,7 +466,8 @@ public class Window implements Runnable
 					public void actionPerformed(ActionEvent e) 
 					{
 						JButton btn = (JButton) e.getSource();
-						JFrame f = (JFrame) btn.getParent().getParent().getParent().getParent(); // достаем этот Frame, т.к. он локальный и я хз как его достать еще :DD
+						// достаем этот Frame, т.к. он локальный и я хз как его достать еще :DD
+						JFrame f = (JFrame) btn.getParent().getParent().getParent().getParent();
 						f.dispose();
 					}
 				};
@@ -544,9 +551,7 @@ public class Window implements Runnable
 			GL11.glEnable(GL11.GL_BLEND);
 			// Проверка альфы
 			GL11.glEnable(GL11.GL_ALPHA_TEST);
-			
 			GL11.glShadeModel(GL11.GL_SMOOTH);
-			
 			// Если меньше этого значения, то пиксель отбрасывается
 			GL11.glAlphaFunc(GL11.GL_GEQUAL, 0.8f);
 			
@@ -564,7 +569,7 @@ public class Window implements Runnable
 			{
 								
 				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
-				ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
+				texture_ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
 
 			}
 			catch (Exception e)
@@ -612,7 +617,7 @@ public class Window implements Runnable
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(600, 0, 0);//player.getLocation().x, player.getLocation().y, 0);
+		GL11.glTranslatef(600, 0, 0);
 		GL11.glScalef(1f,1f, 0);
 		
 		// Подключаем текстуру.
@@ -634,120 +639,75 @@ public class Window implements Runnable
 				if (t == null) System.out.println(map[x][y]);
 				drawTexture(_sx, _sy, 0, t[0], t[1]);
 			}
-		 
-		if (player != null)
-	    {
-	    	
-	    	float x = player.getLocation().x;
-	    	float y = player.getLocation().y;
-	    	
-	    	float sx = x*width/2;
-			float sy = y*height;
-			
-			float _sx = sx - sy;
-			float _sy = (sx+sy)/2;
-			
-			//_sx = player.x_p+sx;
-	    	//_sy = player.y_p+sy;
-	    	
-			
-	    	font.drawString(0, 0, "X: "+x+" Y: "+y+" x_p: "+_sx+ " y_p: "+_sy);
-	    	
-			drawShip(_sx,_sy, coordTexShip.get(player.direction));
-		}
-		
-		if (another_ship != null)
-	    {
-	    	
-	    	float x = another_ship.getLocation().x;
-	    	float y = another_ship.getLocation().y;
-	    	
-	    	float sx = x*width/2;
-			float sy = y*height;
-			
-			float _sx = sx - sy;
-			float _sy = (sx+sy)/2;
-			
-			//_sx = player.x_p+sx;
-	    	//_sy = player.y_p+sy;
-	    	
-			drawShip(_sx,_sy, coordTexShip.get(another_ship.direction));
-		}
 		GL11.glPopMatrix();
-		/*
-		// Координаты середины текстурного квадрата
-		float Xo = 0;
-	    float Yo = 0;
-	    
-	    // его видимые размеры
-	    int height = 32;
-	    int width = 64;
-	    
-	    int[] t = new int[2];
-	    
-	    // Середина по ширине
-	    float C =(float) Math.floor(Display.getWidth()/ 2);
-	    
-	    //
-	    float Xc = 0;
-	    
-	    for (int y=0; y<map.length; y++)
-		{
-			// Здесь высчитывается, на какой высоте должна начинаться отрисовка 
-            Yo = (height / 2) * y;
-            Xc = C - (width / 2 * y);
-			
-			for (int x=0; x<map[y].length; x++)
-			{
-				Xo = Xc + (x * (width / 2));
-				Yo += height / 2;
-				
-				t = coordTex.get((int)map[y][x]);
-				if (t == null) System.out.println(map[y][x]);
-				drawTexture(Xo, Yo, 0, t[0], t[1]);
-			}
-		}
-	    
-	    if (another_ship != null)
-	    {
-	    	float y = another_ship.getLocation().x+1;
-	    	float x = another_ship.getLocation().y+1;
-	    	Xc = C - (width / 2 * y);
-	    	Xo = Xc + (x * (width / 2));
-	    	Yo = (height / 2) * y + (x-1)*(height/2);
-	    	
-	    	drawShip(Xo,Yo, coordTexShip.get(another_ship.direction));
-	    }
-		//drawShip();
-		 * 
-		 */
+	}
+	
+	private void drawTexture(float px, float py, float pz, float tx, float ty)
+	{
+		GL11.glPushMatrix();
+		GL11.glTranslatef(px, py, pz);
 		
+		float tex_width = 1f/8f;
+		float tex_height = 1f/8f;
+		
+		//GL11.glRotatef(rot, 0f, 0f, 1f);
+		
+		Color.white.bind();
+		GL11.glBegin(GL11.GL_QUADS);
+            GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
+            GL11.glVertex2f(-32,-32);
+            
+            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height);
+            GL11.glVertex2f(32, -32);
+            
+            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height+tex_height);
+            GL11.glVertex2f(32, 32);
+           
+            GL11.glTexCoord2f(tx*tex_width, ty*tex_height+tex_height);
+            GL11.glVertex2f(-32, 32);
+        GL11.glEnd();
+       
+        GL11.glPopMatrix();
 	}
 	
 	private void drawRect(float x, float y)
 	{
 		GL11.glPushMatrix();
-		
+		//sprites.release();
+		texture_ship.release();
+		//Color.red.bind();
 		GL11.glTranslatef(x,y, 0);
-		GL11.glColor3f(0.9f, 0, 0);
-		GL11.glRectd(x, y, x+200, y+32);
-					
-		
+		GL11.glColor4f(0.9f, 0, 0, 1);
+		GL11.glRectd(0, 0, 200, 32);
 		GL11.glPopMatrix();
 	}
 	
-	private void drawShip(float x, float y, int[] t)
+	private void drawShip(GameObject ship)
 	{
-		GL11.glColor4f(1, 1, 1, 1);
-		GL11.glPushMatrix();
-		float tex_width = 1f/2f;
-		float tex_height = 1f/2f;
-		
-
-		GL11.glTranslatef(x,y, 0);
-		ship.bind();
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height);
+		if (ship != null)
+		{
+			GL11.glPushMatrix();
+			GL11.glColor4f(1, 1, 1, 1);
+			float tex_width = 1f/2f;
+			float tex_height = 1f/2f;
+			
+			float x = ship.getLocation().x;
+	    	float y = ship.getLocation().y;
+	    	
+	    	float sx = x*64/2;
+			float sy = y*32;
+			
+			float _sx = sx - sy;
+			float _sy = (sx+sy)/2;
+			
+			int t[] = coordTexShip.get(ship.direction);
+	    				
+	    	//font.drawString(0, 0, "X: "+x+" Y: "+y+" x_p: "+_sx+ " y_p: "+_sy);
+	    	texture_ship.bind();
+	    	GL11.glTranslatef(600, 0, 0);
+	    	GL11.glTranslatef(_sx,_sy, 0);
+	    	GL11.glBegin(GL11.GL_QUADS);
+	    	GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height);
 			GL11.glVertex2f(-32,-32);
 			
 			GL11.glTexCoord2f(t[0]*tex_width+tex_width, t[1]*tex_height);
@@ -758,22 +718,31 @@ public class Window implements Runnable
 			
 			GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height+tex_height);
 			GL11.glVertex2f(-32, 32);
-		GL11.glEnd();
-		
-		/*
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_BLEND);
-		
-		GL11.glColor3f(1, 0, 0);
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glVertex2d(-10, -10);
-			GL11.glVertex2d(-10, 10);
-			GL11.glVertex2d(10, 10);
-			GL11.glVertex2d(10, -10);
-		GL11.glEnd();
-		*/
-		GL11.glPopMatrix();
-		sprites.bind();
+			GL11.glEnd();
+			
+			// Рамка для обозначения игрока
+			if (player == ship)
+			{
+				sprites.bind();
+				float coord[] = {1,5};
+				tex_width = 1f/8f;
+				tex_height = 1f/8f;
+				GL11.glBegin(GL11.GL_QUADS);
+				GL11.glTexCoord2f(coord[0]*tex_width, coord[1]*tex_height);
+				GL11.glVertex2f(-32,-32);
+				
+				GL11.glTexCoord2f(coord[0]*tex_width+tex_width, coord[1]*tex_height);
+				GL11.glVertex2f(32, -32);
+				
+				GL11.glTexCoord2f(coord[0]*tex_width+tex_width, coord[1]*tex_height+tex_height);
+				GL11.glVertex2f(32, 32);
+				
+				GL11.glTexCoord2f(coord[0]*tex_width, coord[1]*tex_height+tex_height);
+				GL11.glVertex2f(-32, 32);
+				GL11.glEnd();
+			}
+			GL11.glPopMatrix();
+	    }
 	}
 	
 	public void updateGL()
@@ -803,36 +772,11 @@ public class Window implements Runnable
 	private void render()
 	{
 		drawMap();
+		drawShip(player);
+		drawShip(another_ship);
 	}
 	
-	private void drawTexture(float px, float py, float pz, float tx, float ty)
-	{
-		GL11.glPushMatrix();
-		GL11.glTranslatef(px, py, pz);
-		
-		float tex_width = 1f/8f;
-		float tex_height = 1f/8f;
-		
-		//GL11.glRotatef(rot, 0f, 0f, 1f);
-		
-		Color.white.bind();
-
-        GL11.glBegin(GL11.GL_QUADS);
-            GL11.glTexCoord2f(tx*tex_width, ty*tex_height);
-            GL11.glVertex2f(-32,-32);
-            
-            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height);
-            GL11.glVertex2f(32, -32);
-            
-            GL11.glTexCoord2f(tx*tex_width+tex_width, ty*tex_height+tex_height);
-            GL11.glVertex2f(32, 32);
-           
-            GL11.glTexCoord2f(tx*tex_width, ty*tex_height+tex_height);
-            GL11.glVertex2f(-32, 32);
-        GL11.glEnd();
-       
-        GL11.glPopMatrix();
-	}
+	
 	
 	public void start()
 	{
