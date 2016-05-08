@@ -83,6 +83,12 @@ public class World implements Runnable
 				try
 				{
 					q.step();
+					Point p = q.ahead;
+					if (map[p.x][p.y] == Map.JEWEL)
+					{
+						q.stop();
+						controller.setWin();
+					}
 				}
 				catch (Exception ex)
 				{

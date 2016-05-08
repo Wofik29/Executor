@@ -421,10 +421,10 @@ public class Compiller
 					control.setTerm1(1);
 					break;
 				case 4: // "lefty":
-					control.setTerm1(0);
+					control.setTerm1(2);
 					break;
 				case 5: // "righty":
-					control.setTerm1(2);
+					control.setTerm1(0);
 					break;
 				case 6: // "water":
 					control.setTerm2(Map.SHALLOW);

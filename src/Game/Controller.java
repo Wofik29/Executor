@@ -52,6 +52,11 @@ public class Controller
 		}
 	}
 	
+	public void setWin()
+	{
+		window.setMsg("Поздравляем! Вы достигли клада!");
+	}
+	
 	public void pressedKey(int key, char c)
 	{
 		GameObject p = world.getObjects().get(0);
