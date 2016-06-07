@@ -11,5 +11,4 @@ public class Main
 		c.init();
 		c.run();
 	}
-	
 }

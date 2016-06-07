@@ -167,13 +167,13 @@ public class GameObject
 	{
 		if (World.map!=null)
 		{
-			Point p = mix[direction][1];
+			Point p = mix[direction][1]; // left
 			ahead.setLocation(location.x+p.x, location.y+p.y);
 			
-			p = mix[direction][0];
+			p = mix[direction][0]; // front
 			lefty.setLocation(location.x+p.x, location.y+p.y);
 		
-			p = mix[direction][2];
+			p = mix[direction][2]; // right
 			righty.setLocation(location.x+p.x, location.y+p.y);
 		}	
 	}

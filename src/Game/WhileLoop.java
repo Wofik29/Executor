@@ -1,7 +1,5 @@
 package Game;
 
-import java.awt.Point;
-
 public class WhileLoop extends ControlLoop
 {
 	@Override

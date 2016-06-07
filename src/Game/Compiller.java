@@ -121,16 +121,16 @@ public class Compiller
 		String str = "";
 		
 		str = "Команды: \n" +
-			commands.get("forward") + " - 1 ход вперед\n" +
-			commands.get("left") + " - повернуть влево\n" +
-			commands.get("right") + " - повернуть вправо\n" +
+			"forward" + " - 1 ход вперед\n" +
+			"left" + " - повернуть влево\n" +
+			"right" + " - повернуть вправо\n" +
 			"Значения по сторонам от коробля:\n" +
-			commands.get("ahead") + " - клетка спереди\n" + 
-			commands.get("lefty") + " - клетка слева\n" +
-			commands.get("right") + " - клетка справа\n" +
+			"ahead" + " - клетка спереди\n" + 
+			"lefty" + " - клетка слева\n" +
+			"right" + " - клетка справа\n" +
 			"Значения клеток:\n" +
-			commands.get("water") + " - Вода\n" +
-			commands.get("wall") + " - Берег\n" +
+			"water" + " - Вода\n" +
+			"wall" + " - Берег\n" +
 			"Условны оператор if: \n" +
 			"if (<condition>) then <operator> [else <operator>] end\n" +
 			"Оператор цикла while:\n" +

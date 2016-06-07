@@ -15,9 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -32,14 +30,12 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -77,9 +73,6 @@ public class Window implements Runnable
 	private GameObject player;
 	private GameObject another_ship;
 	//private volatile List<GameObject> objects = new ArrayList<>();
-	
-	// объект для вывода текста на OpenGL
-	private TrueTypeFont font;
 	
 	private Controller controller;
 	
@@ -540,9 +533,6 @@ public class Window implements Runnable
 			int w = (int) rect.getWidth();
 			int h = (int) rect.getHeight();
 			
-			Font awtFont = new Font("Times new Roman", Font.BOLD, 25);
-			font = new TrueTypeFont(awtFont, false);
-			
 			GL11.glClearColor(0f, 0f, 0f, 1);
 			
 			// Указывание, сколько мерная текстура
@@ -668,18 +658,6 @@ public class Window implements Runnable
         GL11.glEnd();
        
         GL11.glPopMatrix();
-	}
-	
-	private void drawRect(float x, float y)
-	{
-		GL11.glPushMatrix();
-		//sprites.release();
-		texture_ship.release();
-		//Color.red.bind();
-		GL11.glTranslatef(x,y, 0);
-		GL11.glColor4f(0.9f, 0, 0, 1);
-		GL11.glRectd(0, 0, 200, 32);
-		GL11.glPopMatrix();
 	}
 	
 	private void drawShip(GameObject ship)
