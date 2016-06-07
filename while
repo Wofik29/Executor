@@ -1,0 +1,8 @@
+@ProgramExecutor
+while (ahead!=jewel)
+do 
+if (lefty=water) then left end
+if (ahead=ship) then right end
+if (ahead=wall) then right else
+forward end
+end

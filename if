@@ -1,0 +1,4 @@
+@ProgramExecutor
+if (ahead=water)
+then forward
+else left end
