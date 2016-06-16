@@ -1,4 +1,4 @@
-package Game;
+package server;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -45,7 +45,7 @@ public class Compiller
 				print_commands.put("справа", 5);
 				print_commands.put("вода", 5);
 				print_commands.put("стена/берег", 6);
-				print_commands.put("Клад", 16);
+				print_commands.put("клад", 16);
 	}};
 	
 	public Compiller()
@@ -83,9 +83,11 @@ public class Compiller
 				line[1] = line[1].trim().toLowerCase();
 				
 				// Удаляем текущую команду и ставим с новым именем.
+				
+				
 				if (print_commands.containsKey(line[0]))
 				{
-					commands.put(line[1], print_commands.get(line[0]));	
+					commands.replace(line[1],print_commands.get(line[0]));
 				}
 			}
 			
@@ -412,10 +414,10 @@ public class Compiller
 				switch (current_key)
 				{
 				case 13: // "=":
-					control.condition = 0;
+					control.setCondition(0);
 					break;
 				case 14: // "=!":
-					control.condition = 1;
+					control.setCondition(1);
 					break;
 				case 3: // "ahead":
 					control.setTerm1(1);

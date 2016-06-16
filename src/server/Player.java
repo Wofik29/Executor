@@ -1,31 +1,26 @@
-package Game;
+package server;
 
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.sun.xml.internal.ws.dump.LoggingDumpTube.Position;
+
+import other.SPlayer;
+
 /*
  * Есть возможность двигаться прямо и поворачивать 
  */
-public class GameObject 
+public class Player 
 {
 	// Координаты в мапе
 	private Point location = new Point();
-	
-	// Пиксельные координаты
-	public int x_p;
-	public int y_p;
-	
-	public int rotation;
-	private int current_rotation;
-	
-	//public static volatile byte[][] map;
+	private int rotation;
 	private byte current_cell;
-	private int step;
-	
-	private boolean isGo = true;
+	private boolean isGo = false;
 	private boolean isControl = false;
-		
+	private String name;
+	
 	/* 
 	 * direction: 
 	 * 0 - вниз-вправо
@@ -37,7 +32,7 @@ public class GameObject
 	 * 1 - left
 	 * 2 - right 
 	 */
-	public int direction;
+	private int direction;
 	public Point ahead,lefty,righty;
 	
 	
@@ -62,31 +57,22 @@ public class GameObject
 	private ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
 	public HashMap<Integer, Integer> directs = new HashMap<Integer, Integer>();
 
-	GameObject(int x, int y, int s)
+	Player(int x, int y)
 	{
 		location.x = x;
 		location.y = y;
-		step = s;
-		
-		x_p = x*step;
-		y_p = y*step;
 		
 		programm = new MainLoop();
-		
-		direction = 0;
-		
+		rotation = 90;
 		directs.put(90, 0);
 		directs.put(0, 3);
 		directs.put(180, 1);
 		directs.put(270, 2);
-		
 		directs.put(-90, 2);
 		directs.put(-180, 1);
 		directs.put(-270, 0);
 		directs.put(-360, 3);
 		directs.put(360, 3);
-		current_rotation = rotation = 90;
-		
 		ahead = new Point();
 		lefty = new Point();
 		righty= new Point();
@@ -94,15 +80,25 @@ public class GameObject
 		checkDirection();
 	}
 	
-	public void setProgramm(MainLoop q)
+	public void setProgramm(Queue q)
 	{
-		programm = q;
+		programm = (MainLoop) q;
 	}
 	
 	public void setMap()
 	{
 		current_cell = World.map[location.x][location.y];
 		World.map[location.x][location.y] = Map.SHIP;
+	}
+	
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 	
 	public void setGo()
@@ -115,38 +111,33 @@ public class GameObject
 		isGo = false;
 	}
 	
+	public boolean isReady()
+	{
+		return isGo;
+	}
+	
+	public void setReady(Boolean r)
+	{
+		isGo = r;
+	}
+	
 	public void step() throws Exception
 	{
 		if (World.map == null) return;
 		
-		if (x_p >= location.x*step) x_p --;
-		if (x_p < location.x*step) x_p ++;
-		if (y_p >= location.y*step) y_p --;
-		if (y_p < location.y*step) y_p ++;
-		
-		//if (current_rotation == 270 && rotation == 0) current_rotation = -90;
-		//if (current_rotation == -270 && rotation == 0) current_rotation = 90;
 		if (Main.isDebug)
 		{
 			System.out.println("rot: "+rotation);
-			System.out.println("cur_rot: "+current_rotation);
-			//System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
-			//System.out.println("x: "+location.x+", y: "+location.y+", direction: "+direction);
-			//System.out.println("x: "+ahead.x+", y: "+ahead.y+", map: "+World.map[ahead.x][ahead.y]);
+			System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
 		}
 		
-		if (current_rotation > rotation) current_rotation -= 2;
-		if (current_rotation < rotation) current_rotation += 2;
-		
-		if (isGo && x_p == location.x*step && y_p == location.y*step && current_rotation == rotation)
+		if (isGo)
 		{
-			
 			next();
 			checkDirection();
 			checkRotation();
-			//isGo = false;
+			System.out.println(name+": do step.");
 		}
-
 	}
 	
 	public void setLocation(Point p)
@@ -160,11 +151,28 @@ public class GameObject
 	
 	public Point getLocation()
 	{
-		return location;
+		return (Point) location.clone();
+	}
+	
+	public int getDirection()
+	{
+		return direction;
+	}
+	
+	public int getRotation()
+	{
+		return rotation;
+	}
+	
+	public void setRotation(int r)
+	{
+		rotation = r;
+		checkDirection();
 	}
 	
 	public void checkDirection()
 	{
+		direction = directs.get(rotation);
 		if (World.map!=null)
 		{
 			Point p = mix[direction][1]; // left
@@ -175,19 +183,17 @@ public class GameObject
 		
 			p = mix[direction][2]; // right
 			righty.setLocation(location.x+p.x, location.y+p.y);
-		}	
+		}
 	}
 	
 	public void checkRotation()
 	{
 		if (rotation == 360)
 		{
-			current_rotation = -90;
 			rotation = 0;
 		}
 		if (rotation == -360)
 		{
-			current_rotation = 90;
 			rotation = 0;
 		}
 	}
@@ -204,12 +210,15 @@ public class GameObject
 			commands.poll().execute(this);
 		}
 		else
-		if (programm != null && programm.getSize() > 0) 
-		{
-			if (programm.execute(this)) isGo = false;
-		}
-		
-		
+			if (programm != null && programm.getSize() > 0) 
+			{
+				if (programm.execute(this)) isGo = false;
+			}
 	}
 	
+	public SPlayer toSPlayer()
+	{
+		SPlayer p = new SPlayer(location.x, location.y, rotation, direction, name);
+		return p;
+	}
 }

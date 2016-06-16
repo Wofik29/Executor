@@ -1,16 +1,14 @@
-package Game;
+package server;
 
 public class ifTerm extends ControlLoop 
 {
-	private int sign = -1 ;
+	private int end_number = -1 ;
 	
 	@Override
-	public boolean execute(GameObject obj) throws Exception
+	public boolean execute(Player obj) throws Exception
 	{
-	
 		if (current_command != null)
 		{
-					
 			/*
 			 * Если первый раз зашли, то делаем проверку на условие
 			 */
@@ -20,15 +18,15 @@ public class ifTerm extends ControlLoop
 				{
 				case 0:	// Если условие совпадает, то проверяем, есть ли else.
 						if (number_else == -1)
-							sign = commands.size();
+							end_number = commands.size();
 						else
 							//Если условие выполняется и есть else, то он будет и концом if'a
-							sign = number_else;
+							end_number = number_else;
 					break;
 				case 1:	// Если не совпадает, то переходим к else, или вообще выходим.
 					if (number_else>-1)
 					{
-						sign = commands.size();
+						end_number = commands.size();
 						current_number = number_else;
 						current_command = commands.get(current_number);
 					}
@@ -39,16 +37,12 @@ public class ifTerm extends ControlLoop
 				case -1:
 					System.out.println("return -1");
 					return true;
-					
 				}
-				
 			}
-			
-			System.out.println("ifTerm: "+current_command.toString());
 			
 			if (current_command.execute(obj))
 			{
-				if (++current_number != sign)
+				if (++current_number != end_number)
 				{
 					current_command = commands.get(current_number);
 					return false;

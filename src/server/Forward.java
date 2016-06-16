@@ -1,8 +1,8 @@
-package Game;
+package server;
 
 public class Forward implements Command 
 {
-	public boolean execute(GameObject obj) throws Exception
+	public boolean execute(Player obj) throws Exception
 	{
 		int x = obj.ahead.x;
 		int y = obj.ahead.y;
@@ -19,7 +19,6 @@ public class Forward implements Command
 		{
 			throw new Exception("Корабль не может плыть по суши");
 		}
-		
 		return true;
 	}
 	

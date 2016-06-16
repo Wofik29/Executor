@@ -1,4 +1,4 @@
-package Game;
+package server;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,7 +85,7 @@ public class Map
 		}
 	}
 	
-	public byte[][] loadMap(String name) throws Exception
+	public static byte[][] loadMap(String name) throws Exception
 	{
 		File file = new File(name);
 		if (!file.exists()) throw new Exception("No such file");
@@ -102,8 +102,6 @@ public class Map
 			
 			
 			int i=0;
-			
-			if (br.ready()) System.out.println("ready");
 			
 			while (br.ready())
 			{
@@ -123,18 +121,16 @@ public class Map
 			br.close();
 			fr.close();
 			
-			texture_map = new byte[map_str.length][ map_str[0].length ];
+			texture_map = new byte[map_str.length][];
 			
 			for (i=0; i<map_str.length; i++)
 			{
+				texture_map[i] = new byte[map_str[i].length];
 				for (int j=0; j<map_str[i].length; j++)
 				{
 					texture_map[i][j] = Byte.parseByte( map_str[i][j]);
 				}
-				
 			}
-			
-			
 		}
 		catch (Exception e)
 		{

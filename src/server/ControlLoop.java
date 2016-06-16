@@ -1,4 +1,4 @@
-package Game;
+package server;
 
 import java.awt.Point;
 
@@ -20,8 +20,7 @@ public abstract class ControlLoop extends Queue
 	public void setElse()
 	{
 		number_else = commands.size();
-	}
-		
+	}	
 	
 	public void setTerm1(int t1)
 	{
@@ -33,6 +32,14 @@ public abstract class ControlLoop extends Queue
 		term2 = t2;
 	}
 	
+	public void setCondition(int c)
+	{
+		if (c < 2)
+		{
+			condition = c;
+		}
+	}
+	
 	public boolean isAllTerm()
 	{
 		if (term1 == -1 || term2 == -1 )
@@ -40,11 +47,17 @@ public abstract class ControlLoop extends Queue
 		return true;
 	}
 	
-	// value_cell - значение клетки, с которой хотим сравнить
-	protected int isCondition(GameObject obj)
+	/*
+	 * Возвращает
+	 * 0 - Если выражение истинно
+	 * 1 - Если ложно
+	 * -1 - Если ошибка знака
+	 */
+	protected int isCondition(Player obj)
 	{
 		Point p = new Point();
 		
+		// узнаем с какой стороны и что с этой стороны находится.
 		switch (term1)
 		{
 		case 1:
@@ -58,23 +71,18 @@ public abstract class ControlLoop extends Queue
 			break;
 		}
 		
+		// value_cell - значение клетки, с которой хотим сравнить
 		int value_cell =  World.map[p.x][p.y];
+		
+		// Тут мы сглаживаем все виды земель в одну - песок. Иначе это вода, или сам кораблик
 		value_cell = (3 < value_cell && value_cell< 40) ? Map.BEACH : value_cell; 
-		System.out.println("ControlLoop: { condition: "+condition+", term1: "+term1+", term2: "+term2+", value_cell: "+value_cell+", map: "+World.map[p.x][p.y]+" }");
 		
 		int l_x = World.map.length;
 		int l_y = World.map[0].length;
 		if (p.x < 0 || p.x>l_x || p.y<0 || p.y>l_y )	return -1;
 		if (term1 == -1 || term2 == -1 || condition == -1) return -1;
 		
-		/*
-		 * Берем значение по текущим координатам и приводим все полустенки и т.п к одному виду.
-		 * Остается только вода, корабль и клад
-		 */
-		
-		
-		
-		
+		// просто проверка со вторым оператором
 		switch (condition)
 		{
 		case 0 : // "="
@@ -87,6 +95,6 @@ public abstract class ControlLoop extends Queue
 	}
 	
 	@Override
-	public abstract  boolean execute(GameObject obj) throws Exception;
+	public abstract  boolean execute(Player obj) throws Exception;
 
 }

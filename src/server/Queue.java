@@ -1,14 +1,14 @@
-package Game;
+package server;
 
 import java.util.LinkedList;
 import java.util.List;
 
 abstract public class Queue implements Command 
 {
-	List<Command> commands = new LinkedList<Command>();
-	Command current_command;
-	int current_number = 0;
-	boolean isEnd = true;
+	protected List<Command> commands = new LinkedList<Command>();
+	protected Command current_command;
+	protected int current_number = 0;
+	protected boolean isEnd = true;
 	
 	public void add(Command c)
 	{
@@ -31,6 +31,5 @@ abstract public class Queue implements Command
 		return result;
 	}
 	
-	abstract public boolean execute(GameObject obj) throws Exception;
-	
+	abstract public boolean execute(Player obj) throws Exception;
 }
