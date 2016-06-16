@@ -4,11 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,6 +20,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -28,6 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
 
@@ -40,128 +47,73 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import Game.Compiller;
+import other.Message;
+import other.SPlayer;
+
 
 public class Window implements Runnable
 {
 	// Отрисовывается все тут
-	private JFrame frame;
+	private JFrame main_frame;
+	private JFrame connect_frame;
+	
 	private Canvas canvas;
-	private JTextArea textArea;
+	private JTextArea text_area;
 	private JLabel msg;
 	private JMenuBar menu;
-	private JSplitPane splitPane;
+	private JSplitPane split_pane;
+	
+	/*
+	 * Point задает смещение, а offset - сколько прибавлять к смещение на каждой итерации
+	 */
+	private Point offset = new Point(500, 0);
+	private int offset_x = 0;
+	private int offset_y = 0;
+	private float scale_map = 1f;
+	private float scale_inc = 0f;
 	
 	// Поток, в котором крутиться window.
-	private Thread gameThread;
+	private Thread game_thread;
 	
 	// флаг на работу
 	private boolean running;
 	
 	// флаг, если надо изменить вывод OpenGL
-	private boolean needUpdateViewport = false;
+	private boolean need_update_viewport = false;
 	
 	// Массив к текстурными координатами.
-	private HashMap<Integer , int[]> coordTex = new HashMap<Integer, int[]>(70);
-	private HashMap<Integer , int[]> coordTexShip = new HashMap<Integer, int[]>(50);
+	private HashMap<Integer , int[]> coord_tex = new HashMap<Integer, int[]>(70);
+	private HashMap<Integer , int[]> coord_tex_ship = new HashMap<Integer, int[]>(50);
 
 	// текстуры земли и всего вокруг 
 	private Texture sprites;
 	private Texture texture_ship;
 	
+	/*
+	 * Будет отвечать за текущее состояние
+	 * 0 - Окно ввода адреса соединия
+	 * 1 - Стандартное окно исполнителя 
+	 */
+	private int state;
+	
 	byte[][] map;
 	
-	private GameObject player;
-	private GameObject another_ship;
-	//private volatile List<GameObject> objects = new ArrayList<>();
+	private volatile HashMap<String, Player> objects = new HashMap<>();
+	private String namePlayer;
+	private Game game;
 	
-	private Controller controller;
-	
-	public Window(Controller c)
+	public Window(Game g)
 	{
-		
-		controller = c;
-		
+		game = g;
+		state = 0;
+		// Установка вида GUI под системный тип
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		// Создание frame для держание всего.
-		frame = new JFrame();
-		frame.setTitle("Swing + LWJGL");
-		frame.setLayout(null);
-		frame.setBounds(0, 0, 1280, 768);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
-		setMenu();
 		
-		
-		JPanel leftPanel;
-		JPanel EditPanel;
-		JPanel panel;
-		
-		textArea = new JTextArea();
-		textArea.setColumns(35);
-		textArea.setLineWrap(true);
-		textArea.setFont(new Font("Arial", Font.BOLD, 20));
-		textArea.setBounds(0, 0, 300, 200);
-		
-		EditPanel = new JPanel();
-		EditPanel.setBounds(0, 0, 100, 100);
-		// Можно как то поиграться, чтоб была подсветка текста
-		//AttributeSet mySet = StyleContext.getDefaultStyleContext().addAttribute(old, name, value)
-		
-		leftPanel = new JPanel();
-		leftPanel.setLayout(new BorderLayout());
-		leftPanel.setBounds(0, 0, 300, frame.getHeight());
-		panel = new JPanel();
-		
-		JButton start;
-		JButton stop;
-		start = new JButton("Start");
-		start.setMinimumSize(new Dimension(100,50));
-		start.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				
-				System.out.println("pressed start");
-				String text = textArea.getText();
-				controller.setProgramm(text);
-			}
-		});
-		
-		stop = new JButton("Stop");
-		stop.addActionListener(new ActionListener() 
-		{
-			
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				controller.stop();
-			}
-		});
-		
-		panel.add(start);
-		panel.add(stop);
-		
-		leftPanel.add(panel, BorderLayout.NORTH);
-		leftPanel.add(textArea, BorderLayout.CENTER);
-		
-		// Разделяет frame на две части. В одной будет текст, в другой canvas
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
-		splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-		
-		msg = new JLabel("No errors");
-		msg.setBounds(0, splitPane.getHeight(), 500, 30);
-		msg.setForeground(java.awt.Color.RED);
-		//msg.setBorder(BorderFactory.createEtchedBorder());
-		msg.setBorder(BorderFactory.createLineBorder(java.awt.Color.black));
-		
-		frame.add(splitPane);
-		frame.add(msg);
-				
 		// Canvas будет контейнером для OpenGL
 		canvas = new Canvas() {
 			private static final long serialVersionUID = -1069002023468669595L;
@@ -170,11 +122,177 @@ public class Window implements Runnable
 				//stopOpenGL();
 			}
 		};
-		
 		canvas.setIgnoreRepaint(true);
 		canvas.setBounds(0, 0, 800, 600);
 		canvas.setPreferredSize(new Dimension(800, 600));
 		canvas.setMinimumSize(new Dimension(320, 240));
+		canvas.setVisible(true);
+		
+		setMainFrame();
+		setMenu();
+		setListeners();
+		setConnectFrame();
+		setOther();
+		System.out.println("Create Window : ");
+	}
+	
+	private void setMainFrame()
+	{
+		// Создание frame для держание всего.
+		main_frame = new JFrame();
+		main_frame.setTitle("Swing + LWJGL");
+		main_frame.setLayout(null);
+		main_frame.setBounds(0, 0, 1280, 768);
+		main_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		// Текстовое окно, в которое будут вводить алгоритм
+		text_area = new JTextArea();
+		text_area.setColumns(35);
+		text_area.setLineWrap(true);
+		text_area.setFont(new Font("Arial", Font.BOLD, 20));
+		text_area.setBounds(0, 0, 300, 200);
+		
+		// Разделяет frame на две части. В одной будет текст, в другой canvas
+		split_pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, true);
+		split_pane.setBounds(0,0, main_frame.getWidth(), main_frame.getHeight()-50-80);
+				
+		// Поле для вывода ошибок и сообщений пользователю
+		msg = new JLabel("No errors");
+		msg.setBounds(0, split_pane.getHeight(), 500, 30);
+		msg.setForeground(java.awt.Color.RED);
+		msg.setBorder(BorderFactory.createLineBorder(java.awt.Color.black));
+		
+		JPanel EditPanel = new JPanel();
+		EditPanel.setBounds(0, 0, 100, 100);
+		
+		// Группа из кнопок и текстового поля
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new BorderLayout());
+		leftPanel.setBounds(0, 0, 300, main_frame.getHeight());
+		leftPanel.add(text_area, BorderLayout.CENTER);
+		
+		split_pane.setRightComponent(canvas);
+		split_pane.setLeftComponent(leftPanel);
+		split_pane.setVisible(true);
+		
+		main_frame.add(split_pane);
+		main_frame.add(msg);
+		main_frame.setVisible(true);
+		main_frame.setEnabled(true);
+	}
+	
+	private void setConnectFrame()
+	{
+		connect_frame = new JFrame("Connection");
+		connect_frame.setLayout(null);
+		connect_frame.setBounds(100, 200, 500, 150);
+					
+		Font f = new Font("Times New Romans", Font.BOLD, 13);
+					
+		final JTextField address_field = new JTextField("localhost");
+		address_field.setBounds(160, 15, 100, 25);
+		address_field.setFont(f);
+		final JTextField name_field = new JTextField("Wolf");
+		name_field.setBounds(160, 45, 100, 25);
+		name_field.setFont(f);
+		final JLabel address_label = new JLabel("Enter ip-address:");
+		address_label.setBounds(30, 10, 120, 30);
+		address_label.setFont(f);
+		final JLabel name_label = new JLabel("Name: ");
+		name_label.setBounds(30, 40, 120, 30);
+		name_label.setFont(f);
+		final JLabel error_label = new JLabel("-");
+		error_label.setBounds(270, 10, 200, 30);
+		error_label.setFont(f);
+				
+		JButton enter = new JButton("Enter");
+		enter.setBounds(30, 80, 80, 20);
+		enter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				error_label.setText("Соединение...");
+				Thread checking = new Thread( new Runnable() {
+					@Override
+					public void run() {
+						if (address_field.getText().isEmpty())
+							error_label.setText("Не написан адрес сервера!");
+						else if (name_field.getText().isEmpty())
+						{
+							error_label.setText("Не введено имя!");
+						}
+						else
+						{
+							String result = game.connect(address_field.getText(), name_field.getText());
+							switch (result)
+							{
+							case "OK":
+								game.startServerH();
+								state = 1;
+								switchFrame();
+								error_label.setText("-");
+								game_thread.start();
+								break;
+							default:
+								error_label.setText(result);
+								break;
+							}
+						}
+					}
+				});
+				checking.start();
+			}
+		});
+
+		JButton exit = new JButton("Exit");
+		exit.setBounds(130, 80, 80, 20);
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				connect_frame.dispose();
+				main_frame.dispose();
+				running = false;
+				game_thread.interrupt();
+			}
+		});
+				
+		connect_frame.add(address_label);
+		connect_frame.add(address_field);
+		connect_frame.add(name_field);
+		connect_frame.add(name_label);
+		connect_frame.add(enter);
+		connect_frame.add(exit);
+		connect_frame.add(error_label);
+		connect_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	private void setListeners()
+	{
+		//При изменении основного окна, меняем и размеры компоненты, который разделяет все.
+		main_frame.addComponentListener(new ComponentAdapter()
+		{
+			@Override
+			public void componentShown(ComponentEvent arg0) 
+			{
+				split_pane.setBounds(0,0, main_frame.getWidth(), main_frame.getHeight()-menu.getHeight()-80);
+				msg.setBounds(10, split_pane.getHeight()+5, 500, 30);
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent arg0) 
+			{
+				split_pane.setBounds(0,0, main_frame.getWidth(), main_frame.getHeight()-menu.getHeight()-80);
+				msg.setBounds(10, split_pane.getHeight()+5, 500, 30);
+			}
+		});
+		main_frame.addWindowListener(new WindowAdapter() 
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				game.stop();
+				System.out.println("windowClosing");
+			}
+		});
 		
 		// Навешиваем слушателей, чтобы openGL изменял свой вид, при изменения окна.
 		canvas.addComponentListener(new ComponentListener() 
@@ -196,93 +314,56 @@ public class Window implements Runnable
 				setNeedValidation();
 			}
 		});
+	}
+	
+	private void setOther()
+	{
+		coord_tex.put(0, new int[]{5,0}); // grass
+		coord_tex.put(1, new int[]{0,0}); // deep
+		coord_tex.put(2, new int[]{1,4}); // beach
+		coord_tex.put(3, new int[]{2,3}); // shallow
+		coord_tex.put(4, new int[]{0,3}); // grass-beach-in-1
+		coord_tex.put(5, new int[]{4,3}); // grass-beach-in-2
+		coord_tex.put(6, new int[]{1,3}); // grass-beach-in-3
+		coord_tex.put(7, new int[]{5,2}); // grass-beach-in-4
+		coord_tex.put(8, new int[]{5,4}); // grass-beach-out-1
+		coord_tex.put(9, new int[]{5,3}); // grass-beach-out-2
+		coord_tex.put(10, new int[]{7,2}); // grass-beach-out-3
+		coord_tex.put(11, new int[]{3,4}); // grass-beach-out-4
+		coord_tex.put(12, new int[]{6,2}); // grass-beach-1
+		coord_tex.put(13, new int[]{6,3}); // grass-beach-2
+		coord_tex.put(14, new int[]{7,4}); // grass-beach-3
+		coord_tex.put(15, new int[]{3,3}); // grass-beach-4
+		coord_tex.put(16, new int[]{2,0}); // beach-shallow-in-1
+		coord_tex.put(17, new int[]{7,0}); // beach-shallow-in-2
+		coord_tex.put(18, new int[]{6,0}); // beach-shallow-in-3
+		coord_tex.put(19, new int[]{2,4}); // beach-shallow-in-4
+		coord_tex.put(20, new int[]{0,4}); // beach-shallow-out-1
+		coord_tex.put(21, new int[]{0,1}); // beach-shallow-out-2
+		coord_tex.put(22, new int[]{6,4}); // beach-shallow-out-3
+		coord_tex.put(23, new int[]{4,0}); // beach-shallow-out-4
+		coord_tex.put(24, new int[]{1,0}); // shallow-deep-in-1
+		coord_tex.put(25, new int[]{0,2}); // shallow-deep-in-2
+		coord_tex.put(26, new int[]{2,1}); // shallow-deep-in-3
+		coord_tex.put(27, new int[]{1,1}); // shallow-deep-in-4
+		coord_tex.put(28, new int[]{7,1}); // shallow-deep-out-1
+		coord_tex.put(29, new int[]{1,2}); // shallow-deep-out-2
+		coord_tex.put(30, new int[]{2,2}); // shallow-deep-out-3
+		coord_tex.put(31, new int[]{6,1}); // shallow-deep-out-4
+		coord_tex.put(32, new int[]{4,1}); // shallow-deep-1
+		coord_tex.put(33, new int[]{5,1}); // shallow-deep-2
+		coord_tex.put(34, new int[]{3,1}); // shallow-deep-3
+		coord_tex.put(35, new int[]{3,0}); // shallow-deep-4
+		coord_tex.put(36, new int[]{7,3}); // beach-shallow-1
+		coord_tex.put(37, new int[]{3,2}); // beach-shallow-2
+		coord_tex.put(38, new int[]{4,2}); // beach-shallow-3
+		coord_tex.put(39, new int[]{4,4}); // beach-shallow-4
+		coord_tex.put(41, new int[]{0,5}); // Jewel
 		
-		//splitPane.setLayout(null);
-		splitPane.setRightComponent(canvas);
-		splitPane.setLeftComponent(leftPanel);
-		
-		//splitPane.setLeftComponent(textArea);
-		
-		// Делаем все видимое, ясно.
-		frame.setVisible(true);
-		splitPane.setVisible(true);
-		EditPanel.setVisible(true);
-		canvas.setVisible(true);
-		start.setVisible(true);
-		msg.setVisible(true);
-		
-		//При изменении основного окна, меняем и размеры компоненты, который разделяет все.
-		frame.addComponentListener(new ComponentListener() {
-			
-			@Override
-			public void componentShown(ComponentEvent arg0) 
-			{
-				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(10, splitPane.getHeight()+5, 500, 30);
-			}
-			
-			@Override
-			public void componentResized(ComponentEvent arg0) 
-			{
-				splitPane.setBounds(0,0, frame.getWidth(), frame.getHeight()-menu.getHeight()-80);
-				msg.setBounds(10, splitPane.getHeight()+5, 500, 30);
-			}
-			
-			@Override
-			public void componentMoved(ComponentEvent arg0) {}
-			
-			@Override
-			public void componentHidden(ComponentEvent arg0) {}
-		});
-		
-		coordTex.put(0, new int[]{5,0}); // grass
-		coordTex.put(1, new int[]{0,0}); // deep
-		coordTex.put(2, new int[]{1,4}); // beach
-		coordTex.put(3, new int[]{2,3}); // shallow
-		coordTex.put(4, new int[]{0,3}); // grass-beach-in-1
-		coordTex.put(5, new int[]{4,3}); // grass-beach-in-2
-		coordTex.put(6, new int[]{1,3}); // grass-beach-in-3
-		coordTex.put(7, new int[]{5,2}); // grass-beach-in-4
-		coordTex.put(8, new int[]{5,4}); // grass-beach-out-1
-		coordTex.put(9, new int[]{5,3}); // grass-beach-out-2
-		coordTex.put(10, new int[]{7,2}); // grass-beach-out-3
-		coordTex.put(11, new int[]{3,4}); // grass-beach-out-4
-		coordTex.put(12, new int[]{6,2}); // grass-beach-1
-		coordTex.put(13, new int[]{6,3}); // grass-beach-2
-		coordTex.put(14, new int[]{7,4}); // grass-beach-3
-		coordTex.put(15, new int[]{3,3}); // grass-beach-4
-		coordTex.put(16, new int[]{2,0}); // beach-shallow-in-1
-		coordTex.put(17, new int[]{7,0}); // beach-shallow-in-2
-		coordTex.put(18, new int[]{6,0}); // beach-shallow-in-3
-		coordTex.put(19, new int[]{2,4}); // beach-shallow-in-4
-		coordTex.put(20, new int[]{0,4}); // beach-shallow-out-1
-		coordTex.put(21, new int[]{0,1}); // beach-shallow-out-2
-		coordTex.put(22, new int[]{6,4}); // beach-shallow-out-3
-		coordTex.put(23, new int[]{4,0}); // beach-shallow-out-4
-		coordTex.put(24, new int[]{1,0}); // shallow-deep-in-1
-		coordTex.put(25, new int[]{0,2}); // shallow-deep-in-2
-		coordTex.put(26, new int[]{2,1}); // shallow-deep-in-3
-		coordTex.put(27, new int[]{1,1}); // shallow-deep-in-4
-		coordTex.put(28, new int[]{7,1}); // shallow-deep-out-1
-		coordTex.put(29, new int[]{1,2}); // shallow-deep-out-2
-		coordTex.put(30, new int[]{2,2}); // shallow-deep-out-3
-		coordTex.put(31, new int[]{6,1}); // shallow-deep-out-4
-		coordTex.put(32, new int[]{4,1}); // shallow-deep-1
-		coordTex.put(33, new int[]{5,1}); // shallow-deep-2
-		coordTex.put(34, new int[]{3,1}); // shallow-deep-3
-		coordTex.put(35, new int[]{3,0}); // shallow-deep-4
-		coordTex.put(36, new int[]{7,3}); // beach-shallow-1
-		coordTex.put(37, new int[]{3,2}); // beach-shallow-2
-		coordTex.put(38, new int[]{4,2}); // beach-shallow-3
-		coordTex.put(39, new int[]{4,4}); // beach-shallow-4
-		coordTex.put(41, new int[]{0,5}); // Jewel
-		
-		coordTexShip.put(0,new int[]{1,1});
-		coordTexShip.put(1,new int[]{0,0});
-		coordTexShip.put(2,new int[]{0,1});
-		coordTexShip.put(3,new int[]{1,0});
-		
-		System.out.println("Create Window : ");
+		coord_tex_ship.put(0,new int[]{1,1});
+		coord_tex_ship.put(1,new int[]{0,0});
+		coord_tex_ship.put(2,new int[]{0,1});
+		coord_tex_ship.put(3,new int[]{1,0});
 	}
 	
 	private void setMenu()
@@ -293,46 +374,27 @@ public class Window implements Runnable
 		JMenu prog = new JMenu("Programm");
 		JMenu help = new JMenu("Help");
 		
-		JMenuItem load_map = new JMenuItem("Load map...");
+		//JMenuItem load_map = new JMenuItem("Load map...");
 		JMenuItem save_programm = new JMenuItem("Save programm...");
 		JMenuItem load_programm = new JMenuItem("Load programm...");
 		JMenuItem play = new JMenuItem("Play");
+		JMenuItem check_programm = new JMenuItem("Check programm");
 		JMenuItem about = new JMenuItem("About");
 		JMenuItem help1 = new JMenuItem("Help contents...");
 		
-		frame.setJMenuBar(menu);
+		main_frame.setJMenuBar(menu);
 		menu.add(file);
 		menu.add(prog);
 		menu.add(help);
-		
 		file.add(load_programm);
 		file.add(save_programm);
-		file.add(load_map);
 		
 		prog.add(play);
-		
+		prog.add(check_programm);
 		help.add(help1);
 		help.add(about);
 		
-		load_map.addActionListener(new ActionListener() 
-		{			
-			@Override
-			public void actionPerformed(ActionEvent arg0) 
-			{
-				JFileChooser fileopen = new JFileChooser(new File("."));
-				int ret = fileopen.showOpenDialog(null);
-				
-				if (ret == JFileChooser.APPROVE_OPTION)
-				{
-					String name = fileopen.getSelectedFile().getAbsolutePath();
-					controller.loadMap(name);
-				}
-			}
-		});
-		
-		save_programm.addActionListener(new ActionListener() 
-		{
-			
+		save_programm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -348,7 +410,7 @@ public class Window implements Runnable
 						
 						BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 						
-						String text = "@ProgramExecutor\n" + textArea.getText();
+						String text = "@ProgramExecutor\n" + text_area.getText();
 						
 						bw.write(text);
 						bw.close();
@@ -361,50 +423,38 @@ public class Window implements Runnable
 			}
 		});
 		
-		load_programm.addActionListener(new ActionListener() 
-		{
-			
+		load_programm.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showSaveDialog(null);
-				
 				if (ret == JFileChooser.APPROVE_OPTION)
 				{
 					File file = fileopen.getSelectedFile();
-					
 					try
 					{	
 						BufferedReader rw = new BufferedReader(new FileReader(file));
 						String line = rw.readLine();
 						if (line == null || line.equals("~ProgramExecutor"))
-						{
 							setMsg("Неверный файл");
-						}
 						else
 						{
 							StringBuffer text = new StringBuffer();
 							while (rw.ready())
 								text.append(rw.readLine()).append("\n");
-							
-							textArea.setText(text.toString());
+							text_area.setText(text.toString());
 						}
-						
 						rw.close();
 					}
-					catch (IOException e1)
-					{
+					catch (IOException e1)	{
 						e1.printStackTrace();
 					}
 				}
-				
 			}
 		});
 		
-		help1.addActionListener(new ActionListener() 
-		{
-			
+		help1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -416,24 +466,28 @@ public class Window implements Runnable
 				ta.setBounds(0, 0, 400, 400);
 				//ta.setContentType("text/html");
 				ta.setText(Compiller.getSyntax());
-				
 				ta.setVisible(true);
 				ta.setEditable(false);
-				
 				frame.add(ta);
 				frame.setVisible(true);
 			}
 		});
 		
-		about.addActionListener(new ActionListener() 
-		{
-			
+		play.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String programm = text_area.getText();
+				game.fromPlayer(new Message(namePlayer, "programm", programm));
+			}
+		});
+		
+		about.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) 
 			{
 				JFrame us = new JFrame("About");
 				
-				us.setBounds( frame.getX()+200, frame.getY()+200, 600, 400);
+				us.setBounds( main_frame.getX()+200, main_frame.getY()+200, 600, 400);
 				us.setLayout(null);
 				
 				JButton btn1 = new JButton("OK");
@@ -454,10 +508,8 @@ public class Window implements Runnable
 				btn2.setBounds(100, us.getHeight()-100, 90, 30);
 				
 				ActionListener al = new ActionListener() {
-					
 					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
+					public void actionPerformed(ActionEvent e)	{
 						JButton btn = (JButton) e.getSource();
 						// достаем этот Frame, т.к. он локальный и я хз как его достать еще :DD
 						JFrame f = (JFrame) btn.getParent().getParent().getParent().getParent();
@@ -467,20 +519,14 @@ public class Window implements Runnable
 				
 				btn1.addActionListener(al);
 				btn2.addActionListener(al);
-				
 				us.add(ta);
 				us.add(btn1);
 				us.add(btn2);
-				
 				us.setVisible(true);
 				ta.setVisible(true);
-				
-				
 			}
 		});
-		
 	}
-	
 	
 	public void setMsg(String text)
 	{
@@ -489,16 +535,7 @@ public class Window implements Runnable
 	
 	private void setNeedValidation() 
 	{
-		needUpdateViewport = true;
-	}
-	
-	public void setPlayer(GameObject obj)
-	{
-		player = obj;
-	}
-	public void setShip(GameObject obj)
-	{
-		another_ship = obj;
+		need_update_viewport = true;
 	}
 	
 	public void setMap(byte[][] m)
@@ -506,22 +543,7 @@ public class Window implements Runnable
 		map = m;
 	}
 	
-	private void stopOpenGL()
-	{
-		System.out.println("StopOpenGL");
-		
-		running = false;
-		try 
-		{
-			gameThread.join();
-		} catch (InterruptedException e) 
-		{
-			e.printStackTrace();
-		}
-		controller.stop();
-	}
-	
-	public void run()
+	private void setOpenGL()
 	{
 		try 
 		{
@@ -557,24 +579,24 @@ public class Window implements Runnable
 			
 			try
 			{
-								
 				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
 				texture_ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
-
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 			}
-			
-			
-			running = true;
-		} 
+		}
 		catch (LWJGLException e) 
 		{
 			e.printStackTrace();
 		}
-		
+	}
+	
+	public void run()
+	{
+		setOpenGL();
+		running = true;
 		while (running) 
 		{
 			updateGL();
@@ -587,28 +609,117 @@ public class Window implements Runnable
 		}
 	}
 	
+	private void switchFrame()
+	{
+		if (state == 0)
+		{
+			connect_frame.setVisible(true);
+			main_frame.setVisible(false);
+		}
+		else
+		{
+			connect_frame.setVisible(false);
+			main_frame.setVisible(true);
+		}	
+	}
+	
+	public void addPlayer(Player p)
+	{
+		if (namePlayer == null)
+			namePlayer = p.getName();
+		if (!objects.containsKey(p.getName()) || objects.get(p.getName()) != null)
+			objects.put(p.getName() , p);
+	}
+	
+	public void deletePlayer(SPlayer p)
+	{
+		if (objects.containsKey(p.name))
+			objects.remove(p.name);
+	}
+	
+	public void updatePlayers(List<SPlayer> list, int size)
+	{
+		for (int i=0; i<size; i++)
+		{
+			SPlayer p = list.get(i);
+			if (objects.containsKey(p.name) && objects.get(p.name) != null)
+			{
+				Player player = objects.get(p.name);
+				player.setDirection(p.direction);
+				player.setPosition(p.x, p.y);
+				player.setRotation(p.rotation);
+			}
+			else
+			{
+				addPlayer(new Player(p));
+			}
+		}
+	}
+	
 	private void keyLoop()
 	{
 		while (Keyboard.next()) 
 		{
 		    if (Keyboard.getEventKeyState()) 
 		    {
-		    	controller.pressedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+		    	switch (Keyboard.getEventKey())
+		    	{
+		    	case Keyboard.KEY_A:
+		    		offset_x = 2;
+		    		break;
+		    	case Keyboard.KEY_D:
+		    		offset_x = -2;
+		    		break;
+		    	case Keyboard.KEY_W:
+		    		offset_y = 2;
+		    		break;
+		    	case Keyboard.KEY_S:
+		    		offset_y = -2;
+		    		break;
+		    	case Keyboard.KEY_Q:
+		    		scale_inc = +0.05f;
+		    		break;
+		    	case Keyboard.KEY_E:
+		    		scale_inc = -0.05f;
+		    		break;
+		    	}
 		    }
 		    else
 		    {
-		    	controller.relessedKey(Keyboard.getEventKey(), Keyboard.getEventCharacter());
+		    	switch (Keyboard.getEventKey())
+		    	{
+		    	case Keyboard.KEY_A:
+		    		offset_x = 0;
+		    		break;
+		    	case Keyboard.KEY_D:
+		    		offset_x = 0;
+		    		break;
+		    	case Keyboard.KEY_W:
+		    		offset_y = 0;
+		    		break;
+		    	case Keyboard.KEY_S:
+		    		offset_y = 0;
+		    		break;
+		    	case Keyboard.KEY_Q:
+		    		scale_inc = 0;
+		    		break;
+		    	case Keyboard.KEY_E:
+		    		scale_inc = 0;
+		    		break;
+		    	}
 		    }
 		}
+		
+		offset.x += offset_x;
+		offset.y += offset_y;
 	}
-	
-	
+		
 	private void drawMap()
 	{
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
-		GL11.glTranslatef(600, 0, 0);
-		GL11.glScalef(1f,1f, 0);
+		GL11.glTranslatef(offset.x, offset.y, 0);
+		GL11.glScalef(scale_map, scale_map , 0);
 		
 		// Подключаем текстуру.
 		sprites.bind();
@@ -625,7 +736,7 @@ public class Window implements Runnable
 				float _sx = sx - sy;
 				float _sy = (sx+sy)/2; 
 								
-				t = coordTex.get((int)map[x][y]);
+				t = coord_tex.get((int)map[x][y]);
 				if (t == null) System.out.println(map[x][y]);
 				drawTexture(_sx, _sy, 0, t[0], t[1]);
 			}
@@ -660,7 +771,7 @@ public class Window implements Runnable
         GL11.glPopMatrix();
 	}
 	
-	private void drawShip(GameObject ship)
+	private void drawShip(Player ship)
 	{
 		if (ship != null)
 		{
@@ -669,8 +780,8 @@ public class Window implements Runnable
 			float tex_width = 1f/2f;
 			float tex_height = 1f/2f;
 			
-			float x = ship.getLocation().x;
-	    	float y = ship.getLocation().y;
+			float x = ship.getPosition().x;
+	    	float y = ship.getPosition().y;
 	    	
 	    	float sx = x*64/2;
 			float sy = y*32;
@@ -678,12 +789,13 @@ public class Window implements Runnable
 			float _sx = sx - sy;
 			float _sy = (sx+sy)/2;
 			
-			int t[] = coordTexShip.get(ship.direction);
+			int t[] = coord_tex_ship.get(ship.getDirection());
 	    				
 	    	//font.drawString(0, 0, "X: "+x+" Y: "+y+" x_p: "+_sx+ " y_p: "+_sy);
 	    	texture_ship.bind();
-	    	GL11.glTranslatef(600, 0, 0);
+	    	GL11.glTranslatef(offset.x, offset.y, 0);
 	    	GL11.glTranslatef(_sx,_sy, 0);
+	    	GL11.glScalef( scale_map, scale_map, 0);
 	    	GL11.glBegin(GL11.GL_QUADS);
 	    	GL11.glTexCoord2f(t[0]*tex_width, t[1]*tex_height);
 			GL11.glVertex2f(-32,-32);
@@ -699,7 +811,7 @@ public class Window implements Runnable
 			GL11.glEnd();
 			
 			// Рамка для обозначения игрока
-			if (player == ship)
+			if (!namePlayer.isEmpty() && ship.getName().equals(namePlayer))
 			{
 				sprites.bind();
 				float coord[] = {1,5};
@@ -729,9 +841,9 @@ public class Window implements Runnable
 		
 		render();
 		
-		if (needUpdateViewport) 
+		if (need_update_viewport) 
 		{
-			needUpdateViewport = false;
+			need_update_viewport = false;
 			
 			Rectangle rect = canvas.getBounds();
 			int w = (int) rect.getWidth();
@@ -747,19 +859,26 @@ public class Window implements Runnable
 		Display.sync(60);
 	}
 	
-	private void render()
+	public void closeServer()
 	{
-		drawMap();
-		drawShip(player);
-		drawShip(another_ship);
+		switchFrame();
+		running = false;
+		
 	}
 	
-	
+	private void render()
+	{
+		if (map != null) drawMap();
+		for (String name : objects.keySet())
+		{
+			drawShip(objects.get(name));
+		}
+		//drawShip(another_ship);
+	}
 	
 	public void start()
-	{
-		
-		gameThread = new Thread(this);
-		gameThread.start();
+	{	
+		game_thread = new Thread(this);
+		switchFrame();
 	}
 }

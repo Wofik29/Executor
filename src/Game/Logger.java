@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
+import Game.Logger;
+
 public class Logger 
 {
 	static Logger logger;

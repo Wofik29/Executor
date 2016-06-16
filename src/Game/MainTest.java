@@ -1,5 +1,10 @@
 package Game;
 
+import Game.Compiller;
+import Game.MainTest;
+import Game.Map;
+import Game.Queue;
+
 public class MainTest {
 
 	public static void main(String[] args) {

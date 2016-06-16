@@ -1,6 +1,16 @@
 package Game;
 import org.lwjgl.input.Keyboard;
 
+import Game.Compiller;
+import Game.Forward;
+import Game.Left;
+import Game.MainLoop;
+import Game.Map;
+import Game.Queue;
+import Game.Right;
+import Game.Window;
+import Game.World;
+
 public class Controller  
 {
 	private Window window;
@@ -21,14 +31,14 @@ public class Controller
 		map = new Map();
 		byte[][] m = map.getMap();
 		
-		window = new Window(this);
+		//window = new Window(this);
 		window.setMap(m);
 		world.setMap(m);
 		
-		GameObject p =  world.getObjects().get(0);
-		window.setPlayer(p);
-		p =  world.getObjects().get(1);
-		window.setShip(p);
+		//Player p =  world.getObjects().get(0);
+		//window.setPlayer(p);
+		//p =  world.getObjects().get(1);
+		//window.setShip(p);
 		
 		thread_world = new Thread(world);
 		//thread_window = new Thread(window);
@@ -40,9 +50,9 @@ public class Controller
 		try
 		{
 			Queue prog = c.getProgramm(text);
-			GameObject p = world.getPlayer();
-			p.setProgramm( (MainLoop) prog);
-			p.setGo();
+			//Player p = world.getPlayer();
+			//p.setProgramm( (MainLoop) prog);
+			//p.setGo();
 			window.setMsg("-");
 			//start();
 		}
@@ -59,19 +69,19 @@ public class Controller
 	
 	public void pressedKey(int key, char c)
 	{
-		GameObject p = world.getObjects().get(0);
+		//Player p = world.getObjects().get(0);
 		switch (key)
         {
         case Keyboard.KEY_A: System.out.println("pressed A "); 
-        	p.addCommand(new Left());
+        	//p.addCommand(new Left());
         	//window.x ++;
         	break;
         case Keyboard.KEY_D: System.out.println("pressed D"); 
-    		p.addCommand(new Right());
+    		//p.addCommand(new Right());
     		//window.x --;
         	break;
         case Keyboard.KEY_W: System.out.println("pressed W"); 
-    		p.addCommand(new Forward());
+    	//	p.addCommand(new Forward());
         	//window.y ++;
         	break;        
         case Keyboard.KEY_S: System.out.println("pressed S"); 
