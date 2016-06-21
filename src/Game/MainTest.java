@@ -17,13 +17,11 @@ public class MainTest {
 	public void test_compiller()
 	{
 		Compiller c = new Compiller();
-		c.setCommands("Executor.ini");
 		
 		String text = "left go2 procedure go left endprocedure procedure go2 go left endprocedure"; 
 		Queue prog;
 		try
 		{
-			prog = c.getProgramm(text);
 		}
 		catch (Exception ex)
 		{

@@ -34,7 +34,6 @@ public class Compiller
 		commands.put("ship", 	17);
 	}};
 	
-	
 	private static HashMap<String, Integer> print_commands = new HashMap<>();
 	static {{
 				print_commands.put("вперед", 0);
@@ -174,6 +173,16 @@ public class Compiller
 		//System.out.println(sb);
 	}
 	
+	
+	public Queue getProgramm1(byte[] algoritm) throws Exception {
+		Queue programm = new MainLoop();
+		
+		for (int i=0; i< algoritm.length; i++){
+			
+		}
+		return programm;
+	}
+	
 	public Queue getProgramm(String text) throws Exception
 	{
 		//StringBuilder sb = new StringBuilder(text);
@@ -190,8 +199,6 @@ public class Compiller
 		// Находим процедуры
 		while ( -1 < ( start_index = sb.indexOf("procedure")) )
 		{
-			
-			
 			// Находим где заканчивается слово procedure
 			int start_name = sb.indexOf(" ", start_index);
 			
@@ -247,7 +254,7 @@ public class Compiller
 		}
 		
 		programm = parseString(sb.toString());
-		programm.toString();
+		//programm.toString();
 		System.out.println("End Parse");
 		return programm;
 	}
@@ -342,7 +349,7 @@ public class Compiller
 				state = 3;
 			}
 			
-			System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
+			if (Main.isDebug) System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
 			
 			Queue temp = null;
 			switch (state)
@@ -361,7 +368,6 @@ public class Compiller
 					current.add(new Right());
 					break;
 				case 8: // "if":
-					System.out.println("if");
 					state = 1;
 					
 					// Запомнили родительский узел
@@ -379,16 +385,13 @@ public class Compiller
 					break;
 				case 12: //"end":
 					current = stack.pop();
-					System.out.println("end");
 					break;
 				case 15: //"else":
 					ifTerm if_temp = (ifTerm) current;
 					if_temp.setElse();
 					if_temp = null;
-					System.out.println("else");
 					break;
 				case 9: //"while":
-					System.out.println("while");
 					state = 1;
 					// Запомнили родительский узел
 					stack.push(current);
@@ -404,7 +407,6 @@ public class Compiller
 					temp = null;
 					break;
 				default:
-					System.out.println("Default");
 					throw new Exception("Ожидался оператор, но встречен '"+operation+"'");
 				}
 				break;

@@ -12,6 +12,7 @@ public class MainLoop extends Queue
 		 */
 		if (isEnd && current_command != null && current_command.execute(obj))
 		{
+			System.out.println(current_command.toString());
 			next();
 		}
 		

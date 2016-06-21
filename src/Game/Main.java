@@ -1,11 +1,9 @@
 package Game;
 
-public class Main 
-{
+public class Main {
 	static boolean isDebug = false;
 	
-	public static void main(String[] args) 
-	{
+	public static void main(String[] args) {
 		Game game = new Game();
 		game.start();
 	}

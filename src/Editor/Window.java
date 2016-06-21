@@ -122,24 +122,35 @@ public class Window implements Runnable
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JButton save = new JButton("Save");
+		JButton load = new JButton("Load");
 		save.setBounds(10,620, 80, 20);
+		load.setBounds(10,650, 80, 20);
 		save.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showSaveDialog(null);
-				
 				if (ret == JFileChooser.APPROVE_OPTION)
 				{
 					String name = fileopen.getSelectedFile().getAbsolutePath();
 					saveMap(name);
+				}	
+			}
+		});
+		load.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileopen = new JFileChooser(new File("."));
+				int ret = fileopen.showOpenDialog(null);
+				if (ret == JFileChooser.APPROVE_OPTION)
+				{
+					String name = fileopen.getSelectedFile().getAbsolutePath();
+					loadMap(name);
 				}
-					
 			}
 		});
 		frame.add(save);
+		frame.add(load);
 		
 		frame.addMouseListener(new MouseAdapter() 
 			{
@@ -263,7 +274,6 @@ public class Window implements Runnable
 				g.setColor(Color.BLACK);
 				g.drawRect(i, j, cell, cell);
 				drawTerrain(g, i, j, map[i/cell][j/cell], cell);
-				
 			}
 		}
 	}
@@ -312,15 +322,25 @@ public class Window implements Runnable
 		}
 	}
 	
-	private void loadMap()
+	private void loadMap(String name)
 	{
 		 try
 		 {
-			 BufferedReader in = new BufferedReader(new FileReader("Executor.map"));
-			 
+			 BufferedReader in = new BufferedReader(new FileReader(name));
+			 int i=0;
+			 map = new byte[100][100];
 			 while (in.ready())
 			 {
-				 System.out.println(in.read());
+				 i++;
+				 String line = in.readLine();
+				 String[] cells = line.split(":");
+				 int current = --i;
+				 map[current] = new byte[cells.length];
+				 int j = 0;
+				 for (String cell : cells)
+				 {
+					 map[current][j++] = Byte.parseByte(cell);
+				 }
 			 }
 			 
 			 in.close();

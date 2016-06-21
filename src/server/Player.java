@@ -91,6 +91,11 @@ public class Player
 		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
+	public void clear()
+	{
+		World.map[location.x][location.y] = current_cell;
+	}
+	
 	public void setName(String name)
 	{
 		this.name = name;
@@ -113,6 +118,8 @@ public class Player
 	
 	public boolean isReady()
 	{
+		if (programm.getSize() == 0)
+			return false;
 		return isGo;
 	}
 	
@@ -127,8 +134,8 @@ public class Player
 		
 		if (Main.isDebug)
 		{
-			System.out.println("rot: "+rotation);
-			System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", direction: "+direction);
+			//System.out.println("rot: "+rotation);
+			System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", value_map_ahead: "+World.map[ahead.x][ahead.y]);
 		}
 		
 		if (isGo)
@@ -136,16 +143,21 @@ public class Player
 			next();
 			checkDirection();
 			checkRotation();
-			System.out.println(name+": do step.");
+			//System.out.println("Player("+name+")"+": do step.");
 		}
 	}
 	
 	public void setLocation(Point p)
 	{
+		// Стираем свое присутствие на карте
 		World.map[location.x][location.y] = current_cell;
+		
+		// Берем новые значения
 		location.x = p.x;
 		location.y = p.y;
+		// запоминаем значение нового положения
 		current_cell = World.map[location.x][location.y];
+		// Ставим кораблик на новое место 
 		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
