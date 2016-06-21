@@ -36,7 +36,8 @@ public class ifTerm extends ControlLoop
 					break;
 				case -1:
 					System.out.println("return -1");
-					return true;
+					throw new Exception("Непредвиденная ошибка в условии");
+					//return true;
 				}
 			}
 			
