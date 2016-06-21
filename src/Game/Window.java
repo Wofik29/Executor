@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -37,7 +36,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -46,18 +44,13 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
-
-import Game.Compiller;
 import other.Message;
 import other.SPlayer;
 
 
-public class Window implements Runnable
-{
+public class Window implements Runnable {
 	// Отрисовывается все тут
 	private JFrame main_frame;
-	private JFrame connect_frame;
-	
 	private Canvas canvas;
 	private JTextArea text_area;
 	private JLabel msg;
@@ -89,24 +82,14 @@ public class Window implements Runnable
 	// текстуры земли и всего вокруг 
 	private Texture sprites;
 	private Texture texture_ship;
-	
-	/*
-	 * Будет отвечать за текущее состояние
-	 * 0 - Окно ввода адреса соединия
-	 * 1 - Стандартное окно исполнителя 
-	 */
-	private int state;
-	
 	byte[][] map;
 	
 	private volatile HashMap<String, Player> objects = new HashMap<>();
 	private String namePlayer;
 	private Game game;
 	
-	public Window(Game g)
-	{
+	public Window(Game g) {
 		game = g;
-		state = 0;
 		// Установка вида GUI под системный тип
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -117,8 +100,7 @@ public class Window implements Runnable
 		// Canvas будет контейнером для OpenGL
 		canvas = new Canvas() {
 			private static final long serialVersionUID = -1069002023468669595L;
-			public void removeNotify() 
-			{
+			public void removeNotify() {
 				//stopOpenGL();
 			}
 		};
@@ -131,13 +113,11 @@ public class Window implements Runnable
 		setMainFrame();
 		setMenu();
 		setListeners();
-		setConnectFrame();
 		setOther();
 		System.out.println("Create Window : ");
 	}
 	
-	private void setMainFrame()
-	{
+	private void setMainFrame()	{
 		// Создание frame для держание всего.
 		main_frame = new JFrame();
 		main_frame.setTitle("Swing + LWJGL");
@@ -181,143 +161,47 @@ public class Window implements Runnable
 		main_frame.setEnabled(true);
 	}
 	
-	private void setConnectFrame()
-	{
-		connect_frame = new JFrame("Connection");
-		connect_frame.setLayout(null);
-		connect_frame.setBounds(100, 200, 500, 150);
-					
-		Font f = new Font("Times New Romans", Font.BOLD, 13);
-					
-		final JTextField address_field = new JTextField("localhost");
-		address_field.setBounds(160, 15, 100, 25);
-		address_field.setFont(f);
-		final JTextField name_field = new JTextField("Wolf");
-		name_field.setBounds(160, 45, 100, 25);
-		name_field.setFont(f);
-		final JLabel address_label = new JLabel("Enter ip-address:");
-		address_label.setBounds(30, 10, 120, 30);
-		address_label.setFont(f);
-		final JLabel name_label = new JLabel("Name: ");
-		name_label.setBounds(30, 40, 120, 30);
-		name_label.setFont(f);
-		final JLabel error_label = new JLabel("-");
-		error_label.setBounds(270, 10, 200, 30);
-		error_label.setFont(f);
-				
-		JButton enter = new JButton("Enter");
-		enter.setBounds(30, 80, 80, 20);
-		enter.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				error_label.setText("Соединение...");
-				Thread checking = new Thread( new Runnable() {
-					@Override
-					public void run() {
-						if (address_field.getText().isEmpty())
-							error_label.setText("Не написан адрес сервера!");
-						else if (name_field.getText().isEmpty())
-						{
-							error_label.setText("Не введено имя!");
-						}
-						else
-						{
-							String result = game.connect(address_field.getText(), name_field.getText());
-							switch (result)
-							{
-							case "OK":
-								game.startServerH();
-								state = 1;
-								switchFrame();
-								error_label.setText("-");
-								game_thread.start();
-								break;
-							default:
-								error_label.setText(result);
-								break;
-							}
-						}
-					}
-				});
-				checking.start();
-			}
-		});
-
-		JButton exit = new JButton("Exit");
-		exit.setBounds(130, 80, 80, 20);
-		exit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				connect_frame.dispose();
-				main_frame.dispose();
-				running = false;
-				game_thread.interrupt();
-			}
-		});
-				
-		connect_frame.add(address_label);
-		connect_frame.add(address_field);
-		connect_frame.add(name_field);
-		connect_frame.add(name_label);
-		connect_frame.add(enter);
-		connect_frame.add(exit);
-		connect_frame.add(error_label);
-		connect_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-	
-	private void setListeners()
-	{
+	private void setListeners()	{
 		//При изменении основного окна, меняем и размеры компоненты, который разделяет все.
-		main_frame.addComponentListener(new ComponentAdapter()
-		{
+		main_frame.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentShown(ComponentEvent arg0) 
-			{
+			public void componentShown(ComponentEvent arg0) {
 				split_pane.setBounds(0,0, main_frame.getWidth(), main_frame.getHeight()-menu.getHeight()-80);
 				msg.setBounds(10, split_pane.getHeight()+5, 500, 30);
 			}
 			
 			@Override
-			public void componentResized(ComponentEvent arg0) 
-			{
+			public void componentResized(ComponentEvent arg0) {
 				split_pane.setBounds(0,0, main_frame.getWidth(), main_frame.getHeight()-menu.getHeight()-80);
 				msg.setBounds(10, split_pane.getHeight()+5, 500, 30);
 			}
 		});
-		main_frame.addWindowListener(new WindowAdapter() 
-		{
+		main_frame.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e)
-			{
+			public void windowClosing(WindowEvent e) {
 				game.stop();
 				System.out.println("windowClosing");
 			}
 		});
 		
 		// Навешиваем слушателей, чтобы openGL изменял свой вид, при изменения окна.
-		canvas.addComponentListener(new ComponentListener() 
-		{
-			public void componentShown(ComponentEvent e) 
-			{
+		canvas.addComponentListener(new ComponentListener() {
+			public void componentShown(ComponentEvent e) {
 				setNeedValidation();
 			}
-			public void componentResized(ComponentEvent e) 
-			{
+			public void componentResized(ComponentEvent e) {
 				setNeedValidation();
 			}
-			public void componentMoved(ComponentEvent e) 
-			{
+			public void componentMoved(ComponentEvent e) {
 				setNeedValidation();
 			}
-			public void componentHidden(ComponentEvent e) 
-			{
+			public void componentHidden(ComponentEvent e) {
 				setNeedValidation();
 			}
 		});
 	}
 	
-	private void setOther()
-	{
+	private void setOther()	{
 		coord_tex.put(0, new int[]{5,0}); // grass
 		coord_tex.put(1, new int[]{0,0}); // deep
 		coord_tex.put(2, new int[]{1,4}); // beach
@@ -358,6 +242,7 @@ public class Window implements Runnable
 		coord_tex.put(37, new int[]{3,2}); // beach-shallow-2
 		coord_tex.put(38, new int[]{4,2}); // beach-shallow-3
 		coord_tex.put(39, new int[]{4,4}); // beach-shallow-4
+		coord_tex.put(40, new int[]{2,3}); // ship который shallow
 		coord_tex.put(41, new int[]{0,5}); // Jewel
 		
 		coord_tex_ship.put(0,new int[]{1,1});
@@ -366,8 +251,8 @@ public class Window implements Runnable
 		coord_tex_ship.put(3,new int[]{1,0});
 	}
 	
-	private void setMenu()
-	{
+	
+	private void setMenu()	{
 		menu = new JMenuBar();
 		
 		JMenu file = new JMenu("File");
@@ -383,6 +268,7 @@ public class Window implements Runnable
 		JMenuItem help1 = new JMenuItem("Help contents...");
 		
 		main_frame.setJMenuBar(menu);
+		menu.setVisible(true);
 		menu.add(file);
 		menu.add(prog);
 		menu.add(help);
@@ -396,17 +282,13 @@ public class Window implements Runnable
 		
 		save_programm.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
+			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showSaveDialog(null);
 				
-				if (ret == JFileChooser.APPROVE_OPTION)
-				{
+				if (ret == JFileChooser.APPROVE_OPTION)	{
 					File file = fileopen.getSelectedFile();
-					
-					try 
-					{
+					try {
 						
 						BufferedWriter bw = new BufferedWriter(new FileWriter(file));
 						
@@ -415,8 +297,7 @@ public class Window implements Runnable
 						bw.write(text);
 						bw.close();
 					}
-					catch (IOException e1) 
-					{
+					catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
@@ -425,21 +306,17 @@ public class Window implements Runnable
 		
 		load_programm.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
+			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showSaveDialog(null);
-				if (ret == JFileChooser.APPROVE_OPTION)
-				{
+				if (ret == JFileChooser.APPROVE_OPTION) {
 					File file = fileopen.getSelectedFile();
-					try
-					{	
+					try	{	
 						BufferedReader rw = new BufferedReader(new FileReader(file));
 						String line = rw.readLine();
 						if (line == null || line.equals("~ProgramExecutor"))
 							setMsg("Неверный файл");
-						else
-						{
+						else {
 							StringBuffer text = new StringBuffer();
 							while (rw.ready())
 								text.append(rw.readLine()).append("\n");
@@ -447,7 +324,7 @@ public class Window implements Runnable
 						}
 						rw.close();
 					}
-					catch (IOException e1)	{
+					catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
@@ -456,8 +333,7 @@ public class Window implements Runnable
 		
 		help1.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
+			public void actionPerformed(ActionEvent e) {
 				JFrame frame = new JFrame("Help syntax");
 				frame.setBounds( frame.getX()+200, frame.getY()+200, 400, 400);
 				frame.setLayout(null);
@@ -478,13 +354,13 @@ public class Window implements Runnable
 			public void actionPerformed(ActionEvent e) {
 				String programm = text_area.getText();
 				game.fromPlayer(new Message(namePlayer, "programm", programm));
+				msg.setText("Wait other players...");
 			}
 		});
 		
 		about.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) 
-			{
+			public void actionPerformed(ActionEvent arg0) {
 				JFrame us = new JFrame("About");
 				
 				us.setBounds( main_frame.getX()+200, main_frame.getY()+200, 600, 400);
@@ -528,25 +404,35 @@ public class Window implements Runnable
 		});
 	}
 	
-	public void setMsg(String text)
-	{
+	
+	public void setMsg(String text) {
 		msg.setText(text);
 	}
 	
-	private void setNeedValidation() 
-	{
+	private void setNeedValidation() {
 		need_update_viewport = true;
 	}
 	
-	public void setMap(byte[][] m)
-	{
+	public void setMap(byte[][] m) {
 		map = m;
 	}
 	
-	private void setOpenGL()
-	{
-		try 
-		{
+	public String getName() {
+		return namePlayer;
+	}
+	
+	public void setRender(String name, boolean set) {
+		if (objects.containsKey(name))
+			objects.get(name).setRender(set);
+	}
+	
+	public void setAllVisible() {
+		for (String name : objects.keySet())
+			objects.get(name).setRender(true);
+	}
+	
+	private void setOpenGL() {
+		try {
 			// Создание и настройки OpenGL
 			Display.create();
 			Display.setParent(canvas);
@@ -577,93 +463,64 @@ public class Window implements Runnable
 			
 			GL11.glViewport(0, 0, w, h);
 			
-			try
-			{
+			try {
 				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
 				texture_ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
 			}
-			catch (Exception e)
-			{
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		catch (LWJGLException e) 
-		{
+		catch (LWJGLException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void run()
-	{
+	public void run() {
 		setOpenGL();
 		running = true;
-		while (running) 
-		{
+		while (running) {
 			updateGL();
 			keyLoop();
 		}
 			
-		if (Display.isCreated()) 
-		{
+		if (Display.isCreated()) {
 			Display.destroy();
 		}
 	}
 	
-	private void switchFrame()
-	{
-		if (state == 0)
-		{
-			connect_frame.setVisible(true);
-			main_frame.setVisible(false);
-		}
-		else
-		{
-			connect_frame.setVisible(false);
-			main_frame.setVisible(true);
-		}	
-	}
 	
-	public void addPlayer(Player p)
-	{
+	public void addPlayer(Player p) {
 		if (namePlayer == null)
 			namePlayer = p.getName();
 		if (!objects.containsKey(p.getName()) || objects.get(p.getName()) != null)
 			objects.put(p.getName() , p);
 	}
 	
-	public void deletePlayer(SPlayer p)
-	{
+	public void deletePlayer(SPlayer p) {
 		if (objects.containsKey(p.name))
 			objects.remove(p.name);
 	}
 	
-	public void updatePlayers(List<SPlayer> list, int size)
-	{
-		for (int i=0; i<size; i++)
-		{
+	public void updatePlayers(List<SPlayer> list, int size) {
+		for (int i=0; i<size; i++) {
 			SPlayer p = list.get(i);
-			if (objects.containsKey(p.name) && objects.get(p.name) != null)
-			{
+			if (objects.containsKey(p.name) && objects.get(p.name) != null) {
 				Player player = objects.get(p.name);
 				player.setDirection(p.direction);
 				player.setPosition(p.x, p.y);
 				player.setRotation(p.rotation);
 			}
-			else
-			{
+			else {
 				addPlayer(new Player(p));
 			}
 		}
 	}
 	
-	private void keyLoop()
-	{
-		while (Keyboard.next()) 
-		{
-		    if (Keyboard.getEventKeyState()) 
-		    {
-		    	switch (Keyboard.getEventKey())
-		    	{
+	private void keyLoop() {
+		while (Keyboard.next()) {
+		    if (Keyboard.getEventKeyState()) {
+		    	switch (Keyboard.getEventKey()) {
 		    	case Keyboard.KEY_A:
 		    		offset_x = 2;
 		    		break;
@@ -684,10 +541,8 @@ public class Window implements Runnable
 		    		break;
 		    	}
 		    }
-		    else
-		    {
-		    	switch (Keyboard.getEventKey())
-		    	{
+		    else {
+		    	switch (Keyboard.getEventKey()) {
 		    	case Keyboard.KEY_A:
 		    		offset_x = 0;
 		    		break;
@@ -714,8 +569,7 @@ public class Window implements Runnable
 		offset.y += offset_y;
 	}
 		
-	private void drawMap()
-	{
+	private void drawMap() {
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glPushMatrix();
 		GL11.glTranslatef(offset.x, offset.y, 0);
@@ -728,8 +582,7 @@ public class Window implements Runnable
 		int width = 64;
 		int height = 32;
 		for (int x=0; x<map.length; x++)
-			for (int y=0; y<map[x].length; y++)
-			{
+			for (int y=0; y<map[x].length; y++) {
 				float sx = x*width/2;
 				float sy = y*height;
 				
@@ -743,8 +596,7 @@ public class Window implements Runnable
 		GL11.glPopMatrix();
 	}
 	
-	private void drawTexture(float px, float py, float pz, float tx, float ty)
-	{
+	private void drawTexture(float px, float py, float pz, float tx, float ty) {
 		GL11.glPushMatrix();
 		GL11.glTranslatef(px, py, pz);
 		
@@ -771,10 +623,8 @@ public class Window implements Runnable
         GL11.glPopMatrix();
 	}
 	
-	private void drawShip(Player ship)
-	{
-		if (ship != null)
-		{
+	private void drawShip(Player ship) {
+		if (ship != null) {
 			GL11.glPushMatrix();
 			GL11.glColor4f(1, 1, 1, 1);
 			float tex_width = 1f/2f;
@@ -811,8 +661,7 @@ public class Window implements Runnable
 			GL11.glEnd();
 			
 			// Рамка для обозначения игрока
-			if (!namePlayer.isEmpty() && ship.getName().equals(namePlayer))
-			{
+			if (!namePlayer.isEmpty() && ship.getName().equals(namePlayer)) {
 				sprites.bind();
 				float coord[] = {1,5};
 				tex_width = 1f/8f;
@@ -835,14 +684,12 @@ public class Window implements Runnable
 	    }
 	}
 	
-	public void updateGL()
-	{
+	public void updateGL() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		
 		render();
 		
-		if (need_update_viewport) 
-		{
+		if (need_update_viewport) {
 			need_update_viewport = false;
 			
 			Rectangle rect = canvas.getBounds();
@@ -859,26 +706,26 @@ public class Window implements Runnable
 		Display.sync(60);
 	}
 	
-	public void closeServer()
-	{
-		switchFrame();
+	public void closeServer() {
 		running = false;
-		
 	}
 	
-	private void render()
-	{
-		if (map != null) drawMap();
-		for (String name : objects.keySet())
-		{
-			drawShip(objects.get(name));
+	private void render() {
+		if (map != null) {
+			drawMap();
+			for (String name : objects.keySet()) {
+				Player p = objects.get(name);
+				if (p.isRender())
+					drawShip(p);
+			}
 		}
-		//drawShip(another_ship);
+		else
+			setMsg("No map");
 	}
 	
-	public void start()
-	{	
+	public void start() {	
+		running = true;
 		game_thread = new Thread(this);
-		switchFrame();
+		game_thread.start();
 	}
 }

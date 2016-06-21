@@ -10,6 +10,17 @@ public class Player
 	private int rotation;
 	private int direction;
 	private String name;
+	private boolean isRender = true;
+	
+	public boolean isRender()
+	{
+		return isRender;
+	}
+	
+	public void setRender(boolean r)
+	{
+		isRender = r;
+	}
 	
 	public String getName()
 	{
