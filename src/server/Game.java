@@ -1,76 +1,90 @@
 package server;
 
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import other.Message;
 
 /*
  * Главный цикл программы.
  * Запускает Server и World и дает им общение между собой 
  */
-public class Game 
-{
+public class Game {
 	private Server server;
 	private World world;
-	private Thread listen_command;
-	private boolean isPlay = true; 
+	private Window window;
+	private Thread main_loop;
+	private AtomicBoolean isPlay; 
 	
-	public Game()
-	{
+	public Game() {
+		window = new Window();
 		server = new Server(this);
 		world = new World(this);
-		listen_command = new Thread(new Runnable() {
+		isPlay = new AtomicBoolean(true);
+		
+		/*
+		 * В этом потоке крутиться steping мира.
+		 */
+		main_loop = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Scanner sc = new Scanner(System.in);
-				while (isPlay)
-					if (sc.hasNext())
-					{
-						String str = sc.nextLine();
-						if ("exit".equals(str))
-						{
-							stop();
-						}
+				while (isPlay.get()) {
+					//System.out.println("step");
+					if (world.step()) {
+						server.writeToClient(world.getPoints());
+						window.draw();
 					}
-				sc.close();
+					try {
+						Thread.sleep(200);
+					}
+					catch (Exception ex) {
+						
+					}
+				}
 			}
 		});
 	}
 	
-	public void stop()
-	{
+	public void stop() {
 		server.stop();
-		isPlay = false;
-		listen_command.interrupt();
+		isPlay.set(false);
+		window.dispose();
+		main_loop.interrupt();
 	}
 	
-	public void start()
-	{
+	public void start()	{
 		server.start();
-		try 
-		{
+		try {
 			Map.loadMap("simple2.map");
 		}
-		catch (Exception ex)
-		{
+		catch (Exception ex) {
 			ex.printStackTrace();
 		}
 		world.setMap(Map.texture_map);
-		isPlay = true;
+		window.draw();
 		mainLoop();
 	}
 	
 	/*
 	 * Обработка сообщений от сервера
 	 */
-	public void fromServer(Message message)
-	{
-		switch (message.type)
-		{
+	public void fromServer(Message message)	{
+		switch (message.type) {
 		case "register":
 			Player p = world.addPlayer(message.name);
+			if (p == null) {
+				break;
+			}
+			message = new Message("map");
 			message.player = p.toSPlayer();
 			message.map = World.map;
-			message.type = "map";
+			message.name = p.getName();
+			server.writeToClient(message);
+			
+			message = new Message("addPlayer");
+			message.name = p.getName();
+			message.text = "New player connected - "+p.getName();
+			message.player = p.toSPlayer();
 			server.writeToClient(message);
 			break;
 		case "exit":
@@ -79,45 +93,39 @@ public class Game
 			server.writeToClient(message);
 			break;
 		case "programm":
-			try
-			{
+			try {
 				world.setProgrammToPlayer(message.name, message.text);
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				// Отправляем на клиенту ошибку
 				server.writeToClient(new Message(message.name, "error", ex.getMessage()));
 			}
 			break;
 		}
+		window.draw();
 	}
 	
-	public void addPlayer(String n)
-	{
-		
-	}
+	public void addPlayer(String n){}
 	
-	public void fromWorld(Message message)
-	{
+	public void fromWorld(Message message) {
 		server.writeToClient(message);
 	}
 	
-	private void mainLoop()
-	{
-		listen_command.start();
-		while (isPlay)
-		{
-			//System.out.println("step");
-			if (world.step())
-				server.writeToClient(world.getPoints());
-			try
-			{
-				Thread.sleep(400);
-			}
-			catch (Exception ex)
-			{
-				
+	private void mainLoop() {
+		main_loop.start();
+		Scanner sc = new Scanner(System.in);
+		while (isPlay.get()) {
+			System.out.println("Слушаем текст");
+			if (sc.hasNext()) {
+				String str = sc.nextLine();
+				if ("exit".equals(str))	{
+					stop();
+				}
+				else if ("map".equals(str))	{
+					window.setVisible(true);
+				}
 			}
 		}
+		sc.close();
 	}
 }
