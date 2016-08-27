@@ -1,16 +1,135 @@
 package Game;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 
 public class Compiller {
 
+	public static void main(String[] args) {
+		
+		setCommands("Executor.ini");
+		
+		String text = "forward go procedure go forward forward endprocedure";
+		Compiller c = new Compiller();
+		byte[][] b = new byte[0][0];
+		try {
+			b = c.getProgramm(text);
+		} catch (Exception ex) { ex.printStackTrace(); }
+		System.out.println("Start");
+		for (int i=0; i<b.length; i++) {
+			System.out.print(i+": ");
+			for (int j=0; j<b[i].length; j++) {
+				System.out.print(b[i][j]+" ");
+			}
+			System.out.println();
+		}
+		
+	}
+	
+	private final byte offset = 50; // Смещение для процедур
 	private StringBuilder sb = new StringBuilder();
 	private HashMap<String, Byte> procedures = new HashMap<>();
+	private static StringBuilder syntax = new StringBuilder();
 	private static HashMap<String, Integer> commands = new HashMap<String, Integer>();
+	private static HashMap<Integer, String> revers_commands = new HashMap<>();
+	private static HashMap<String, Integer> print_commands = new HashMap<>();
+	private static HashMap<Integer, String> specification_commands = new HashMap<>();
 	static {{
+		// заполняем команды стандартными значениями.
+		resetCommand();
+		print_commands.put("вперед", 0);
+		print_commands.put("поворот влево", 1);
+		print_commands.put("поворот вправо", 2);
+		print_commands.put("спереди", 3);
+		print_commands.put("слева", 4);
+		print_commands.put("справа", 5);
+		print_commands.put("вода", 6);
+		print_commands.put("стена/берег", 7);
+		print_commands.put("if", 8);
+		print_commands.put("while", 	9);
+		print_commands.put("then", 	10);
+		print_commands.put("do", 		11);
+		print_commands.put("end", 	12);
+		print_commands.put("else", 	15);
+		print_commands.put("клад", 16);
+		print_commands.put("корабль", 	17);
+		specification_commands.put(0, " - 1 ход вперед\n");
+		specification_commands.put(1, " - повернуть влево\n");
+		specification_commands.put(2, " - повернуть вправо\n");
+		specification_commands.put(3, " - клетка спереди\n");
+		specification_commands.put(4, " - клетка слева\n");
+		specification_commands.put(5, " - клетка справа\n");
+		specification_commands.put(6, " - вода\n");
+		specification_commands.put(7, " - берег\n");
+		specification_commands.put(8, "if");
+		specification_commands.put(9, " while");
+		specification_commands.put(10, "then");
+		specification_commands.put(11, "do");
+		specification_commands.put(12, "end");
+		specification_commands.put(13, "=");
+		specification_commands.put(14, "=!");
+		specification_commands.put(15, "else");
+		specification_commands.put(16, " - клад\n");
+		specification_commands.put(17, " - корабль\n");
+		syntax.append("Команды (operator): \n").
+			append(revers_commands.get(0)+" - "+specification_commands.get(0)).
+			append(revers_commands.get(1)+" - "+specification_commands.get(1)).
+			append(revers_commands.get(2)+" - "+specification_commands.get(2)).
+			append("Значения по сторонам от коробля:\n").
+			append(revers_commands.get(3)+" - "+specification_commands.get(3)).
+			append(revers_commands.get(4)+" - "+specification_commands.get(4)).
+			append(revers_commands.get(5)+" - "+specification_commands.get(5)).
+			append("Значения клеток:\n").
+			append(revers_commands.get(6)+" - "+specification_commands.get(6)).
+			append(revers_commands.get(7)+" - "+specification_commands.get(7)).
+			append(revers_commands.get(16)+" - "+specification_commands.get(16)).
+			append(revers_commands.get(17)+" - "+specification_commands.get(17)).
+			append("Условны оператор if: \n").
+			append(revers_commands.get(8)+" (<condition>) "+revers_commands.get(10)+
+					" <operator> ["+revers_commands.get(15)+" <operator>] "+
+					revers_commands.get(12)+"\n").
+			append("Оператор цикла while:\n").
+			append(revers_commands.get(9)+"(<condition>) "+revers_commands.get(11)+" <opearator> "+revers_commands.get(12)+"\n").
+			append("<condition> - должен включать в себя одну сторону и одно значение клетки.\n"
+					+ "Между ними должен быть либо знак равенства(=), либо знак неравества(!=)").
+			append("<operator> - может быть как команда, так и любой оператор цикла/условия");
+	}};
+	
+	public static String getSyntax() {
+		return syntax.toString();
+	}
+
+	public static void resetSyntax() {
+		syntax.setLength(0);
+		syntax.append("Команды (operator): \n").
+			append(revers_commands.get(0)+specification_commands.get(0)).
+			append(revers_commands.get(1)+specification_commands.get(1)).
+			append(revers_commands.get(2)+specification_commands.get(2)).
+			append("Значения по сторонам от коробля:\n").
+			append(revers_commands.get(3)+specification_commands.get(3)).
+			append(revers_commands.get(4)+specification_commands.get(4)).
+			append(revers_commands.get(5)+specification_commands.get(5)).
+			append("Значения клеток:\n").
+			append(revers_commands.get(6)+specification_commands.get(6)).
+			append(revers_commands.get(7)+specification_commands.get(7)).
+			append(revers_commands.get(16)+specification_commands.get(16)).
+			append(revers_commands.get(17)+specification_commands.get(17)).
+			append("Условны оператор if: \n").
+			append(revers_commands.get(8)+" (<condition>) "+revers_commands.get(10)+
+					" <operator> ["+revers_commands.get(15)+" <operator>] "+
+					revers_commands.get(12)+"\n").
+			append("Оператор цикла while:\n").
+			append(revers_commands.get(9)+"(<condition>) "+revers_commands.get(11)+" <opearator> "+revers_commands.get(12)+"\n").
+			append("<condition> - должен включать в себя одну сторону и одно значение клетки.\n"
+					+ "Между ними должен быть либо знак равенства(=), либо знак неравества(!=)").
+			append("<operator> - может быть как команда, так и любой оператор цикла/условия");
+	}
+
+	public static void resetCommand() {
 		commands.put("forward", 0);
 		commands.put("left", 	1);
 		commands.put("right", 	2);
@@ -29,39 +148,85 @@ public class Compiller {
 		commands.put("else", 	15);
 		commands.put("jewel", 	16);
 		commands.put("ship", 	17);
-	}};
-	
-	public static String getSyntax() {
-		String text = "";
-
-		text = "Команды: \n" +
-			"forward" + " - 1 ход вперед\n" +
-			"left" + " - повернуть влево\n" +
-			"right" + " - повернуть вправо\n" +
-			"Значения по сторонам от коробля:\n" +
-			"ahead" + " - клетка спереди\n" + 
-			"lefty" + " - клетка слева\n" +
-			"right" + " - клетка справа\n" +
-			"Значения клеток:\n" +
-			"water" + " - Вода\n" +
-			"wall" + " - Берег\n" +
-			"Условны оператор if: \n" +
-			"if (<condition>) then <operator> [else <operator>] end\n" +
-			"Оператор цикла while:\n" +
-			"while (<condition>) do <opearator> end\n"+
-			"<condition> - должен включать в себя одну сторону и одно значение клетки\n"+
-			"<operator> - может быть как команда, так и любой оператор цикла/условия";
 		
-		return text;
+		revers_commands.put(0, "forward");
+		revers_commands.put(1, "left");
+		revers_commands.put(2, "right");
+		revers_commands.put(3, "ahead");
+		revers_commands.put(4, "lefty");
+		revers_commands.put(5, "righty");
+		revers_commands.put(6, "water");
+		revers_commands.put(7, "wall");
+		revers_commands.put(8, "if");
+		revers_commands.put(9, "while");
+		revers_commands.put(10, "then");
+		revers_commands.put(11, "do");
+		revers_commands.put(12, "end");
+		revers_commands.put(13, "=");
+		revers_commands.put(14, "=!");
+		revers_commands.put(15, "else");
+		revers_commands.put(16, "jewel");
+		revers_commands.put(17, "ship");
 	}
 	
-	public boolean getProgramm(String text) throws Exception {
-		
+	public static void setCommands(String path) {
+		File f = new File(path);
+		if (!f.exists()) {
+			System.out.println("not file");
+			return;
+		}
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String lines[] = new String[17];
+			int length=0;
+			// Считываем все из файла 
+			while (br.ready()) {
+				lines[length++] = br.readLine();
+			}
+			
+			// Будет храниться номер комманды и ее новое имя
+			HashMap<Integer, String> out_commands = new HashMap<>();
+			
+			for (int i=0; i<length; i++) {
+				// Обрабатываем каждую строку
+				String str = lines[i];
+				String[] line = str.split(":");
+				line[0] = line[0].trim().toLowerCase(); // название команды
+				line[1] = line[1].trim().toLowerCase(); // новое имя
+				
+				if (print_commands.containsKey(line[0])) {
+					out_commands.put(print_commands.get(line[0]), line[1]);
+				}
+			}
+			
+			HashMap<String, Integer> new_commands = new HashMap<>();
+			resetCommand();
+			for (int i=0; i<commands.size(); i++ ) {
+				if (out_commands.containsKey(i)) {
+					new_commands.put( out_commands.get(i) , i);
+					revers_commands.replace(i, out_commands.get(i));
+				} else {
+					new_commands.put( revers_commands.get(i) , i);
+				}
+			}
+			resetSyntax();
+			br.close();
+			commands = new_commands;
+		}
+		catch (Exception ex) {
+			if (Game.isError) ex.printStackTrace();
+		}
+	}
+	
+	public byte[][] getProgramm(String text) throws Exception {
+		System.out.println("start 1");
 		boolean result = true;
-		
+		List<List<Byte>> algorithm = new ArrayList<List<Byte>>();
+		algorithm.add(0, new ArrayList<Byte>());
 		sb.setLength(0);
 		sb.append(text);
 		
+		byte count_procedure = 1;
 		int start_index = -1;
 		// Находим процедуры
 		while ( -1 < ( start_index = sb.indexOf("procedure")) ) {
@@ -107,21 +272,29 @@ public class Compiller {
 			}
 			end_index = end_index == -1 ? sb.length() : end_index;
 			sb.delete(start_index, end_index);
-			result = parseString(procedure);
-			// парсим и запоминаем процедуру
-			procedures.put(name, (byte) (procedure.length()+100));
+			algorithm.add(count_procedure, parseString(procedure));
+			procedures.put(name, (byte) count_procedure++);
 		}
 		
-		result = parseString(sb.toString());
+		algorithm.set(0, parseString(sb.toString()));
 		System.out.println("End Parse");
-		return result;
+		
+		byte [][] b = new byte[algorithm.size()][]; 
+		for (int i=0; i<algorithm.size(); i++) {
+			List<Byte> alg = algorithm.get(i);
+			b[i] = new byte[alg.size()];
+			for (int j=0; j<alg.size(); j++) {
+				b[i][j] = alg.get(j).byteValue();
+			}
+		}
+		return b;
 	}
 	
-	private boolean parseString(String text) throws Exception {
+	private List<Byte> parseString(String text) throws Exception {
 		int state = 0;
 		
 		// Перевод программы в циферный вид
-		ArrayList<Byte> algoritm = new ArrayList<>();
+		ArrayList<Byte> algorithm = new ArrayList<>();
 		
 		// Флаг, когда закончим парсить текст
 		boolean isEnd = true;
@@ -161,8 +334,7 @@ public class Compiller {
 					if (str.length() > 1) {
 						repeat = false;
 						index = ++i;
-					}
-					else {
+					} else {
 						str.setLength(0);
 					}
 					break;
@@ -195,7 +367,7 @@ public class Compiller {
 				state = 3;
 			}
 			
-			if (Main.isDebug) System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
+			if (Game.isDebug) System.out.println("Compiller: str: '"+operation+"'"+", state: "+state+", key: "+current_key);
 			
 			switch (state) {
 			// Обычное, добавляем команды
@@ -207,11 +379,11 @@ public class Compiller {
 					depth ++;
 				else if (current_key == 12)
 					depth --;
-				algoritm.add((byte) current_key);
+				algorithm.add((byte) current_key);
 				break;
 			// Проход по условию для if и while
 			case 1:
-				algoritm.add((byte) current_key);
+				algorithm.add((byte) current_key);
 				switch (current_key) {
 				case 3:	case 4:	case 5:
 					isCondition[0] = true;
@@ -236,7 +408,7 @@ public class Compiller {
 			case 2:
 				break;
 			case 3: // добавление процедуры
-				algoritm.add(procedures.get(operation));
+				algorithm.add((byte)(procedures.get(operation)+offset));
 				state = 0;
 				break;
 			}
@@ -245,6 +417,7 @@ public class Compiller {
 		if (depth != 0) {
 			throw new Exception("Не закрыт цикл!");
 		}
-		return true;
+		
+		return algorithm;
 	}
 }

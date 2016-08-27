@@ -3,14 +3,28 @@ package server;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Stack;
 
 public class Compiller 
 {
+	public static void main(String[] args) {
+		byte[][] b = {{0,51},{0,0}};
+		
+		Compiller c = new Compiller();
+		Queue loop = new MainLoop();
+		try {
+			loop = c.getProgramm(b);
+		} catch (Exception ex) {ex.printStackTrace(); }
+		System.out.println(loop.toString());
+	}
+	
 	private String path;
 	private StringBuilder sb = new StringBuilder();
-	private HashMap<String, Queue> procedures = new HashMap<>();
+	private final byte offset = 50; // Смещение для процедур
+	private byte[][] procedures = null;
 	
 	private static HashMap<String, Integer> commands = new HashMap<String, Integer>(); 
 	static {{
@@ -34,93 +48,12 @@ public class Compiller
 		commands.put("ship", 	17);
 	}};
 	
-	private static HashMap<String, Integer> print_commands = new HashMap<>();
-	static {{
-				print_commands.put("вперед", 0);
-				print_commands.put("поворот влево", 1);
-				print_commands.put("поворот вправо", 2);
-				print_commands.put("спереди", 3);
-				print_commands.put("слева", 4);
-				print_commands.put("справа", 5);
-				print_commands.put("вода", 5);
-				print_commands.put("стена/берег", 6);
-				print_commands.put("клад", 16);
-	}};
 	
-	public Compiller()
-	{
-		
-	}
 	
-	public void setCommands(String path)
-	{
-		File f = new File(path);
-		if (!f.exists())
-		{
-			System.out.println("not file");
-		}
-		
-		try
-		{
-			BufferedReader br = new BufferedReader(new FileReader(f));
-			String lines[] = new String[10];
-			int length=0;
 
-			// Считываем все из файла 
-			while (br.ready())
-			{
-				lines[length++] = br.readLine();
-			}
-			
-			
-			for (int i=0; i<length; i++)
-			{
-				// Обрабатываем каждую строку
-				String str = lines[i];
-				String[] line = str.split(":");
-				line[0] = line[0].trim().toLowerCase();
-				line[1] = line[1].trim().toLowerCase();
-				
-				// Удаляем текущую команду и ставим с новым именем.
-				
-				
-				if (print_commands.containsKey(line[0]))
-				{
-					commands.replace(line[1],print_commands.get(line[0]));
-				}
-			}
-			
-			br.close();
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}
-		
-		
-	}
 	
-	public String printCommands()
-	{
-		String result = "";
-		
-		for (String str : commands.keySet())
-		{
-			result += str + " - "+ commands.get(str) + "\n";
-		}		
-		
-		return result;
-	}
-	
-	public void setFile(String path)
-	{
-		this.path = path;
-	}
-	
-	public static String getSyntax()
-	{
+	public static String getSyntax() {
 		String str = "";
-		
 		str = "Команды: \n" +
 			"forward" + " - 1 ход вперед\n" +
 			"left" + " - повернуть влево\n" +
@@ -143,8 +76,7 @@ public class Compiller
 	}
 	
 	// Чтение из файла
-	public void read()
-	{
+	public void read() {
 		if (path == null) return;
 		
 		File f = new File(path);
@@ -152,212 +84,39 @@ public class Compiller
 		BufferedReader br;
 		
 		sb.setLength(0);
-		try
-		{
+		try	{
 			fr = new FileReader(f);
 			br = new BufferedReader(fr);
 			
-			while (br.ready() )
-			{
+			while (br.ready() )	{
 				sb.append(br.readLine());
 			}
-			
 			br.close();
 			fr.close();
 		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
+		catch (Exception ex) {
+			if (Game.isError) ex.printStackTrace();
 		}
-		
-		//System.out.println(sb);
 	}
 	
-	
-	public Queue getProgramm1(byte[] algoritm) throws Exception {
+	/*
+	 * Создает MainLoop из последовательности цифр.
+	 */
+	private Queue parseAlgorithm(byte[] algorithm) throws Exception {
+		
 		Queue programm = new MainLoop();
-		
-		for (int i=0; i< algoritm.length; i++){
-			
-		}
-		return programm;
-	}
-	
-	public Queue getProgramm(String text) throws Exception
-	{
-		//StringBuilder sb = new StringBuilder(text);
-		/*
-		*  0 - обычное
-		*  1 - обработка условия для цикла
-		*/
-		Queue programm = new MainLoop();
-		
-		sb.setLength(0);
-		sb.append(text);
-		
-		int start_index = -1;
-		// Находим процедуры
-		while ( -1 < ( start_index = sb.indexOf("procedure")) )
-		{
-			// Находим где заканчивается слово procedure
-			int start_name = sb.indexOf(" ", start_index);
-			
-			// и где заканчивается название процедуры
-			int end_name = -1;// = sb.indexOf(" ", start_name+1);
-			
-			int i = start_name+1;
-			while (end_name < 0 && i<sb.length()-1)
-			{
-				char c = sb.charAt(i);
-				if (c == ' ' || c == '\n' ) 
-				{
-					end_name = i;
-				}
-				i++;
-			}
-			
-			// Запоминаем название процедуры
-			String name = sb.substring(start_name, end_name);
-			name = name.trim();
-			
-			// Удаляем строчку с именем и ключевым словом
-			sb.delete(start_index, end_name);
-			
-			// Находим конец процедуры
-			int end_index = sb.indexOf("endprocedure", start_index);
-			
-			// запоминаем текст
-			
-			String procedure = sb.substring(start_index, end_index);
-			
-			
-			// удаляем текст процедуры
-			//end_index = sb.indexOf(" ", end_index);
-			i = end_index+1;
-			end_index = -1;
-			while (end_index < 0 && i<sb.length()-1)
-			{
-				char c = sb.charAt(i);
-				if (c == ' ' || c == '\n' ) 
-				{
-					end_index = i;
-				}
-				i++;
-			}
-			
-			end_index = end_index == -1 ? sb.length() : end_index;
-			sb.delete(start_index, end_index);
-			// парсим и запоминаем процедуру
-			Queue temp = parseString(procedure);
-			procedures.put(name, temp);
-			
-		}
-		
-		programm = parseString(sb.toString());
-		//programm.toString();
-		System.out.println("End Parse");
-		return programm;
-	}
-	
-	private Queue parseString(String text) throws Exception
-	{
+		Queue current = programm;
 		int state = 0;
-		
-		// Флаг, когда закончим парсить текст
-		boolean isEnd = true;
-		
 		// Стэк вложенности, н-р if { if ... } 
 		Stack<Queue> stack = new Stack<>();
 		
-		// программа, которую вовзращаем, и указатель на текущий цикл.
-		Queue programm = new MainLoop();
-		Queue current = programm;
-		
-		// Массив программы в виде символов
-		char[] chars = text.toCharArray(); 
-		
-		
-		// строка, для единичного операта и etc
-		// индекс, где находимся в тексте
-		StringBuilder str = new StringBuilder();
-		int index=0;
-		
-		while (isEnd)
-		{
-			
-			// повторять, пока не наткнемся на разделитель
-			boolean repeat = true;
-			int i = index;
-			
-			while (repeat)
-			{
-				// пока не конец текста
-				if (i>chars.length-1)
-				{
-					isEnd = false;
-					break;
-				}
-				
-				switch (chars[i])
-				{
-				/* 
-				 * Если встретили один из этих символов, значит мы запомнили один оператор.
-				 * Следовательно запоминаем это место и выходим обрабатывать.
-				 */
-				case ')': case '(': case ' ': case ';': case '\t': case '\n': case '!': 
-					if (str.length() > 1)
-					{
-						repeat = false;
-						index = ++i;
-					}
-					else
-					{
-						str.setLength(0);
-					}
-					break;
-				case '=':
-					if (str.length() == 0)
-					{
-						str.append(chars[i]);
-						if (chars[i-1] == '!')
-						{
-							str.append(chars[i-1]);
-						}
-						index = ++i;
-					}
-					else
-						index = i;
-					repeat = false;
-					break;
-				default:
-					str.append(chars[i]);
-				}
-				i++;
-			}
-			
-			if (str.length() < 1) 
-			{
-				continue;
-			}
-			String operation = str.toString();
-			str.setLength(0);
-			int current_key = commands.get(operation) == null ? -1 : commands.get(operation);
-			
-			
-			if (current_key == -1 && procedures.containsKey(operation))
-			{
-				state = 3;
-			}
-			
-			if (Main.isDebug) System.out.println("str: '"+operation+"'"+", state: "+state+", key: "+current_key);
-			
+		for (int i=0; i< algorithm.length; i++) {
+			int operator = algorithm[i];
 			Queue temp = null;
-			switch (state)
-			{
+			switch (state) {
 			// Обычное, добавляем команды
 			case 0:
-				switch (current_key)
-				{
+				switch (operator) {
 				case 0: // "forward
 					current.add(new Forward());
 					break;
@@ -369,16 +128,12 @@ public class Compiller
 					break;
 				case 8: // "if":
 					state = 1;
-					
 					// Запомнили родительский узел
 					stack.push(current);
-					
 					// Создали if
 					temp = new ifTerm();
-					
 					// Добавили if в родительский узел
 					current.add(temp);
-					
 					// установили текущую очередь if
 					current = temp;
 					temp = null;
@@ -395,26 +150,24 @@ public class Compiller
 					state = 1;
 					// Запомнили родительский узел
 					stack.push(current);
-					
 					// Создали while
 					temp = new WhileLoop();
-					
 					// Добавили if в родительский узел
 					current.add(temp);
-					
 					// установили текущую очередь if
 					current = temp;
 					temp = null;
 					break;
 				default:
-					throw new Exception("Ожидался оператор, но встречен '"+operation+"'");
+					if (procedures.length-1 < operator-offset)
+						throw new Exception("Ожидался оператор, но встречен '"+operator+"'");
+					else current.add( parseAlgorithm(procedures[operator-offset]));
 				}
 				break;
 			// Проход по условию для if и while
 			case 1:
 				ControlLoop control = (ControlLoop) current;
-				switch (current_key)
-				{
+				switch (operator) {
 				case 13: // "=":
 					control.setCondition(0);
 					break;
@@ -445,32 +198,27 @@ public class Compiller
 				case 11: // "do":
 				case 10: // "then": 
 					if (control.isAllTerm()) state = 0;
-					else
-					{
+					else {
 						throw new Exception("Условие не полное!");
 					}
 					break;
 				default:
-					throw new Exception("Ожидалось условие, но встречен "+operation);
-				}
-			case 2:
-				switch (str.toString())
-				{
-					
+					throw new Exception("Ожидалось условие, но встречен "+operator);
 				}
 				break;
 			case 3: // добавление процедуры
-				current.add(procedures.get(operation));
+				current.add( parseAlgorithm(procedures[operator-offset]));
 				state = 0;
 				break;
 			}
 		}
-		
-		if (!stack.isEmpty())
-		{
-			throw new Exception("Не закрыт цикл!");
-		}
-		
-		return current;
+		return programm;
+	}
+	
+	public Queue getProgramm(byte[][] algorithm) throws Exception {
+		Queue programm = new MainLoop();
+		procedures = algorithm;
+		programm = parseAlgorithm(algorithm[0]);
+		return programm;
 	}
 }
