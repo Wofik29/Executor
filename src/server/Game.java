@@ -14,14 +14,23 @@ public class Game {
 	private World world;
 	private Window window;
 	private Thread main_loop;
-	private AtomicBoolean isPlay; 
+	private AtomicBoolean isPlay;
+	public static boolean isError = false;
 	
-	public Game() {
-		window = new Window();
+	public Game(String[] args) {
+		if (args.length > 0)
+			for (String str : args) {
+				if ("-error".equals(str)) {
+					isError = true;
+				} else {
+					System.out.println("Неизвестный аргумент");
+				}
+			}
+		
 		server = new Server(this);
 		world = new World(this);
 		isPlay = new AtomicBoolean(true);
-		
+		window = new Window(this);
 		/*
 		 * В этом потоке крутиться steping мира.
 		 */
@@ -38,7 +47,7 @@ public class Game {
 						Thread.sleep(200);
 					}
 					catch (Exception ex) {
-						
+						if (isError) ex.printStackTrace();
 					}
 				}
 			}
@@ -60,7 +69,7 @@ public class Game {
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		world.setMap(Map.texture_map);
+		world.setMap(Map.getMap());
 		window.draw();
 		mainLoop();
 	}
@@ -71,21 +80,29 @@ public class Game {
 	public void fromServer(Message message)	{
 		switch (message.type) {
 		case "register":
-			Player p = world.addPlayer(message.name);
-			if (p == null) {
-				break;
+			try {
+				Player p = world.addPlayer(message.name);
+				if (p == null) {
+					break;
+				}
+				message = new Message("map");
+				message.player = p.toSPlayer();
+				message.map = World.map;
+				message.name = p.getName();
+				server.writeToClient(message);
+				
+				message = new Message("addPlayer");
+				message.name = p.getName();
+				message.text = "New player connected - "+p.getName();
+				message.player = p.toSPlayer();
+				server.writeToClient(message);
 			}
-			message = new Message("map");
-			message.player = p.toSPlayer();
-			message.map = World.map;
-			message.name = p.getName();
-			server.writeToClient(message);
-			
-			message = new Message("addPlayer");
-			message.name = p.getName();
-			message.text = "New player connected - "+p.getName();
-			message.player = p.toSPlayer();
-			server.writeToClient(message);
+			catch (Exception ex) {
+				ex.printStackTrace();
+				message.type = "error";
+				message.text = ex.getMessage();
+				server.writeToClient(message);
+			}
 			break;
 		case "exit":
 			world.deletePlayer(message.name);
@@ -94,10 +111,11 @@ public class Game {
 			break;
 		case "programm":
 			try {
-				world.setProgrammToPlayer(message.name, message.text);
+				world.setProgrammToPlayer(message);
 			}
 			catch (Exception ex) {
 				// Отправляем на клиенту ошибку
+				if (isError) ex.printStackTrace();
 				server.writeToClient(new Message(message.name, "error", ex.getMessage()));
 			}
 			break;
@@ -111,18 +129,42 @@ public class Game {
 		server.writeToClient(message);
 	}
 	
+	public void loadMap(String path) {
+		try {
+			Map.loadMap(path);
+		}
+		catch (Exception ex) {
+			if (isError) ex.printStackTrace();
+		}
+		
+		world.setMap(Map.getMap());
+		Message message = new Message("", "map", "");
+		message.map = Map.getMap();
+		server.writeToClient(message);
+	}
+	
 	private void mainLoop() {
 		main_loop.start();
 		Scanner sc = new Scanner(System.in);
+		System.out.println("Возможные команды: \n"
+				+ "map - показать миникарту\n"
+				+ "reset - вернуть всех на свои места\n"
+				+ "exit - выход\n"
+				
+		);
 		while (isPlay.get()) {
-			System.out.println("Слушаем текст");
 			if (sc.hasNext()) {
 				String str = sc.nextLine();
 				if ("exit".equals(str))	{
 					stop();
-				}
-				else if ("map".equals(str))	{
+				} else if ("map".equals(str)) {
 					window.setVisible(true);
+				} else if ("reset".equals(str)) {
+					world.reset();
+					server.writeToClient(world.getPoints());
+					server.writeToClient(new Message("", "message", "Произведен рестарт"));
+				} else {
+					System.out.println("Неизвестная команда");
 				}
 			}
 		}
