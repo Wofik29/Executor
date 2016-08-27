@@ -11,8 +11,12 @@ public class Game {
 	private WindowConnect window_connect;
 	private ServerHandle server_h;
 	
+	public static boolean isDebug = false;
+	public static boolean isError = true;
+	
 	public void start()	{
 		window_connect = new WindowConnect(this);
+		Compiller.setCommands("Executer.ini");
 	}
 	
 	public void fromServer(Message message)	{
@@ -72,7 +76,32 @@ public class Game {
 	}
 	
 	public void fromPlayer(Message message) {
-		server_h.writeToServer(message);
+		System.out.println("From player: "+message.type +", text: "+message.text);
+		if (message.type.equals("programm")) {
+			Compiller c = new Compiller();
+			try {
+				System.out.println(c.getProgramm(message.text));
+			}
+			catch (Exception ex) {
+				System.out.println(ex.getMessage());
+			}
+			
+			try {
+				byte[][] algorithm = c.getProgramm(message.text);
+				message.algorithm = algorithm;
+				message.text = null;
+				server_h.writeToServer(message);
+				window.setMsg("Wait other players...");
+			}
+			catch (Exception ex) {
+				if (isError) ex.printStackTrace();
+				window.setMsg(ex.getMessage());
+			}
+		}
+		else {
+			server_h.writeToServer(message);		
+		}
+		
 	}
 	
 	public void connect(String address) {
@@ -80,14 +109,15 @@ public class Game {
 			server_h = new ServerHandle(this, address);
 		}
 		catch (UnknownHostException ex)	{
-			//ex.printStackTrace();
+			if (isError) ex.printStackTrace();
 			window_connect.setLabelText("Unknown host");
 		}
 		catch (SocketException ex) {
+			if (isError) ex.printStackTrace();
 			window_connect.setLabelText("Incorrect host");
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (isError) ex.printStackTrace();
 			window_connect.setLabelText("Unknown error");
 		}
 		server_h.start();
@@ -102,7 +132,6 @@ public class Game {
 	}
 	
 	public void stop() {
-		server_h.stop(0);
-		System.out.println("Close");
+		if (server_h != null) server_h.stop(0);
 	}
 }
