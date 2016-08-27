@@ -29,7 +29,7 @@ public class ClientHandle {
 			in = new ObjectInputStream(socket.getInputStream());
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 		
 		listen_client = new Thread(new Runnable() {
@@ -65,8 +65,7 @@ public class ClientHandle {
 				if (server.isContains(message.name)) {
 					out.writeObject(new Message("duplicateName"));
 					out.flush();
-				}
-				else {
+				} else {
 					name = message.name;
 					isSet = false;
 					server.addClient(this);
@@ -74,7 +73,7 @@ public class ClientHandle {
 				}
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				if (Game.isError) ex.printStackTrace();
 				stop(-1);
 			}
 		}
@@ -85,10 +84,9 @@ public class ClientHandle {
 		try {
 			if (status == 0) {
 				out.writeObject(new Message("exit"));
-			}
-			else {
-				server.deleteClient(this);
+			} else {
 				System.out.println("ClientHandle("+name+"): Client has disconnected");
+				server.deleteClient(this);
 			}
 			in.close();
 			out.close();
@@ -96,18 +94,18 @@ public class ClientHandle {
 			socket.close();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
 	public void writeToClient(Message message) {
 		try	{
-			System.out.println("ClientHandle("+name+") - write to client: "+message.type);
+			//System.out.println("ClientHandle("+name+") - write to client: "+message.type);
 			out.writeObject(message);
 			out.flush();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
@@ -127,8 +125,8 @@ public class ClientHandle {
 					server.sendToGame(message);
 			}
 			catch (Exception ex) {
+				if (Game.isError) ex.printStackTrace();
 				stop(-1);
-				ex.printStackTrace();
 			}
 		}
 	}

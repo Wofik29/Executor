@@ -24,7 +24,8 @@ public class Message implements Serializable
 	public SPlayer player = null;
 	public String name = "";
 	public String text = "";
-	public SPlayer[] players = new SPlayer[2];
+	public byte[][] algorithm;
+	public SPlayer[] players = new SPlayer[10];
 	public int size = 0;
 	public byte[][] map;
 	

@@ -28,7 +28,8 @@ public class Server {
 			server = new ServerSocket(7498);
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			System.out.println("Ошибка при создании сокета! Возможно он занят. ("+ex.getMessage()+")");
+			System.exit(-1);
 		}
 		
 		listen_port = new Thread(new Runnable()	{
@@ -46,7 +47,7 @@ public class Server {
 	public void deleteClient(ClientHandle ch) {
 		if (clients.contains(ch)) {
 			clients.remove(ch);
-			System.out.println("Server: Client - "+ch.getName()+" - is delete");
+			System.out.println("Server: Client "+ch.getName()+" is deleted");
 		}
 	}
 	
@@ -56,7 +57,7 @@ public class Server {
 			System.out.println("System: Server start! Your ip - "+server.getLocalSocketAddress());
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
@@ -77,7 +78,7 @@ public class Server {
 			server.close();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
@@ -88,20 +89,23 @@ public class Server {
 	public void writeToClient(Message message) {
 		switch (message.type) {
 		case "error":
-			Message mess = new Message("message");
+			Message mess = new Message("error");
 			mess.text = "Player "+message.name+" make mistake";
+			mess.name = message.name;
 			for (ClientHandle ch : clients) {
 				if (message.name.equals(ch.getName())) {
 					ch.writeToClient(message);
-					break;
 				}
 				else {
 					ch.writeToClient(mess);
+					System.out.println("write to client "+mess.text);
 				}
 			}
 		case "map":
 			for (ClientHandle ch : clients)	{
-				if (message.name.equals(ch.getName())) {
+				if (message.name.equals(""))
+					ch.writeToClient(message);
+				else if (message.name.equals(ch.getName())) {
 					ch.writeToClient(message);
 					break;
 				}
@@ -141,7 +145,7 @@ public class Server {
 				ch.start();
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				if (Game.isError) ex.printStackTrace();
 			}
 		}
 	}

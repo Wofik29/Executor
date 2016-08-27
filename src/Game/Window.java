@@ -93,8 +93,8 @@ public class Window implements Runnable {
 		// Установка вида GUI под системный тип
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception ex) {
+			if (Game.isError) ex.printStackTrace();
 		}
 		
 		// Canvas будет контейнером для OpenGL
@@ -297,8 +297,8 @@ public class Window implements Runnable {
 						bw.write(text);
 						bw.close();
 					}
-					catch (IOException e1) {
-						e1.printStackTrace();
+					catch (IOException ex) {
+						if (Game.isError) ex.printStackTrace();
 					}
 				}
 			}
@@ -324,8 +324,8 @@ public class Window implements Runnable {
 						}
 						rw.close();
 					}
-					catch (IOException e1) {
-						e1.printStackTrace();
+					catch (IOException ex) {
+						if (Game.isError) ex.printStackTrace();
 					}
 				}
 			}
@@ -335,15 +335,26 @@ public class Window implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFrame frame = new JFrame("Help syntax");
-				frame.setBounds( frame.getX()+200, frame.getY()+200, 400, 400);
+				frame.setBounds( frame.getX()+200, frame.getY()+200, 410, 500);
 				frame.setLayout(null);
-				
 				JTextPane ta = new JTextPane();
-				ta.setBounds(0, 0, 400, 400);
+				ta.setBounds(0, 0, 410, 400);
 				//ta.setContentType("text/html");
 				ta.setText(Compiller.getSyntax());
 				ta.setVisible(true);
 				ta.setEditable(false);
+				
+				JButton reset = new JButton("Reset");
+				reset.setBounds(10, 420, 80, 20);
+				reset.setVisible(true);
+				reset.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						Compiller.setCommands("Executer.ini");
+						ta.setText(Compiller.getSyntax());
+					}
+				});
+				frame.add(reset);
 				frame.add(ta);
 				frame.setVisible(true);
 			}
@@ -354,7 +365,6 @@ public class Window implements Runnable {
 			public void actionPerformed(ActionEvent e) {
 				String programm = text_area.getText();
 				game.fromPlayer(new Message(namePlayer, "programm", programm));
-				msg.setText("Wait other players...");
 			}
 		});
 		
@@ -467,12 +477,12 @@ public class Window implements Runnable {
 				sprites = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/Spritesheet.png"));
 				texture_ship = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/ship1.png"));
 			}
-			catch (Exception e) {
-				e.printStackTrace();
+			catch (Exception ex) {
+				if (Game.isError) ex.printStackTrace();
 			}
 		}
-		catch (LWJGLException e) {
-			e.printStackTrace();
+		catch (LWJGLException ex) {
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	

@@ -11,9 +11,9 @@ import other.SPlayer;
 /*
  * Есть возможность двигаться прямо и поворачивать 
  */
-public class Player 
-{
+public class Player {
 	// Координаты в мапе
+	private Point spawn;
 	private Point location = new Point();
 	private int rotation;
 	private byte current_cell;
@@ -34,11 +34,8 @@ public class Player
 	 */
 	private int direction;
 	public Point ahead,lefty,righty;
-	
-	
 	private static Point[][] mix = new Point[4][3];
-	static 
-	{	
+	static {	
 		mix[0][0] = new Point(0,1);
 		mix[0][1] = new Point(1,0);
 		mix[0][2] = new Point(0,-1);
@@ -57,11 +54,11 @@ public class Player
 	private ConcurrentLinkedQueue<Command> commands = new ConcurrentLinkedQueue<Command>();
 	public HashMap<Integer, Integer> directs = new HashMap<Integer, Integer>();
 
-	Player(int x, int y)
-	{
+	Player(int x, int y) {
+		System.out.println("Player set: x: "+x+", y: "+y);
 		location.x = x;
 		location.y = y;
-		
+		spawn = new Point(x,y);
 		programm = new MainLoop();
 		rotation = 90;
 		directs.put(90, 0);
@@ -80,66 +77,59 @@ public class Player
 		checkDirection();
 	}
 	
-	public void setProgramm(Queue q)
-	{
+	public void reset() {
+		location =(Point) spawn.clone();
+		isGo = false;
+	}
+	
+	public void setProgramm(Queue q) {
 		programm = (MainLoop) q;
 	}
 	
-	public void setMap()
-	{
+	public void setMap() {
 		current_cell = World.map[location.x][location.y];
 		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
-	public void clear()
-	{
+	public void clear() {
 		World.map[location.x][location.y] = current_cell;
 	}
 	
-	public void setName(String name)
-	{
+	public void setName(String name) {
 		this.name = name;
 	}
 	
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 	
-	public void setGo()
-	{
+	public void setGo() {
 		isGo = true;
 	}
 	
-	public void stop()
-	{
+	public void stop() {
 		isGo = false;
 	}
 	
-	public boolean isReady()
-	{
+	public boolean isReady() {
 		if (programm.getSize() == 0)
 			return false;
 		return isGo;
 	}
 	
-	public void setReady(Boolean r)
-	{
+	public void setReady(Boolean r) {
 		isGo = r;
 	}
 	
-	public void step() throws Exception
-	{
+	public void step() throws Exception {
 		if (World.map == null) return;
 		
-		if (Main.isDebug)
-		{
+		if (Main.isDebug) {
 			//System.out.println("rot: "+rotation);
 			System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", value_map_ahead: "+World.map[ahead.x][ahead.y]);
 		}
 		
-		if (isGo)
-		{
+		if (isGo) {
 			next();
 			checkDirection();
 			checkRotation();
@@ -147,8 +137,7 @@ public class Player
 		}
 	}
 	
-	public void setLocation(Point p)
-	{
+	public void setLocation(Point p) {
 		// Стираем свое присутствие на карте
 		World.map[location.x][location.y] = current_cell;
 		
@@ -161,32 +150,26 @@ public class Player
 		World.map[location.x][location.y] = Map.SHIP;
 	}
 	
-	public Point getLocation()
-	{
+	public Point getLocation() {
 		return (Point) location.clone();
 	}
 	
-	public int getDirection()
-	{
+	public int getDirection() {
 		return direction;
 	}
 	
-	public int getRotation()
-	{
+	public int getRotation() {
 		return rotation;
 	}
 	
-	public void setRotation(int r)
-	{
+	public void setRotation(int r) {
 		rotation = r;
 		checkDirection();
 	}
 	
-	public void checkDirection()
-	{
+	public void checkDirection() {
 		direction = directs.get(rotation);
-		if (World.map!=null)
-		{
+		if (World.map!=null) {
 			Point p = mix[direction][1]; // left
 			ahead.setLocation(location.x+p.x, location.y+p.y);
 			
@@ -198,38 +181,26 @@ public class Player
 		}
 	}
 	
-	public void checkRotation()
-	{
-		if (rotation == 360)
-		{
-			rotation = 0;
-		}
-		if (rotation == -360)
-		{
-			rotation = 0;
-		}
+	public void checkRotation() {
+		if (rotation == 360) rotation = 0;
+		if (rotation == -360) rotation = 0;
 	}
 	
-	public void addCommand(Command c)
-	{
+	public void addCommand(Command c) {
 		commands.add(c);
 	}
 	
-	private void next() throws Exception
-	{
-		if (isControl && !commands.isEmpty())
-		{
+	private void next() throws Exception {
+		if (isControl && !commands.isEmpty()) {
 			commands.poll().execute(this);
 		}
 		else
-			if (programm != null && programm.getSize() > 0) 
-			{
+			if (programm != null && programm.getSize() > 0) {
 				if (programm.execute(this)) isGo = false;
 			}
 	}
 	
-	public SPlayer toSPlayer()
-	{
+	public SPlayer toSPlayer() {
 		SPlayer p = new SPlayer(location.x, location.y, rotation, direction, name);
 		return p;
 	}

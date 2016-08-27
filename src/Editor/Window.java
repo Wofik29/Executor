@@ -12,6 +12,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowEvent;
@@ -33,8 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-public class Window implements Runnable 
-{
+public class Window implements Runnable {
 	private Image image;
 	private Image choice_terrain; 
 	private JFrame frame;
@@ -92,30 +92,26 @@ public class Window implements Runnable
 	public static final byte  BEACH_SHALLOW_2 = 37;
 	public static final byte  BEACH_SHALLOW_3 = 38;
 	public static final byte  BEACH_SHALLOW_4 = 39;
+	public static final byte  SHIP = 40;
 	public static final byte  JEWEL = 41;
 	
-	public Window()
-	{
+	public Window()	{
 		select = SHALLOW;
 		
 		map = new byte[size][size];
 		for (int i=0;i<size;i++)
-			for (int j=0;j<size;j++)
-			{
+			for (int j=0;j<size;j++) {
 				map[i][j] = -1;
 			}
 		
 		terrain = new byte[2][21];
 		byte m = 0;
 		for (int i=0; i<2; i++)
-			for (int j=0; j<21; j++)
-			{
+			for (int j=0; j<21; j++) {
 				terrain[i][j] = m;
 				m++;
 				
 			}
-		System.out.println(m);
-		
 		frame = new JFrame("Editor");
 		frame.setSize(800, 800);
 		frame.setLayout(null);
@@ -130,8 +126,7 @@ public class Window implements Runnable
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showSaveDialog(null);
-				if (ret == JFileChooser.APPROVE_OPTION)
-				{
+				if (ret == JFileChooser.APPROVE_OPTION) {
 					String name = fileopen.getSelectedFile().getAbsolutePath();
 					saveMap(name);
 				}	
@@ -142,8 +137,7 @@ public class Window implements Runnable
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileopen = new JFileChooser(new File("."));
 				int ret = fileopen.showOpenDialog(null);
-				if (ret == JFileChooser.APPROVE_OPTION)
-				{
+				if (ret == JFileChooser.APPROVE_OPTION) {
 					String name = fileopen.getSelectedFile().getAbsolutePath();
 					loadMap(name);
 				}
@@ -151,54 +145,48 @@ public class Window implements Runnable
 		});
 		frame.add(save);
 		frame.add(load);
-		
-		frame.addMouseListener(new MouseAdapter() 
-			{
-				@Override
-				public void mousePressed(MouseEvent arg0) 
-				{
-					 isPressed = true;
-				}
-				
-				@Override
-				public void mouseClicked(MouseEvent arg0)
-				{
-					Point p = new Point( arg0.getX(), arg0.getY());
-					
+		frame.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+				Point p = new Point( arg0.getX(), arg0.getY());
+				if (isPressed) {
 					p.x -= 10;
 					p.y -= 30;
-					
-					if (p.x>0 && p.x<width_canvas &&
-							p.y>0 && p.y<height_canvas)
-					{
+					if (p.x>0 && p.x<width_canvas && p.y>0 && p.y<height_canvas) {
 						map[p.x/cell][p.y/cell] = select;
-						
-					}
-					
-					p.x -= 610;
-					
-					if (p.x > 0 && p.x<40 &&
-							p.y>0 && p.y<420)
-					{
-						select = terrain[p.x/cell][p.y/cell];
 					}
 				}
+			}
+		} );
+		frame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				isPressed = true;
+			}
 				
-				
-				@Override
-				public void mouseReleased(MouseEvent arg0) 
-				{
-					isPressed = false;
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				Point p = new Point( arg0.getX(), arg0.getY());
+				p.x -= 10;
+				p.y -= 30;
+				if (p.x>0 && p.x<width_canvas && p.y>0 && p.y<height_canvas) {
+					map[p.x/cell][p.y/cell] = select;
 				}
-			});
-		
+				p.x -= 610;
+				if (p.x > 0 && p.x<40 && p.y>0 && p.y<420) {
+					select = terrain[p.x/cell][p.y/cell];
+				}
+			}
+				
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				isPressed = false;
+			}
+		});
 		frame.setBackground(Color.white);
-		
-		System.out.println("end constructor");
 	}
 	
-	public void run()
-	{
+	public void run() {
 		frame.setVisible(true);
 		image = frame.createImage(width_canvas, height_canvas);
 		choice_terrain = frame.createImage(40, 420);
@@ -209,10 +197,8 @@ public class Window implements Runnable
 		int w = 40;
 		int h = ter_cell*21;
 		int i = 0;
-		while (i<w)
-		{
-			for (int j=0;j<h;j+=20)
-			{
+		while (i<w) {
+			for (int j=0;j<h;j+=20) {
 				g.setColor(Color.black);
 				g.drawRect(i, j, cell, cell);
 				drawTerrain(g, i, j, terrain[i/20][j/20], ter_cell);
@@ -221,28 +207,19 @@ public class Window implements Runnable
 			i+=20;
 		}
 		
-		Thread t = new Thread(new Runnable() 
-		{
-			
+		Thread t = new Thread(new Runnable() {
 			@Override
-			public void run() 
-			{
+			public void run() {
 				draw();
 			}
 		});
-		
 		t.start();
-		//draw();
 	}
 	
-	public void draw()
-	{
+	public void draw() {
 		Graphics g = image.getGraphics();
-		
-		while (frame.isVisible())
-		{
-			if (isDraw)
-			{
+		while (frame.isVisible()) {
+			if (isDraw) {
 				g.clearRect(0, 0, 600, 600);
 				drawGrid(g);
 				
@@ -253,24 +230,18 @@ public class Window implements Runnable
 				offset_x = 620;
 				frame.getGraphics().drawImage(choice_terrain, offset_x, offset_y, null);
 			}
-			try 
-			{
+			try {
 				Thread.sleep(20);
 			} 
-			catch (InterruptedException e) 
-			{
+			catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	private void drawGrid(Graphics g)
-	{
-		
-		for (int i=0; i<width_canvas; i+=cell)
-		{
-			for (int j=0; j<height_canvas; j+=cell)
-			{
+	private void drawGrid(Graphics g) {
+		for (int i=0; i<width_canvas; i+=cell) {
+			for (int j=0; j<height_canvas; j+=cell) {
 				g.setColor(Color.BLACK);
 				g.drawRect(i, j, cell, cell);
 				drawTerrain(g, i, j, map[i/cell][j/cell], cell);
@@ -278,37 +249,34 @@ public class Window implements Runnable
 		}
 	}
 	
-	private void saveMap(String name)
-	{
+	private void saveMap(String name) {
 		int startPosX = 0;
 		int startPosY = 0;
-		
 		if (name.lastIndexOf('.') <0 ) name += ".map";
 		else if (name.substring(  name.lastIndexOf('.'), name.length()-1 ).equals("map")) name += ".map";
 		File f = new File(name);
+		int count_players = 0;
+		for (int i=0; i<map.length;i++) {
+			for (int j=0; j<map[i].length; j++) {
+				if (map[i][j] == SHIP) count_players ++; 
+			}
+		}
 		
-		try
-		{
+		try {
 			f.createNewFile();
-			
 			FileWriter out = new FileWriter(f);
-			
-			for (int i=startPosX; i<size; i++)
-			{
-				for (int j=startPosY; j<size; j++)
-				{
-					if (map[i][j]==-1)
-					{
+			out.write("count:"+count_players+"\n");
+			for (int i=startPosX; i<size; i++) {
+				for (int j=startPosY; j<size; j++) {
+					if (map[i][j]==-1) {
 						out.write("0:");
 					}
-					else if (j==size-1)
-					{
-						int k = map[i][j]== 40 ? 0 : map[i][j];
+					else if (j==size-1) {
+						int k = map[i][j];
 						out.write( Integer.toString(k));
 					}
-					else
-					{
-						int k = map[i][j]== 40 ? 0 : map[i][j];
+					else {
+						int k = map[i][j];
 						out.write( Integer.toString(k)+":" );
 					}
 				}
@@ -316,48 +284,37 @@ public class Window implements Runnable
 			}
 			out.close();
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void loadMap(String name)
-	{
-		 try
-		 {
+	private void loadMap(String name) {
+		 try {
 			 BufferedReader in = new BufferedReader(new FileReader(name));
 			 int i=0;
 			 map = new byte[100][100];
-			 while (in.ready())
-			 {
+			 while (in.ready()) {
 				 i++;
 				 String line = in.readLine();
 				 String[] cells = line.split(":");
 				 int current = --i;
 				 map[current] = new byte[cells.length];
 				 int j = 0;
-				 for (String cell : cells)
-				 {
+				 for (String cell : cells) {
 					 map[current][j++] = Byte.parseByte(cell);
 				 }
 			 }
-			 
 			 in.close();
 		 }
-		 catch (Exception e)
-		 {
+		 catch (Exception e) {
 			 e.printStackTrace();
 		 }
-		 
 	}
 	
-	private void drawTerrain(Graphics g, int i, int j, byte type, int ter_cell)
-	{
-		// TODO оптимизировать
-		
-		switch (type)
-		{
+	private void drawTerrain(Graphics g, int i, int j, byte type, int ter_cell) {
+		// TODO ОПТИМИЗИРОВАТЬ
+		switch (type) {
 		case GRASS:
 			g.setColor(Color.green);
 			g.fillRect(i+1, j+1, ter_cell, ter_cell);
@@ -590,6 +547,11 @@ public class Window implements Runnable
 			g.setColor(new Color(0,192,255));
 			g.fillRect(i+1, j+1, ter_cell, ter_cell/2);
 			break;
+		case SHIP:
+			g.setColor(Color.BLACK);
+			g.drawLine(i, j, i+ter_cell, j+ter_cell);
+			g.drawLine(i+ter_cell, j, i, j+ter_cell);
+			break;
 		case JEWEL:
 			g.setColor(new Color(235, 16, 53));
 			int x=i+1;
@@ -599,26 +561,20 @@ public class Window implements Runnable
 			g.setColor(Color.BLACK);
 			g.drawLine(x+9, y, x+5, y+20/2);
 			g.drawLine(x+5, y+20/2, x+9, y+19);
-			
 			g.drawLine(x+9, y, x+14, y+20/2);
 			g.drawLine(x+14, y+20/2, x+9, y+19);
-			
 			g.drawLine(x+5, y+20/2, x, y+20/3);
 			g.drawLine(x+5, y+20/2, x, y+40/3);
-			
 			g.drawLine(x+14, y+20/2, x+19, y+20/3);
 			g.drawLine(x+14, y+20/2, x+19, y+40/3);
-			
 			g.drawLine(x+5, y+20/2,x+14, y+20/2);
-			
 			g.setColor(Color.white);
 			g.fillOval(x+4, y+4, 3, 3);
 			break;
 		}
 	}
 	
-	public boolean isVisible()
-	{
+	public boolean isVisible() {
 		return frame.isVisible();
 	}
 }

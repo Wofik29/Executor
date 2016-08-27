@@ -33,7 +33,7 @@ public class ServerHandle {
 			throw ex;
 		}
 		catch (IOException ex)	{
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 		
 		listen_thread = new Thread( new Runnable() {
@@ -61,7 +61,7 @@ public class ServerHandle {
 			socket.close();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
@@ -77,7 +77,7 @@ public class ServerHandle {
 				game.fromServer(message);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				if (Game.isError) ex.printStackTrace();
 			}
 		}
 	}
@@ -93,7 +93,7 @@ public class ServerHandle {
 			out.flush();
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (Game.isError) ex.printStackTrace();
 		}
 	}
 	
