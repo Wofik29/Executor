@@ -84,7 +84,7 @@ public class Window implements Runnable {
 	private Texture texture_ship;
 	byte[][] map;
 	
-	private volatile HashMap<String, Player> objects = new HashMap<>();
+	private volatile HashMap<String, Player> objects = new HashMap<String, Player>();
 	private String namePlayer;
 	private Game game;
 	
@@ -337,7 +337,7 @@ public class Window implements Runnable {
 				JFrame frame = new JFrame("Help syntax");
 				frame.setBounds( frame.getX()+200, frame.getY()+200, 410, 500);
 				frame.setLayout(null);
-				JTextPane ta = new JTextPane();
+				final JTextPane ta = new JTextPane();
 				ta.setBounds(0, 0, 410, 400);
 				//ta.setContentType("text/html");
 				ta.setText(Compiller.getSyntax());

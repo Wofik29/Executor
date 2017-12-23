@@ -27,6 +27,7 @@ public class WindowConnect {
 		connect_frame.setBounds(100, 200, 500, 150);
 		
 		this.game = game;
+		final Game selfGame = game;
 		Font f = new Font("Times New Romans", Font.BOLD, 13);
 		
 		address_field = new JTextField("localhost");
@@ -59,7 +60,7 @@ public class WindowConnect {
 							error_label.setText("Не написан адрес сервера!");
 						else
 						{
-							game.connect(address_field.getText());
+							selfGame.connect(address_field.getText());
 						}
 					}
 				});
@@ -73,7 +74,7 @@ public class WindowConnect {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				connect_frame.dispose();
-				game.stop();
+				selfGame.stop();
 			}
 		});
 		
@@ -82,7 +83,7 @@ public class WindowConnect {
 		set_name.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				game.sendName(name_field.getText());
+				selfGame.sendName(name_field.getText());
 			}
 		});
 				

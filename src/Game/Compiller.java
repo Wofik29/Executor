@@ -32,12 +32,12 @@ public class Compiller {
 	
 	private final byte offset = 50; // Смещение для процедур
 	private StringBuilder sb = new StringBuilder();
-	private HashMap<String, Byte> procedures = new HashMap<>();
+	private HashMap<String, Byte> procedures = new HashMap<String, Byte>();
 	private static StringBuilder syntax = new StringBuilder();
 	private static HashMap<String, Integer> commands = new HashMap<String, Integer>();
-	private static HashMap<Integer, String> revers_commands = new HashMap<>();
-	private static HashMap<String, Integer> print_commands = new HashMap<>();
-	private static HashMap<Integer, String> specification_commands = new HashMap<>();
+	private static HashMap<Integer, String> revers_commands = new HashMap<Integer, String>();
+	private static HashMap<String, Integer> print_commands = new HashMap<String, Integer>();
+	private static HashMap<Integer, String> specification_commands = new HashMap<Integer, String>();
 	static {{
 		// заполняем команды стандартными значениями.
 		resetCommand();
@@ -185,7 +185,7 @@ public class Compiller {
 			}
 			
 			// Будет храниться номер комманды и ее новое имя
-			HashMap<Integer, String> out_commands = new HashMap<>();
+			HashMap<Integer, String> out_commands = new HashMap<Integer, String>();
 			
 			for (int i=0; i<length; i++) {
 				// Обрабатываем каждую строку
@@ -199,7 +199,7 @@ public class Compiller {
 				}
 			}
 			
-			HashMap<String, Integer> new_commands = new HashMap<>();
+			HashMap<String, Integer> new_commands = new HashMap<String, Integer>();
 			resetCommand();
 			for (int i=0; i<commands.size(); i++ ) {
 				if (out_commands.containsKey(i)) {
@@ -294,7 +294,7 @@ public class Compiller {
 		int state = 0;
 		
 		// Перевод программы в циферный вид
-		ArrayList<Byte> algorithm = new ArrayList<>();
+		ArrayList<Byte> algorithm = new ArrayList<Byte>();
 		
 		// Флаг, когда закончим парсить текст
 		boolean isEnd = true;
