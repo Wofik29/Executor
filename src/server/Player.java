@@ -124,11 +124,6 @@ public class Player {
 	public void step() throws Exception {
 		if (World.map == null) return;
 		
-		if (Main.isDebug) {
-			//System.out.println("rot: "+rotation);
-			System.out.println("aheadx: "+ahead.x+", aheady: "+ahead.y+", value_map_ahead: "+World.map[ahead.x][ahead.y]);
-		}
-		
 		if (isGo) {
 			next();
 			checkDirection();

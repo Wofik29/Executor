@@ -8,16 +8,16 @@ import java.util.List;
 import other.*;
 
 public class World {
-	private volatile HashMap<String, Player> objects = new HashMap<>();
+	private volatile HashMap<String, Player> objects = new HashMap<String, Player>();
 	private Game game;
 	private boolean isAllReady = false;
-	private int count_players = 0;
+	private int countPlayers = 0;
 	private List<Point> spawns;
 	public static volatile byte[][] map = null;
 	
 	public World(Game g) {
 		game = g;
-		spawns = new ArrayList<>();
+		spawns = new ArrayList<Point>();
 	}
 	
 	private byte[][] copyMap(byte[][] m) {
@@ -48,14 +48,14 @@ public class World {
 	
 	public Player addPlayer(String name) throws Exception {
 		if (objects.containsKey(name)) return null;
-		if (count_players > spawns.size()) throw new Exception("Нет места!");
-		Point spawn = spawns.get(count_players++);
+		if (countPlayers > spawns.size()) throw new Exception("Нет места!");
+		Point spawn = spawns.get(countPlayers++);
 		Player p = new Player(spawn.x, spawn.y);
 		p.setRotation(90);
 		p.setName(name);
 		p.setMap();
 		objects.put(p.getName(), p);
-		System.out.println("World: New Player("+name+") added! Count: "+count_players);
+		System.out.println("World: New Player("+name+") added! Count: "+ countPlayers);
 		return p;
 	}
 	
@@ -63,8 +63,8 @@ public class World {
 		if (objects.containsKey(n)) {
 			objects.get(n).clear();
 			objects.remove(n);
-			count_players--;
-			System.out.println("World: Delete player("+n+"). Count: "+count_players);
+			countPlayers--;
+			System.out.println("World: Delete player("+n+"). Count: "+ countPlayers);
 		}
 	}
 	
@@ -77,10 +77,10 @@ public class World {
 	public void setProgrammToPlayer(Message message) throws Exception {
 		Player p = objects.get(message.name);
 		Compiller c = new Compiller();
-		Queue programm = c.getProgramm(message.algorithm);
-		p.setProgramm(programm);
+		Queue program = c.getProgramm(message.algorithm);
+		p.setProgramm(program);
 		p.setReady(true);
-		System.out.println("World: programm added!");
+		System.out.println("World: program added!");
 		isReady();
 	}
 	

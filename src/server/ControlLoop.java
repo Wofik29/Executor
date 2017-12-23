@@ -80,16 +80,6 @@ public abstract class ControlLoop extends Queue
 		int l_x = World.map.length;
 		int l_y = World.map[p.x].length;
 		
-		if (Main.isDebug) 
-		{
-			System.out.println("ControlLoop: value_cell: "+value_cell+", condition: " 
-								+(condition==0 ? "= " : "!= ") +", term2: "+term2+""
-								+ ", p.x: "+p.x+", p.y: "+p.y);
-			System.out.println("l.x: "+l_x+", l.y: "+l_y);
-		}
-		
-
-		
 		if (p.x < 0 || p.x>l_x || p.y<0 || p.y>l_y )	return -1;
 		if (term1 == -1 || term2 == -1 || condition == -1) return -1;
 		

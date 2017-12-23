@@ -1,5 +1,6 @@
 package server;
 
+import javafx.scene.canvas.Canvas;
 import server.view.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,7 @@ public class Window extends Application {
 
     private Stage primaryStage;
     private AnchorPane rootLayout;
+    private MainController mainController;
 
     public static void main(String[] args) {
         launch(args);
@@ -24,8 +26,23 @@ public class Window extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Server Executor");
 
+        Game game = new Game(this);
+
+        Thread gameLoop = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                game.start();
+            }
+        });
+
+
         initRootLayout();
         showFirst();
+        gameLoop.start();
+    }
+
+    public void draw() {
+
     }
 
     public void initRootLayout() {
@@ -52,6 +69,7 @@ public class Window extends Application {
             pane.setCenter(main);
 
             MainController mainController = loader.getController();
+            this.mainController = mainController;
             mainController.setWindow(this);
         } catch (IOException e) {
             e.printStackTrace();

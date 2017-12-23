@@ -1,5 +1,6 @@
 package server.view;
 
+import server.Map;
 import server.Window;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -8,6 +9,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import server.World;
 
 public class MainController {
 
@@ -16,6 +18,7 @@ public class MainController {
     @FXML
     private Canvas canvas;
     private int size = 20;
+    private int step = 20;
 
     private int offsetX = 0;
     private int offsetY = 0;
@@ -36,10 +39,8 @@ public class MainController {
 
     }
 
-    private void paintCell(int x, int y, Paint p) {
-        canvas.getGraphicsContext2D().setFill(p);
-        canvas.getGraphicsContext2D().fillRect(x, y, size, size);
-
+    private void paintCell(int x, int y, int w, int h) {
+        canvas.getGraphicsContext2D().fillRect(x, y, w, h);
     }
 
     @FXML
@@ -98,7 +99,30 @@ public class MainController {
 
     private void paint() {
         clear();
-        paintCell(offsetX, offsetY, Color.RED);
+
+        GraphicsContext gx = canvas.getGraphicsContext2D();
+        byte[][] map = World.map;
+        if (map != null) {
+            for (int i=0; i<map.length; i++)
+                for (int j=0; j<map[i].length; j++) {
+                    switch (map[i][j]) {
+                        case Map.SHALLOW:
+                            gx.setFill(Color.rgb(0,192,255));
+                            break;
+                        case Map.SHIP:
+                            gx.setFill(Color.BLACK);
+                            break;
+                        case Map.JEWEL:
+                            gx.setFill(Color.RED);
+                            break;
+                        default:
+                            gx.setFill(Color.rgb(255,217,0));
+                            break;
+                    }
+                    paintCell(i*step+offsetX, j*step+offsetY, step, step);
+                }
+        }
+
     }
 
     private void step() {

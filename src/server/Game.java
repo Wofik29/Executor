@@ -13,35 +13,26 @@ public class Game {
 	private Server server;
 	private World world;
 	private Window window;
-	private Thread main_loop;
+	private Thread mainLoop;
 	private AtomicBoolean isPlay;
 	public static boolean isError = false;
 	
-	public Game(String[] args) {
-		if (args.length > 0)
-			for (String str : args) {
-				if ("-error".equals(str)) {
-					isError = true;
-				} else {
-					System.out.println("Неизвестный аргумент");
-				}
-			}
-		
+	public Game(Window w) {
 		server = new Server(this);
 		world = new World(this);
 		isPlay = new AtomicBoolean(true);
-		window = new Window(this);
+		window = w;
+
 		/*
-		 * В этом потоке крутиться steping мира.
+		 * В этом потоке крутиться stepping мира.
 		 */
-		main_loop = new Thread(new Runnable() {
+		mainLoop = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (isPlay.get()) {
 					//System.out.println("step");
 					if (world.step()) {
 						server.writeToClient(world.getPoints());
-						window.draw();
 					}
 					try {
 						Thread.sleep(200);
@@ -57,8 +48,8 @@ public class Game {
 	public void stop() {
 		server.stop();
 		isPlay.set(false);
-		window.dispose();
-		main_loop.interrupt();
+		//window.dispose();
+		mainLoop.interrupt();
 	}
 	
 	public void start()	{
@@ -70,7 +61,6 @@ public class Game {
 			ex.printStackTrace();
 		}
 		world.setMap(Map.getMap());
-		window.draw();
 		mainLoop();
 	}
 	
@@ -79,7 +69,7 @@ public class Game {
 	 */
 	public void fromServer(Message message)	{
 		switch (message.type) {
-		case "register":
+		/*case "register":
 			try {
 				Player p = world.addPlayer(message.name);
 				if (p == null) {
@@ -118,15 +108,15 @@ public class Game {
 				if (isError) ex.printStackTrace();
 				server.writeToClient(new Message(message.name, "error", ex.getMessage()));
 			}
-			break;
+			break;*/
 		}
-		window.draw();
+		//window.draw();
 	}
 	
 	public void addPlayer(String n){}
 	
 	public void fromWorld(Message message) {
-		server.writeToClient(message);
+		//server.writeToClient(message);
 	}
 	
 	public void loadMap(String path) {
@@ -137,14 +127,16 @@ public class Game {
 			if (isError) ex.printStackTrace();
 		}
 		
+/*
 		world.setMap(Map.getMap());
 		Message message = new Message("", "map", "");
 		message.map = Map.getMap();
 		server.writeToClient(message);
+*/
 	}
 	
 	private void mainLoop() {
-		main_loop.start();
+		mainLoop.start();
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Возможные команды: \n"
 				+ "map - показать миникарту\n"
@@ -158,11 +150,11 @@ public class Game {
 				if ("exit".equals(str))	{
 					stop();
 				} else if ("map".equals(str)) {
-					window.setVisible(true);
+					//window.setVisible(true);
 				} else if ("reset".equals(str)) {
-					world.reset();
-					server.writeToClient(world.getPoints());
-					server.writeToClient(new Message("", "message", "Произведен рестарт"));
+					//world.reset();
+					//server.writeToClient(world.getPoints());
+					//server.writeToClient(new Message("", "message", "Произведен рестарт"));
 				} else {
 					System.out.println("Неизвестная команда");
 				}
