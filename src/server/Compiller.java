@@ -95,7 +95,7 @@ public class Compiller
 			fr.close();
 		}
 		catch (Exception ex) {
-			if (Game.isError) ex.printStackTrace();
+			ex.printStackTrace();
 		}
 	}
 	
@@ -108,7 +108,7 @@ public class Compiller
 		Queue current = programm;
 		int state = 0;
 		// Стэк вложенности, н-р if { if ... } 
-		Stack<Queue> stack = new Stack<>();
+		Stack<Queue> stack = new Stack<Queue>();
 		
 		for (int i=0; i< algorithm.length; i++) {
 			int operator = algorithm[i];
