@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Game.view.ConnectController">
+   <children>
+      <GridPane layoutX="45.0" layoutY="63.0" prefHeight="214.0" prefWidth="532.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="87.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="253.0" minWidth="10.0" prefWidth="203.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="253.0" minWidth="10.0" prefWidth="140.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="253.0" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="163.0" minHeight="10.0" prefHeight="79.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="118.0" minHeight="0.0" prefHeight="84.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Server" GridPane.halignment="CENTER" />
+            <Label text="NIckname" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+            <Button fx:id="actoinCheckConnect" mnemonicParsing="false" onAction="#actonListenerCheckServer" text="Check connect!" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+            <Button fx:id="actionCheckName" mnemonicParsing="false" onAction="#actonListenerCheckName" text="Check name!" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+            <TextField fx:id="serverName" GridPane.columnIndex="1" />
+            <TextField fx:id="nickname" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label fx:id="connectMessage" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+            <Label fx:id="nameMessage" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+         </children>
+      </GridPane>
+      <Button fx:id="actionConnect" layoutX="244.0" layoutY="317.0" mnemonicParsing="false" onAction="#actionListenerConnect" text="Connect!" />
+   </children>
+</AnchorPane>
