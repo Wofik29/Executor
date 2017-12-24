@@ -18,7 +18,7 @@ public class ServerHandle {
 	private Game game;
 	private AtomicBoolean isRead;
 	
-	public ServerHandle(Game g, String address) throws UnknownHostException, SocketException	{
+	public ServerHandle(String address) throws UnknownHostException, SocketException	{
 		try	{
 			socket = new Socket(address, 7498);
 			isRead = new AtomicBoolean(true);
@@ -42,7 +42,11 @@ public class ServerHandle {
 			}
 		});
 	}
-	
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
+
 	public void start() {
 		listenThread.start();
 	}
@@ -81,9 +85,17 @@ public class ServerHandle {
 		}
 	}
 	
-	public void registerName(String name) {
+	public Message registerName(String name) {
 		Message message = new Message(name, "register", "");
 		writeToServer(message);
+
+		try {
+			message = (Message) in.readObject();
+		} catch (Exception ex) {
+			if (Game.isError) ex.printStackTrace();
+		}
+
+		return message;
 	}
 	
 	public void writeToServer(Message message) {
