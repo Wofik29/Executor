@@ -78,6 +78,7 @@ public class ClientHandle {
                     out.flush();
                 } else {
                     name = message.name;
+                    message.type = "SuccessRegister";
                     isSet = false;
                     server.addClient(this);
                     server.sendToGame(message);
