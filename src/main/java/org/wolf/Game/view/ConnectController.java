@@ -4,10 +4,12 @@ import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.wolf.server.Server;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import org.wolf.Game.Window;
 
 public class ConnectController {
-    private Server server;
+    private Window window;
 
     @FXML
     private TextField nickname;
@@ -24,13 +26,19 @@ public class ConnectController {
     private void initialize() {
     }
 
-    public void setServer(Server server) {
-        this.server = server;
+    public void setWindow(Window window) {
+        this.window = window;
     }
 
     @FXML
     private void actonListenerCheckServer(Event event) {
-        System.out.println("Pressed check server");
+        String result = window.createConnect(serverName.getText());
+        if (result.equals("Success")) {
+            connectMessage.setTextFill(Color.GREEN);
+        } else {
+            connectMessage.setTextFill(Color.RED);
+        }
+        connectMessage.setText(result);
     }
 
     @FXML
