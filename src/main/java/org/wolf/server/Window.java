@@ -1,5 +1,7 @@
 package org.wolf.server;
 
+import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import org.wolf.server.view.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -32,11 +34,22 @@ public class Window extends Application {
                 game.start();
             }
         });
-
-
+        gameLoop.start();
         initRootLayout();
         showFirst();
-        gameLoop.start();
+
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                System.out.println("CLOSED");
+                game.stop();
+                try {
+                    gameLoop.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void initRootLayout() {

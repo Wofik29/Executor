@@ -13,7 +13,7 @@ public class Game {
 	private Server server;
 	private World world;
 	private Window window;
-	private Thread mainLoop;
+	private Thread mainLoopThread;
 	private AtomicBoolean isPlay;
 	public static boolean isError = false;
 	
@@ -26,7 +26,7 @@ public class Game {
 		/*
 		 * В этом потоке крутиться stepping мира.
 		 */
-		mainLoop = new Thread(new Runnable() {
+		mainLoopThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (isPlay.get()) {
@@ -48,8 +48,7 @@ public class Game {
 	public void stop() {
 		server.stop();
 		isPlay.set(false);
-		//window.dispose();
-		mainLoop.interrupt();
+		mainLoopThread.interrupt();
 	}
 	
 	public void start()	{
@@ -61,7 +60,7 @@ public class Game {
 			ex.printStackTrace();
 		}
 		world.setMap(Map.getMap());
-		mainLoop();
+		mainLoopThread.start();
 	}
 	
 	/*
@@ -116,7 +115,7 @@ public class Game {
 	public void addPlayer(String n){}
 	
 	public void fromWorld(Message message) {
-		//server.writeToClient(message);
+		server.writeToClient(message);
 	}
 	
 	public void loadMap(String path) {
@@ -127,39 +126,9 @@ public class Game {
 			if (isError) ex.printStackTrace();
 		}
 		
-/*
 		world.setMap(Map.getMap());
 		Message message = new Message("", "map", "");
 		message.map = Map.getMap();
 		server.writeToClient(message);
-*/
-	}
-	
-	private void mainLoop() {
-		mainLoop.start();
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Возможные команды: \n"
-				+ "map - показать миникарту\n"
-				+ "reset - вернуть всех на свои места\n"
-				+ "exit - выход\n"
-				
-		);
-		while (isPlay.get()) {
-			if (sc.hasNext()) {
-				String str = sc.nextLine();
-				if ("exit".equals(str))	{
-					stop();
-				} else if ("map".equals(str)) {
-					//window.setVisible(true);
-				} else if ("reset".equals(str)) {
-					//world.reset();
-					//server.writeToClient(world.getPoints());
-					//server.writeToClient(new Message("", "message", "Произведен рестарт"));
-				} else {
-					System.out.println("Неизвестная команда");
-				}
-			}
-		}
-		sc.close();
 	}
 }

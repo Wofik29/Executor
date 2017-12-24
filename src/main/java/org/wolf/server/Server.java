@@ -1,4 +1,5 @@
 package org.wolf.server;
+
 import org.wolf.other.Message;
 
 import java.net.ServerSocket;
@@ -33,28 +34,28 @@ public class Server {
         });
     }
 
-    public void addClient(ClientHandle ch)	{
+    public void addClient(ClientHandle ch) {
         clients.add(ch);
     }
 
     public void deleteClient(ClientHandle ch) {
         if (clients.contains(ch)) {
             clients.remove(ch);
-            System.out.println("Server: Client "+ch.getName()+" is deleted");
+            System.out.println("Server: Client " + ch.getName() + " is deleted");
         }
     }
 
-    public void start()	{
+    public void start() {
         listenPort.start();
-        try	{
-            System.out.println("System: Server start! Your ip - "+server.getLocalSocketAddress());
-        }
-        catch (Exception ex) {
+        try {
+            System.out.println("System: Server start! Your ip - " + server.getLocalSocketAddress());
+        } catch (Exception ex) {
             if (Game.isError) ex.printStackTrace();
         }
     }
+
     public boolean isContains(String name) {
-        for (ClientHandle ch: clients) {
+        for (ClientHandle ch : clients) {
             if (ch.getName().equals(name)) return true;
         }
         return false;
@@ -62,14 +63,13 @@ public class Server {
 
     public void stop() {
         isRead.set(false);
-        for (ClientHandle ch : clients)	{
+        for (ClientHandle ch : clients) {
             ch.stop(0);
         }
         listenPort.interrupt();
-        try	{
+        try {
             server.close();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             if (Game.isError) ex.printStackTrace();
         }
     }
@@ -94,19 +94,18 @@ public class Server {
         switch (message.type) {
             case "error":
                 Message mess = new Message("error");
-                mess.text = "Player "+message.name+" make mistake";
+                mess.text = "Player " + message.name + " make mistake";
                 mess.name = message.name;
                 for (ClientHandle ch : clients) {
                     if (message.name.equals(ch.getName())) {
                         ch.writeToClient(message);
-                    }
-                    else {
+                    } else {
                         ch.writeToClient(mess);
-                        System.out.println("write to client "+mess.text);
+                        System.out.println("write to client " + mess.text);
                     }
                 }
             case "map":
-                for (ClientHandle ch : clients)	{
+                for (ClientHandle ch : clients) {
                     if (message.name.equals(""))
                         ch.writeToClient(message);
                     else if (message.name.equals(ch.getName())) {
@@ -133,7 +132,7 @@ public class Server {
                 }
                 break;
             default:
-                System.out.println("Server: Unknown type message - "+message.type);
+                System.out.println("Server: Unknown type message - " + message.type);
                 for (ClientHandle ch : clients) {
                     ch.writeToClient(message);
                 }
