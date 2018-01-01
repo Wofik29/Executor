@@ -81,11 +81,13 @@ public class ClientHandle {
                     message.type = "SuccessRegister";
                     isSet = false;
                     server.addClient(this);
-                    server.sendToGame(message);
+                    out.writeObject(message);
+                    out.flush();
                 }
             }
             catch (Exception ex) {
                 if (Game.isError) ex.printStackTrace();
+                isSet = false;
                 stop(-1);
             }
         }
