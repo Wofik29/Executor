@@ -43,7 +43,14 @@ public class ConnectController {
 
     @FXML
     private void actonListenerCheckName(Event event) {
-        System.out.println("Pressed check name");
+        String result = window.checkNameOnServer(nickname.getText());
+
+        if (result.equals("Success")) {
+            nameMessage.setTextFill(Color.GREEN);
+        } else {
+            nameMessage.setTextFill(Color.RED);
+        }
+        nameMessage.setText(result);
     }
 
     @FXML
