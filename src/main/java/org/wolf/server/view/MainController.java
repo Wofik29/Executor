@@ -1,21 +1,30 @@
 package org.wolf.server.view;
 
-import org.wolf.server.Map;
-import org.wolf.server.Window;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import org.wolf.server.*;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import org.wolf.server.World;
 
-public class MainController {
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
+
+public class MainController implements Observer {
 
     private Window window;
+    private Server server;
 
     @FXML
     private Canvas canvas;
+
+    @FXML
+    private VBox listPlayers;
+
     private int size = 20;
     private int step = 20;
 
@@ -36,6 +45,23 @@ public class MainController {
         AnimationTimer timer = new MyTimer();
         timer.start();
 
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Server server = (Server) o;
+        ArrayList<ClientHandle> clients = (ArrayList<ClientHandle>) server.getClients();
+
+        listPlayers.getChildren().clear();
+
+        for (ClientHandle client : clients) {
+            Label label = new Label();
+            label.setText(client.getName());
+            listPlayers.getChildren().add(label);
+        }
+
+        System.out.println(o.getClass());
+        System.out.println(arg.getClass());
     }
 
     private void paintCell(int x, int y, int w, int h) {
@@ -88,6 +114,10 @@ public class MainController {
 
     public void setWindow(Window win) {
         this.window = win;
+    }
+
+    public void setServer(Server server) {
+        this.server = server;
     }
 
     private void clear() {

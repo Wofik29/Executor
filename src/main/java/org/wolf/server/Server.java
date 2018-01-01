@@ -6,13 +6,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Server {
+public class Server extends Observable {
     private ServerSocket server;
     private Thread listenPort;
     private Game game;
     private AtomicBoolean isRead;
+
+    public List<ClientHandle> getClients() {
+        return clients;
+    }
+
     private List<ClientHandle> clients;
 
     public Server(Game game) {
@@ -36,6 +42,8 @@ public class Server {
 
     public void addClient(ClientHandle ch) {
         clients.add(ch);
+        setChanged();
+        notifyObservers();
     }
 
     public void deleteClient(ClientHandle ch) {
@@ -43,6 +51,8 @@ public class Server {
             clients.remove(ch);
             System.out.println("Server: Client " + ch.getName() + " is deleted");
         }
+        setChanged();
+        notifyObservers();
     }
 
     public void start() {
