@@ -16,6 +16,7 @@ public class Window extends Application {
 
     private Stage primaryStage;
     private AnchorPane rootLayout;
+    private Game game;
 
     public static void main(String[] args) {
         launch(args);
@@ -26,7 +27,7 @@ public class Window extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Server Executor");
 
-        final Game game = new Game(this);
+        game = new Game(this);
 
         Thread gameLoop = new Thread(new Runnable() {
             @Override
@@ -59,6 +60,7 @@ public class Window extends Application {
             rootLayout = (AnchorPane) loader.load();
 
             Scene scene = new Scene(rootLayout);
+            scene.getStylesheets().add("org/wolf/server/view/style.css");
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
@@ -77,6 +79,8 @@ public class Window extends Application {
 
             MainController mainController = loader.getController();
             mainController.setWindow(this);
+            game.getServer().addObserver(mainController);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -10,6 +10,10 @@ import org.wolf.other.Message;
  * Запускает Server и World и дает им общение между собой 
  */
 public class Game {
+	public Server getServer() {
+		return server;
+	}
+
 	private Server server;
 	private World world;
 	private Window window;
@@ -68,7 +72,7 @@ public class Game {
 	 */
 	public void fromServer(Message message)	{
 		switch (message.type) {
-		/*case "register":
+		case "register":
 			try {
 				Player p = world.addPlayer(message.name);
 				if (p == null) {
@@ -107,7 +111,7 @@ public class Game {
 				if (isError) ex.printStackTrace();
 				server.writeToClient(new Message(message.name, "error", ex.getMessage()));
 			}
-			break;*/
+			break;
 		}
 		//window.draw();
 	}
