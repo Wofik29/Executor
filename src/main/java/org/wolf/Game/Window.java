@@ -76,33 +76,4 @@ public class Window extends Application {
                 break;
         }
     }
-
-    public String createConnect(String address) {
-        try	{
-            serverHandle = new ServerHandle(address);
-        }
-        catch (UnknownHostException ex)	{
-            return "Unknown host";
-        }
-        catch (SocketException ex) {
-            return "Incorrect host";
-        }
-        catch (Exception ex) {
-            return "Unknown error";
-        }
-        return "Success";
-    }
-
-    public String checkNameOnServer(String name) {
-        Message message = serverHandle.registerName(name);
-
-        if (message.type.equals("duplicateName")) {
-            return "That name already exist";
-        } else if (message.type.equals("SuccessRegister")) {
-            serverHandle.setName(name);
-            return "Success";
-        }
-
-        return "Something error";
-    }
 }
