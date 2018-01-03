@@ -19,7 +19,7 @@ public class Game {
 	private Window window;
 	private Thread mainLoopThread;
 	private AtomicBoolean isPlay;
-	public static boolean isError = false;
+	public static boolean isError = true;
 	
 	public Game(Window w) {
 		server = new Server(this);

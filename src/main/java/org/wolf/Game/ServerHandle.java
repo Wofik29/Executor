@@ -34,7 +34,7 @@ public class ServerHandle {
 		catch (IOException ex)	{
 			if (Game.isError) ex.printStackTrace();
 		}
-		
+
 		listenThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
