@@ -1,5 +1,6 @@
 package org.wolf.server.view;
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.wolf.server.*;
@@ -52,16 +53,19 @@ public class MainController implements Observer {
         Server server = (Server) o;
         ArrayList<ClientHandle> clients = (ArrayList<ClientHandle>) server.getClients();
 
-        listPlayers.getChildren().clear();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                listPlayers.getChildren().clear();
 
-        for (ClientHandle client : clients) {
-            Label label = new Label();
-            label.setText(client.getName());
-            listPlayers.getChildren().add(label);
-        }
+                for (ClientHandle client : clients) {
+                    Label label = new Label();
+                    label.setText(client.getName());
+                    listPlayers.getChildren().add(label);
+                }
+            }
+        });
 
-        System.out.println(o.getClass());
-        System.out.println(arg.getClass());
     }
 
     private void paintCell(int x, int y, int w, int h) {
