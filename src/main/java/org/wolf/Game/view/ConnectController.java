@@ -18,6 +18,8 @@ public class ConnectController {
     private Window window;
     private ServerHandle server;
 
+    private boolean isConnect = false;
+
     @FXML
     private TextField nickname;
 
@@ -81,6 +83,7 @@ public class ConnectController {
 
         if (result.equals("Success")) {
             nameMessage.setTextFill(Color.GREEN);
+            isConnect = true;
         } else {
             nameMessage.setTextFill(Color.RED);
         }
@@ -89,6 +92,8 @@ public class ConnectController {
 
     @FXML
     private void actionListenerConnect(Event event) {
-        System.out.println("Pressed connect");
+        if (isConnect) {
+
+        }
     }
 }

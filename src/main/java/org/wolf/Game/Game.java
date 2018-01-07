@@ -11,7 +11,11 @@ public class Game {
 	
 	public static boolean isDebug = false;
 	public static boolean isError = true;
-	
+
+	public Game(ServerHandle serverHandle) {
+		this.serverHandle = serverHandle;
+	}
+
 	public void start()	{
 		//window_connect = new WindowConnect(this);
 		Compiller.setCommands("Executer.ini");
@@ -102,23 +106,8 @@ public class Game {
 		
 	}
 	
-	public void connect(String address) {
-		try	{
-			serverHandle = new ServerHandle(this, address);
-		}
-		catch (UnknownHostException ex)	{
-			if (isError) ex.printStackTrace();
-			//window_connect.setLabelText("Unknown host");
-		}
-		catch (SocketException ex) {
-			if (isError) ex.printStackTrace();
-			//window_connect.setLabelText("Incorrect host");
-		}
-		catch (Exception ex) {
-			if (isError) ex.printStackTrace();
-			//window_connect.setLabelText("Unknown error");
-		}
-		serverHandle.start();
+	public String connect(String address) {
+		return "";
 	}
 	
 	public void sendName(String name) {
